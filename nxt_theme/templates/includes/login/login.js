@@ -34,14 +34,14 @@ const messages = {
 		verify: "Verify",
 		verification_code: "Verification Code"
 	},
-	ar: {
+ar: {
 		verifying: "جارٍ التحقق...",
 		invalid_login: "تسجيل دخول غير صالح. حاول مرة أخرى.",
 		oops: "عذراً! حدث خطأ ما.",
 		user_not_exist: "المستخدم غير موجود.",
 		something_wrong: "حدث خطأ ما.",
 		success: "نجاح",
-		not_valid_user: "مستخدم غير صالح",
+		not_valid_user: "مستخدم غير صحيح",
 		not_allowed: "غير مسموح",
 		not_allowed_disabled: "غير مسموح: المستخدم معطل",
 		instructions_emailed: "تم إرسال التعليمات عبر البريد الإلكتروني",
@@ -50,8 +50,8 @@ const messages = {
 		otp_not_setup: "لم يكتمل إعداد OTP باستخدام التطبيق. يرجى الاتصال بالمسؤول.",
 		sms_failed: "لم يتم إرسال الرسالة النصية. يرجى الاتصال بالمسؤول.",
 		email_failed: "لم يتم إرسال رمز التحقق عبر البريد الإلكتروني. يرجى الاتصال بالمسؤول.",
-		valid_email_required: "البريد الإلكتروني والاسم مطلوبان",
-		valid_login_required: "معرف تسجيل الدخول صالح مطلوب.",
+		valid_email_required: "مطلوب البريد الإلكتروني والاسم",
+		valid_login_required: "مطلوب معرف تسجيل الدخول صالح.",
 		hide: "إخفاء",
 		show: "عرض",
 		verification: "التحقق",
