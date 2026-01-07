@@ -9,7 +9,7 @@
         <a class="flex items-center transition-[margin] duration-300 group-[.side-menu--collapsed.side-menu--on-hover]:xl:ml-0 group-[.side-menu--collapsed]:xl:ml-4 branding" href="">
             <img src="{{ theme_settings.sidebar_logo or "/assets/nxt_theme/images/small_icon.ico" }}" alt="" style="width: 40px; margin-left: 1.0rem;">
             <div class="ml-3.5 font-medium text-white transition-opacity group-[.side-menu--collapsed.side-menu--on-hover]:xl:opacity-100 group-[.side-menu--collapsed]:xl:opacity-0">
-                {{ theme_settings.sidebar_text or frappe.db.get_default("Company") or "NexTash"}}
+                {{ theme_settings.sidebar_text or frappe.db.get_default("Company") or "MUBTKIR"}}
             </div>
         </a>
         <a class="toggle-compact-menu ml-auto h-[20px] w-[20px] items-center justify-center rounded-full border border-white/40 text-white transition-[opacity,transform] hover:bg-white/5 group-[.side-menu--collapsed]:xl:rotate-180 group-[.side-menu--collapsed.side-menu--on-hover]:xl:opacity-100 group-[.side-menu--collapsed]:xl:opacity-0 tw-hidden xl:flex " href="">
