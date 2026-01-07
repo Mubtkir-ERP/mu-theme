@@ -4,7 +4,7 @@
             {% set theme_settings = frappe.get_doc("Theme Settings" , "Theme Settings")%}
             <img src="{{ theme_settings.sidebar_logo  or "/assets/nxt_theme/images/small_icon.ico" }}" alt="" style="width: 40px;">
             <div class="ml-3.5 font-medium text-white transition-opacity group-[.side-menu--collapsed.side-menu--on-hover]:xl:opacity-100 group-[.side-menu--collapsed]:xl:opacity-0">
-                {{ theme_settings.sidebar_text or frappe.db.get_default("Company") or "NexTash"}}
+                {{ theme_settings.sidebar_text or frappe.db.get_default("Company") or "MUBTKIR"}}
             </div>
         </a>
         <a class="toggle-compact-menu ml-auto h-[20px] w-[20px] items-center justify-center rounded-full border border-white/40 text-white transition-[opacity,transform] hover:bg-white/5 group-[.side-menu--collapsed]:xl:rotate-180 group-[.side-menu--collapsed.side-menu--on-hover]:xl:opacity-100 group-[.side-menu--collapsed]:xl:opacity-0 3xl:flex" href="">
