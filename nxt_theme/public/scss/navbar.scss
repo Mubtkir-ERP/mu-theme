@@ -66,22 +66,25 @@
 }
 
 
-@media (min-width: 767px) {
+@media (min-width: 682px) {
   .short-search-icon {
+      display: none;
+  }
+  
+  .searchbar {
+      display: flex;
+  }
+}
+
+@media (max-width: 681px) {
+  .searchbar {
       display: none;
   }
 }
 
 @media (max-width: 425px) {
-  .close-mobile-menu,
-  .searchbar {
+  .close-mobile-menu {
       display: none;
-  }
-}
-
-@media (min-width: 768px) {
-  .searchbar {
-      display: flex;
   }
 }
 
