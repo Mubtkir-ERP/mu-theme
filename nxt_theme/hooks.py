@@ -1,6 +1,6 @@
 app_name = "nxt_theme"
 app_title = "NXT Theme"
-app_publisher = "NexTash (SMC-PVT) Ltd"
+app_publisher = "MUBTKIR"
 app_description = "Enhanced User Interface and User Experience for Frappe Applications"
 app_email = "support@nextash.com"
 app_license = "gpl-2.0"

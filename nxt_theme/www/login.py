@@ -104,7 +104,7 @@ def get_context(context):
 			"avatar": """""",
 			"navbar_settings": frappe.get_doc("Navbar Settings"),
 			"logo": frappe.get_website_settings("app_logo") or frappe.get_hooks("app_logo_url")[-1] or "/assets/nxt_theme/images/shape.svg",
-			"company": frappe.db.get_default("Company") or "NexTash",
+			"company": frappe.db.get_default("Company") or "MUBTKIR",
 			"primary": theme_settings.get("primary_color") or "#060960",
 			"secondary": theme_settings.get("secondary_color") or "#5EB182",
 			"color_theme_1": hex_to_rgb(theme_settings.get("primary_color") or "#060960"),

@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NexTash (SMC-PVT) Ltd and Contributors
+# Copyright (c) 2024, MUBTKIR and Contributors
 # See license.txt
 
 # import frappe
