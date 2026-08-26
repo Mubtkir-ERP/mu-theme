@@ -1,8 +1,8 @@
 app_name = "nxt_theme"
-app_title = "NXT Theme"
-app_publisher = "NexTash (SMC-PVT) Ltd"
+app_title = "MUBTKIR Theme"
+app_publisher = "MUBTKIR ERP"
 app_description = "Enhanced User Interface and User Experience for Frappe Applications"
-app_email = "support@nextash.com"
+app_email = "support@mubtkir.com"
 app_license = "gpl-2.0"
 # required_apps = []
 
@@ -17,8 +17,14 @@ website_context = {
 # ------------------
 
 # include js, css files in header of desk.html
-app_include_css = ["nxt_theme.bundle.css"]
-app_include_js = ["nxt_theme.bundle.js"]
+app_include_css = [
+    "nxt_theme.bundle.css",
+    "/assets/nxt_theme/css/mubtkir_responsive.css",
+]
+app_include_js = [
+    "nxt_theme.bundle.js",
+    "/assets/nxt_theme/js/stock_entry_type_arabic.js"
+]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/nxt_theme/css/nxt_theme.css"
@@ -77,7 +83,8 @@ doctype_js = {
 # ------------
 
 # before_install = "nxt_theme.install.before_install"
-# after_install = "nxt_theme.install.after_install"
+after_install = "nxt_theme.install.after_install"
+before_migrate = "nxt_theme.install.ensure_role"
 
 # Uninstallation
 # ------------
@@ -235,4 +242,30 @@ doctype_js = {
 # default_log_clearing_doctypes = {
 # 	"Logging DocType Name": 30  # days to retain logs
 # }
+
+# ---------------------------------------------------------------------------
+# MUBTKIR: صفحات الدخول / استعادة كلمة المرور / الخروج
+# ---------------------------------------------------------------------------
+
+# الصفحة الرئيسية عند فتح الرابط الجذر "/":
+# المستخدم المسجّل → نظام العمل (/app)، والزائر يُحوّل تلقائياً إلى صفحة الدخول.
+# ملاحظة: إن كان حقل Home Page في Website Settings معبّأً فهو يتقدّم على هذا الإعداد،
+# لذا اتركه فارغاً ليعمل هذا الافتراضي من الثيم.
+home_page = "app"
+
+# توجيه صفحة الدخول القياسية إلى صفحة MUBTKIR المخصصة
+website_route_rules = [
+	{"from_route": "/login", "to_route": "mubtkir-login"},
+]
+
+# تحويل /forgot إلى صفحة استعادة كلمة المرور المخصصة
+website_redirects = [
+	{"source": "/forgot", "target": "/mubtkir_forgot"},
+]
+
+# شحن كتل Custom HTML Block الجاهزة مع التطبيق.
+# لتعبئة الملف بالبيانات النظيفة: ثبّت التطبيق على الموقع الذي يحوي الكتل ثم شغّل:
+#   bench --site <site> export-fixtures --app nxt_theme
+# سيُنشئ ذلك ملف nxt_theme/fixtures/custom_html_block.json بمحتوى دقيق (html/script/style).
+
 

@@ -19,7 +19,9 @@ CLOSING_SCRIPT_TAG_PATTERN = re.compile(r"</script\>")
 
 def get_context(context):
 	if frappe.session.user == "Guest":
-		frappe.throw(_("Log in to access this page."), frappe.PermissionError)
+		# الزائر يُوجَّه إلى صفحة الدخول المخصّصة بدل صفحة "غير مسموح"
+		frappe.local.flags.redirect_location = "/login"
+		raise frappe.Redirect
 	elif frappe.db.get_value("User", frappe.session.user, "user_type", order_by=None) == "Website User":
 		frappe.throw(_("You are not permitted to access this page."), frappe.PermissionError)
 
@@ -53,6 +55,18 @@ def get_context(context):
 
 	theme_settings = frappe.get_doc("Theme Settings", "Theme Settings")
 
+	# شعار الشريط الجانبي ونصّه يُؤخذان تلقائياً من الشركة (لا من إعدادات الثيم)
+	_company = (
+		frappe.defaults.get_user_default("company")
+		or frappe.db.get_default("Company")
+	)
+	if not _company:
+		_cos = frappe.get_all("Company", pluck="name", limit=1, order_by="name")
+		_company = _cos[0] if _cos else None
+	_company_logo = (
+		frappe.db.get_value("Company", _company, "company_logo") if _company else None
+	)
+
 	context.update(
 		{
 			"no_cache": 1,
@@ -76,15 +90,49 @@ def get_context(context):
 			"navbar_settings": frappe.get_doc("Navbar Settings"),
 			"logo": frappe.get_website_settings("app_logo") or frappe.get_hooks("app_logo_url")[-1] or "/assets/nxt_theme/images/shape.svg",
 			"company": frappe.db.get_default("Company") or "NexTash",
+			"company_name": _company or "MUBTKIR",
+			"company_logo": _company_logo,
 			"primary": theme_settings.get("primary_color") or "#060960",
 			"secondary": theme_settings.get("secondary_color") or "#5EB182",
 			"color_theme_1": hex_to_rgb(theme_settings.get("primary_color") or "#060960"),
 			"color_theme_2": hex_to_rgb(theme_settings.get("secondary_color") or "#5EB182"),
 			"skin_name": theme_settings.get("skin") or "razor",
+			"company_switcher": get_company_switcher_context(),
 		}
 	)
 
 	return context
+
+
+def get_company_switcher_context():
+	"""يُحسب في بايثون (غير المقيّد) ويُمرّر للقالب.
+	يظهر المبدّل لكل المستخدمين، ويعرض فقط الشركات المسموح بها للمستخدم (تحترم الصلاحيات)."""
+	user = frappe.session.user
+	if user == "Guest":
+		return {"enabled": False}
+
+	try:
+		# get_list يحترم User Permissions على Company، فلا يرى إلا شركاته المسموح بها
+		companies = frappe.get_list("Company", pluck="name", order_by="name")
+		if not companies:
+			return {"enabled": False}
+
+		current = frappe.defaults.get_user_default("company")
+		restricted = bool(
+			frappe.db.exists("User Permission", {"user": user, "allow": "Company"})
+		)
+
+		return {
+			"enabled": True,
+			"current": current or "ALL",
+			"current_label": current or "",
+			"restricted": 1 if restricted else 0,
+			"show_all": 0 if restricted else 1,
+			"companies": companies,
+		}
+	except Exception:
+		# لا نكسر صفحة الـ desk إن تعذّر جلب الشركات
+		return {"enabled": False}
 
 def hex_to_rgb(hex_code):
     hex_code = hex_code.lstrip('#')

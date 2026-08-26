@@ -5,10 +5,59 @@
     <a id="notification_bell" class="p-2 rounded-full hover:bg-slate-100" data-tw-toggle="modal" data-tw-target="#notifications-panel" href="javascript:;">
         <i data-tw-merge="" data-lucide="bell" class="stroke-[1] h-[18px] w-[18px]"></i>
     </a>
-    <a href="/app/theme-settings" class="p-2 rounded-full hover:bg-slate-100">
+    <a href="/app/theme-settings" class="mub-hide-mobile p-2 rounded-full hover:bg-slate-100">
         <i data-lucide="settings" class="stroke-[1] h-[18px] w-[18px]"></i>
     </a>
 </div>
+
+{% if company_switcher and company_switcher.enabled %}
+<div data-tw-merge="" data-tw-placement="bottom-end" class="dropdown relative ml-3">
+    <a data-tw-toggle="dropdown"
+       class="company-switcher-toggle flex items-center gap-2 px-3 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-darkmode-400"
+       href="javascript:;"
+       title="{{ _('Switch Company') }}"
+       data-current="{{ company_switcher.current }}"
+       data-restricted="{{ company_switcher.restricted }}">
+        <i data-lucide="building-2" class="stroke-[1] h-[18px] w-[18px]"></i>
+        <span class="company-switcher-current-label hidden md:inline text-sm max-w-[140px] truncate">{{ company_switcher.current_label or _('All Companies') }}</span>
+    </a>
+
+    <div
+        data-transition=""
+        data-selector=".show"
+        data-enter="transition-all ease-linear duration-150"
+        data-enter-from="absolute !mt-5 invisible opacity-0 translate-y-1"
+        data-enter-to="!mt-1 visible opacity-100 translate-y-0"
+        data-leave="transition-all ease-linear duration-150"
+        data-leave-from="!mt-1 visible opacity-100 translate-y-0"
+        data-leave-to="absolute !mt-5 invisible opacity-0 translate-y-1"
+        class="dropdown-menu tw-dropdown-menu absolute z-[9999] company_switcher"
+    >
+        <div
+            data-tw-merge=""
+            class="dropdown-content rounded-md border-transparent bg-white p-2 shadow-[0px_3px_10px_#00000017]
+                    dark:border-transparent dark:bg-darkmode-600 w-60 mt-1 max-h-[60vh] overflow-y-auto"
+        >
+            {% if company_switcher.show_all %}
+            <a class="company-switcher-item cursor-pointer flex items-center gap-2 p-2 transition duration-300 ease-in-out rounded-md hover:bg-slate-200/60 dark:bg-darkmode-600 dark:hover:bg-darkmode-400 dropdown-item"
+               href="javascript:;" data-company="ALL">
+                <i data-lucide="layout-grid" class="stroke-[1] h-4 w-4"></i>
+                <span class="flex-1">{{ _('All Companies') }}</span>
+                {% if company_switcher.current == 'ALL' %}<i data-lucide="check" class="h-4 w-4 text-primary"></i>{% endif %}
+            </a>
+            <div class="h-px my-1 -mx-2 bg-slate-200/60 dark:bg-darkmode-400"></div>
+            {% endif %}
+            {% for c in company_switcher.companies %}
+                <a class="company-switcher-item cursor-pointer flex items-center gap-2 p-2 transition duration-300 ease-in-out rounded-md hover:bg-slate-200/60 dark:bg-darkmode-600 dark:hover:bg-darkmode-400 dropdown-item"
+                   href="javascript:;" data-company="{{ c }}">
+                    <span class="flex-1 truncate">{{ c }}</span>
+                    {% if c == company_switcher.current %}<i data-lucide="check" class="h-4 w-4 text-primary"></i>{% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <div data-tw-merge="" data-tw-placement="bottom-end" class="dropdown relative ml-3">
     <a data-tw-toggle="dropdown" class="p-2 rounded-full" href="javascript:;">
@@ -55,7 +104,7 @@
     </div>
 </div>
 
-<div data-tw-merge="" data-tw-placement="bottom-end" class="dropdown relative ml-3">
+<div data-tw-merge="" data-tw-placement="bottom-end" class="mub-hide-mobile dropdown relative ml-3">
     <a data-tw-toggle="dropdown" class="p-2 rounded-full" href="javascript:;">
         <i data-lucide="help-circle" class="stroke-[1] h-[18px] w-[18px]"></i>
     </a>
