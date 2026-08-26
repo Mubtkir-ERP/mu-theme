@@ -1,12 +1,3 @@
-/**
- * MUBTKIR
- * Arabic labels for Stock Entry Type
- * ERPNext / Frappe v15
- *
- * Display Arabic only.
- * Database value remains English.
- */
-
 (() => {
     "use strict";
 
@@ -19,383 +10,126 @@
         "Material Transfer": "نقل مواد",
         "Material Transfer for Manufacture": "نقل مواد للتصنيع",
         "Repack": "إعادة تعبئة",
-
-        // ظهر عندك في الصورة
         "Send to Subcontractor": "إرسال إلى مقاول فرعي"
     };
 
-
-    // ==========================================
-    // Language
-    // ==========================================
-
     function isArabic() {
-        const lang =
-            frappe?.boot?.lang ||
-            document.documentElement.lang ||
-            "";
-
-        return String(lang).toLowerCase().startsWith("ar");
-    }
-
-
-    // ==========================================
-    // Translation
-    // ==========================================
-
-    function translate(value) {
-        if (!isArabic() || !value) {
-            return value;
-        }
-
-        return translations[value] || value;
-    }
-
-
-    window.mubtkir_stock_entry_type_label = translate;
-
-
-    // ==========================================
-    // Detect Stock Entry Type Link
-    // ==========================================
-
-    function isStockEntryTypeControl(control) {
         return (
-            control &&
-            control.df &&
-            control.df.fieldtype === "Link" &&
-            control.df.options === "Stock Entry Type"
+            frappe &&
+            frappe.boot &&
+            String(frappe.boot.lang || "")
+                .toLowerCase()
+                .startsWith("ar")
         );
     }
 
-
-    // ==========================================
-    // Translate Link displayed value
-    // ==========================================
-
-    function patchLinkDisplay() {
-
+    function patchSearchLink() {
         if (
-            !frappe?.ui?.form?.ControlLink ||
-            frappe.ui.form.ControlLink
-                .prototype
-                .__mubtkir_arabic_patched
+            !window.frappe ||
+            !frappe.call ||
+            frappe.call.__mubtkir_stock_entry_patch
         ) {
             return;
         }
 
+        const originalCall = frappe.call;
 
-        const proto =
-            frappe.ui.form.ControlLink.prototype;
+        frappe.call = function () {
+            let opts = arguments[0];
 
+            if (
+                opts &&
+                typeof opts === "object" &&
+                opts.method === "frappe.desk.search.search_link"
+            ) {
+                const originalCallback = opts.callback;
 
-        // --------------------------------------
-        // Format value inside field
-        // --------------------------------------
+                opts = {
+                    ...opts,
 
-        if (proto.format_for_input) {
+                    callback: function (r) {
 
-            const original =
-                proto.format_for_input;
-
-            proto.format_for_input =
-                function (value) {
-
-                    if (
-                        isArabic() &&
-                        isStockEntryTypeControl(this) &&
-                        translations[value]
-                    ) {
-                        return translations[value];
-                    }
-
-                    return original.apply(
-                        this,
-                        arguments
-                    );
-                };
-        }
-
-
-        // --------------------------------------
-        // Search results
-        // --------------------------------------
-
-        if (proto.get_results) {
-
-            const originalGetResults =
-                proto.get_results;
-
-            proto.get_results =
-                async function () {
-
-                    const result =
-                        await originalGetResults.apply(
-                            this,
-                            arguments
-                        );
-
-                    if (
-                        !isArabic() ||
-                        !isStockEntryTypeControl(this)
-                    ) {
-                        return result;
-                    }
-
-
-                    if (!Array.isArray(result)) {
-                        return result;
-                    }
-
-
-                    return result.map(item => {
-
-                        // String result
-                        if (typeof item === "string") {
-
-                            if (translations[item]) {
-                                return {
-                                    value: item,
-                                    label: translations[item]
-                                };
-                            }
-
-                            return item;
-                        }
-
-
-                        // Object result
-                        if (
-                            item &&
-                            typeof item === "object"
-                        ) {
-
-                            const originalValue =
-                                item.value ||
-                                item.name ||
-                                item.label;
-
+                        try {
+                            const doctype =
+                                opts.args &&
+                                opts.args.doctype;
 
                             if (
-                                originalValue &&
-                                translations[originalValue]
+                                isArabic() &&
+                                doctype === "Stock Entry Type" &&
+                                r &&
+                                Array.isArray(r.message)
                             ) {
+                                r.message =
+                                    r.message.map(item => {
 
-                                return {
-                                    ...item,
+                                        if (
+                                            item &&
+                                            translations[item.value]
+                                        ) {
+                                            return {
+                                                ...item,
 
-                                    // Important:
-                                    // actual value remains English
-                                    value:
-                                        item.value ||
-                                        originalValue,
+                                                // القيمة الحقيقية تبقى إنجليزي
+                                                value: item.value,
 
-                                    // User sees Arabic
-                                    label:
-                                        translations[
-                                            originalValue
-                                        ],
+                                                // المعروض للمستخدم عربي
+                                                label:
+                                                    translations[
+                                                        item.value
+                                                    ]
+                                            };
+                                        }
 
-                                    description:
-                                        item.description
-                                };
+                                        return item;
+                                    });
                             }
+
+                        } catch (e) {
+                            console.error(
+                                "[MUBTKIR] Stock Entry Type translation error",
+                                e
+                            );
                         }
 
-
-                        return item;
-                    });
-                };
-        }
-
-
-        proto.__mubtkir_arabic_patched =
-            true;
-    }
-
-
-    // ==========================================
-    // Translate visible dropdown text
-    // Fallback for Awesomeplete
-    // ==========================================
-
-    function translateDropdown() {
-
-        if (!isArabic()) {
-            return;
-        }
-
-
-        document
-            .querySelectorAll(
-                ".awesomplete ul li"
-            )
-            .forEach(li => {
-
-                const text =
-                    li.textContent
-                        .trim();
-
-
-                if (translations[text]) {
-
-                    // Keep original value
-                    if (!li.dataset.originalValue) {
-                        li.dataset.originalValue =
-                            text;
+                        if (originalCallback) {
+                            return originalCallback(r);
+                        }
                     }
+                };
 
-
-                    li.textContent =
-                        translations[text];
-                }
-
-            });
-    }
-
-
-    // ==========================================
-    // Observe dropdown changes
-    // ==========================================
-
-    function observeDropdown() {
-
-        const observer =
-            new MutationObserver(() => {
-
-                translateDropdown();
-
-            });
-
-
-        observer.observe(
-            document.body,
-            {
-                childList: true,
-                subtree: true
+                return originalCall.call(
+                    this,
+                    opts
+                );
             }
+
+            return originalCall.apply(
+                this,
+                arguments
+            );
+        };
+
+        frappe.call.__mubtkir_stock_entry_patch =
+            true;
+
+        console.log(
+            "[MUBTKIR] Stock Entry Type Arabic patch loaded"
         );
     }
-
-
-    // ==========================================
-    // Global formatter for Reports / Lists
-    // ==========================================
-
-    function patchFormatter() {
-
-        if (
-            !frappe.format ||
-            frappe.format
-                .__mubtkir_stock_type_ar
-        ) {
-            return;
-        }
-
-
-        const original =
-            frappe.format;
-
-
-        function formatter(
-            value,
-            df,
-            options,
-            doc
-        ) {
-
-            const output =
-                original.apply(
-                    this,
-                    arguments
-                );
-
-
-            if (
-                !isArabic() ||
-                !value
-            ) {
-                return output;
-            }
-
-
-            const isStockType =
-                (
-                    df &&
-                    df.fieldtype === "Link" &&
-                    df.options ===
-                        "Stock Entry Type"
-                ) ||
-                (
-                    df &&
-                    (
-                        df.fieldname ===
-                            "stock_entry_type" ||
-                        df.fieldname ===
-                            "purpose"
-                    )
-                );
-
-
-            if (
-                isStockType &&
-                translations[value]
-            ) {
-
-                if (
-                    typeof output === "string" &&
-                    output.includes("<")
-                ) {
-
-                    return output.replace(
-                        value,
-                        translations[value]
-                    );
-                }
-
-
-                return translations[value];
-            }
-
-
-            return output;
-        }
-
-
-        formatter
-            .__mubtkir_stock_type_ar =
-            true;
-
-
-        frappe.format =
-            formatter;
-    }
-
-
-    // ==========================================
-    // Init
-    // ==========================================
 
     function init() {
 
-        if (!window.frappe) {
+        if (
+            !window.frappe ||
+            !frappe.call
+        ) {
             setTimeout(init, 300);
             return;
         }
 
-
-        patchLinkDisplay();
-
-        patchFormatter();
-
-        observeDropdown();
-
-
-        console.log(
-            "[MUBTKIR] Stock Entry Type Arabic labels loaded"
-        );
+        patchSearchLink();
     }
-
 
     init();
 
