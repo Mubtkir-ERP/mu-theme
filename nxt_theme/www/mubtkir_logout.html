@@ -1,7 +1,8 @@
-<html>
- <head></head>
- <body>
-  {% extends "templates/web.html" %} {% block title %}تم تسجيل الخروج | MUBTKIR ERP{% endblock %} {% block page_content %}
+{% extends "templates/web.html" %}
+
+{% block title %}تم تسجيل الخروج | MUBTKIR ERP{% endblock %}
+
+{% block page_content %}
   <div class="mub-logout-page" id="mubLogoutPage">
    <!-- الشريط العلوي -->
    <header class="logout-header">
@@ -875,6 +876,4 @@ document.addEventListener("DOMContentLoaded", function () {
       : "Logged Out | MUBTKIR ERP";
 });
 </script>
-  {% endblock %}
- </body>
-</html>
+{% endblock %}

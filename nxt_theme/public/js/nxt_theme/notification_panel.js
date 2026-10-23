@@ -38,19 +38,19 @@ $(document).on("click", "#notification_bell", (e) => {
 $("#user_avatar").append(frappe.avatar(frappe.session.user, "avatar-medium"))
 
 const load_notification = () => {
+	$("#notification_list").html(`
+		<div class="d-flex align-items-center justify-content-center" style="height: 200px;">
+			<span class="w-8 h-8">
+				<svg width="25" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" stroke="#64748b" class="w-full h-full"><g fill="none" fill-rule="evenodd" stroke-width="4"><circle cx="22" cy="22" r="1"><animate attributeName="r" begin="0s" dur="1.8s" values="1; 20" calcMode="spline" keyTimes="0; 1" keySplines="0.165, 0.84, 0.44, 1" repeatCount="indefinite"></animate><animate attributeName="stroke-opacity" begin="0s" dur="1.8s" values="1; 0" calcMode="spline" keyTimes="0; 1" keySplines="0.3, 0.61, 0.355, 1" repeatCount="indefinite"></animate></circle><circle cx="22" cy="22" r="1"><animate attributeName="r" begin="-0.9s" dur="1.8s" values="1; 20" calcMode="spline" keyTimes="0; 1" keySplines="0.165, 0.84, 0.44, 1" repeatCount="indefinite"></animate><animate attributeName="stroke-opacity" begin="-0.9s" dur="1.8s" values="1; 0" calcMode="spline" keyTimes="0; 1" keySplines="0.3, 0.61, 0.355, 1" repeatCount="indefinite"></animate></circle></g></svg>
+			</span>
+		</div>
+	`);
+
 	frappe.call({
 		method: "nxt_theme.events.notification_log.get_notification_logs",
 		callback(r) {
-			const notification_logs = r.message.notification_logs
-			const user_info = r.message.user_info
-			
-			$("#notification_list").html(`
-				<div class="d-flex align-items-center justify-content-center" style="height: 100vh;">
-					<span class="w-8 h-8">
-						<svg width="25" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" stroke="#64748b" class="w-full h-full"><g fill="none" fill-rule="evenodd" stroke-width="4"><circle cx="22" cy="22" r="1"><animate attributeName="r" begin="0s" dur="1.8s" values="1; 20" calcMode="spline" keyTimes="0; 1" keySplines="0.165, 0.84, 0.44, 1" repeatCount="indefinite"></animate><animate attributeName="stroke-opacity" begin="0s" dur="1.8s" values="1; 0" calcMode="spline" keyTimes="0; 1" keySplines="0.3, 0.61, 0.355, 1" repeatCount="indefinite"></animate></circle><circle cx="22" cy="22" r="1"><animate attributeName="r" begin="-0.9s" dur="1.8s" values="1; 20" calcMode="spline" keyTimes="0; 1" keySplines="0.165, 0.84, 0.44, 1" repeatCount="indefinite"></animate><animate attributeName="stroke-opacity" begin="-0.9s" dur="1.8s" values="1; 0" calcMode="spline" keyTimes="0; 1" keySplines="0.3, 0.61, 0.355, 1" repeatCount="indefinite"></animate></circle></g></svg>
-					</span>
-				</div>
-			`)
+			const notification_logs = (r && r.message && r.message.notification_logs) || [];
+			const user_info = (r && r.message && r.message.user_info) || {};
 
 			let notification_html = ""
 			for (const notification of notification_logs) {

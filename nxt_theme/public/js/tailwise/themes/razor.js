@@ -79,14 +79,14 @@
         el.requestFullscreen();
       }
     });
-    window.onresize = () => {
+    window.addEventListener("resize", () => {
       $(".side-menu").first().removeClass("side-menu--mobile-menu-open");
       $(".close-mobile-menu").first().removeClass("close-mobile-menu--mobile-menu-open");
       if (window.innerWidth <= 1600) {
         localStorage.setItem("compactMenu", "true");
         $(".side-menu").first().addClass("side-menu--collapsed");
-        $(".content").f;
+        $(".content").first().addClass("content--compact");
       }
-    };
+    });
   })();
 })();

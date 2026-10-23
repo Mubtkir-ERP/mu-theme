@@ -82,11 +82,7 @@
   }
 }
 
-@media (max-width: 425px) {
-  .close-mobile-menu {
-      display: none;
-  }
-}
+// close-mobile-menu remains visible on mobile so user can close the menu
 
 .mark-all-as-read-bell {
   display: none;

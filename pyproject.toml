@@ -1,7 +1,7 @@
 [project]
 name = "nxt_theme"
 authors = [
-    { name = "NexTash (SMC-PVT) Ltd", email = "support@nextash.com"}
+    { name = "Mubtkir ERP", email = "support@mubtkir.com"}
 ]
 description = "Enhanced User Interface and User Experience for Frappe Applications"
 requires-python = ">=3.10"

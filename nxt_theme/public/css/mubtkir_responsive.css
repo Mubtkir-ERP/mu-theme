@@ -1,45 +1,62 @@
-/* MUBTKIR — تحسينات تجاوب الشريط العلوي على الأجهزة الصغيرة
-   ملاحظة: قواعد محافِظة تستهدف مشاكل التجاوز في الجوال دون التأثير على سطح المكتب.
-   قابلة للضبط بعد الاختبار على جهازك بلقطة شاشة. */
+/* MUBTKIR — تحسينات تجاوب الشريط العلوي على الأجهزة الصغيرة والجوال */
 
-/* الشاشات دون xl (< 1280px): إخفاء مربع البحث العريض لأن هناك أيقونة بحث مصغّرة */
+/* الشاشات دون xl (< 1280px): إخفاء مربع البحث العريض والاعتماد على أيقونة البحث */
 @media (max-width: 1279px) {
-	header .searchbar {
+	.searchbar {
 		display: none !important;
 	}
 }
 
 /* الأجهزة اللوحية والجوالات (< 768px) */
 @media (max-width: 767px) {
-	/* إخفاء أيقونتي الإعدادات و"؟" في الشريط العلوي لتوفير مساحة */
-	.mub-hide-mobile {
+	/* إخفاء العناصر غير الضرورية لتوفير المساحة */
+	.mub-hide-mobile,
+	.request-full-screen,
+	nav[aria-label="breadcrumb"] {
 		display: none !important;
 	}
 
-	/* منع تجاوز عناصر الشريط العلوي أفقياً */
-	header .box .flex.h-full.w-full.items-center {
-		overflow-x: auto;
-		overflow-y: hidden;
-		-webkit-overflow-scrolling: touch;
-		scrollbar-width: none;
-	}
-	header .box .flex.h-full.w-full.items-center::-webkit-scrollbar {
-		display: none;
+	/* تقليص هوامش الشريط العلوي لمنع خروج العناصر */
+	.box .flex.h-full.w-full.items-center {
+		padding-left: 0.5rem !important;
+		padding-right: 0.5rem !important;
 	}
 
-	/* إخفاء اسم الشركة النصّي بجانب زر التبديل (تبقى الأيقونة) */
+	/* ضبط هوامش الأزرار والقوائم المنسدلة في الجوال */
+	.dropdown.ml-3,
+	.dropdown.ml-5 {
+		margin-left: 0.25rem !important;
+		margin-right: 0.25rem !important;
+	}
+
+	/* إخفاء اسم الشركة النصّي بجانب زر التبديل والاكتفاء بالأيقونة */
 	.company-switcher-current-label {
 		display: none !important;
 	}
+
+	/* منع التمرير الأفقي في رأس الصفحة */
+	.top-bar,
+	.top-bar .box {
+		margin-left: 0.25rem !important;
+		margin-right: 0.25rem !important;
+		max-width: calc(100vw - 0.5rem) !important;
+	}
 }
 
-/* الجوالات الصغيرة (< 480px): إخفاء زر ملء الشاشة لتوفير مساحة */
+/* الجوالات الصغيرة (< 480px): تنسيق مضغوط ومرتب */
 @media (max-width: 479px) {
-	.request-full-screen {
-		display: none !important;
+	.box .flex.h-full.w-full.items-center {
+		gap: 0.125rem !important;
 	}
-	header .box {
-		margin-left: 0.75rem !important;
-		margin-right: 0.75rem !important;
+
+	.company-switcher-toggle {
+		padding-left: 0.35rem !important;
+		padding-right: 0.35rem !important;
+	}
+
+	#user_avatar {
+		width: 30px !important;
+		height: 30px !important;
 	}
 }
+

@@ -27,8 +27,8 @@ const change_language = async (lang_code) => {
         fieldname: "language",
         value: lang_code,
       },
-      freaze: true,
-      message: __("Updating user language..."),
+      freeze: true,
+      freeze_message: __("Updating user language..."),
     });
 
     // Reload the page to apply the new language

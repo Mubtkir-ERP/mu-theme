@@ -819,7 +819,8 @@ main .container,
    8) الأجهزة اللوحية
 ========================================================= */
 @media (max-width: 1050px) {
-  .forgot-main {
+  .forgot-main,
+  .mub-forgot-page.en .forgot-main {
     width: min(920px, calc(100% - 34px));
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -869,9 +870,14 @@ main .container,
     font-size: 12px;
   }
 
-  .forgot-main {
+  .forgot-main,
+  .mub-forgot-page.en .forgot-main {
     width: calc(100% - 20px);
     padding-top: 18px;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "card"
+      "visual";
     gap: 20px;
   }
 

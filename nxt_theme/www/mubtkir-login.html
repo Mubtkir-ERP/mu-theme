@@ -481,7 +481,7 @@ main .container,
 }
 
 .login-side {
-  grid-area: login; min-height: 100vh; padding: 18px; gap: 14px; direction: rtl;
+  grid-area: login; min-height: 100vh; max-height: 100vh; overflow-y: auto; padding: 18px; gap: 14px; direction: rtl;
   border-inline-start: 1px solid var(--border); background: var(--glass);
 }
 
@@ -1364,26 +1364,29 @@ function togglePassword() {
 
 function loadRememberedCredentials() {
   const remember = localStorage.getItem("mub_remember") === "1";
-  document.getElementById("rememberMe").checked = remember;
+  const rememberEl = document.getElementById("rememberMe");
+  if (rememberEl) rememberEl.checked = remember;
 
   if (remember) {
-    document.getElementById("login_user").value = localStorage.getItem("mub_saved_user") || "";
-    document.getElementById("login_password").value = localStorage.getItem("mub_saved_password") || "";
+    const savedUser = localStorage.getItem("mub_saved_user") || "";
+    const userEl = document.getElementById("login_user");
+    if (userEl) userEl.value = savedUser;
   }
 }
 
 function updateRememberedCredentials() {
-  const remember = document.getElementById("rememberMe").checked;
+  const rememberEl = document.getElementById("rememberMe");
+  const remember = rememberEl ? rememberEl.checked : false;
 
   if (remember) {
     localStorage.setItem("mub_remember", "1");
-    localStorage.setItem("mub_saved_user", document.getElementById("login_user").value || "");
-    localStorage.setItem("mub_saved_password", document.getElementById("login_password").value || "");
+    localStorage.setItem("mub_saved_user", document.getElementById("login_user")?.value || "");
   } else {
     localStorage.removeItem("mub_remember");
     localStorage.removeItem("mub_saved_user");
-    localStorage.removeItem("mub_saved_password");
   }
+  // Remove any legacy saved password for security
+  localStorage.removeItem("mub_saved_password");
 }
 
 
