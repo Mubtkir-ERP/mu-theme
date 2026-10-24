@@ -1831,11 +1831,11 @@
 
                         '</span>' +
 
-                        '<a href="tel:0115110455" ' +
+                        '<a href="tel:${(window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.phone) || \"0115110455\"}" ' +
                         'class="erp-footer-link" ' +
                         'dir="ltr">' +
 
-                            "0115110455" +
+                            ((window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.phone) || "0115110455") +
 
                         '</a>' +
 
@@ -1858,10 +1858,10 @@
 
                         '</span>' +
 
-                        '<a href="mailto:sales@mubtkir.com" ' +
+                        '<a href="mailto:${(window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.email) || \"sales@mubtkir.com\"}" ' +
                         'class="erp-footer-link">' +
 
-                            "sales@mubtkir.com" +
+                            ((window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.email) || "sales@mubtkir.com") +
 
                         '</a>' +
 
@@ -1884,12 +1884,12 @@
 
                         '</span>' +
 
-                        '<a href="https://www.mubtkir.com" ' +
+                        '<a href="https://${(window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.website) || \"www.mubtkir.com\"}" ' +
                         'class="erp-footer-link" ' +
                         'target="_blank" ' +
                         'rel="noopener">' +
 
-                            "www.mubtkir.com" +
+                            ((window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.website) || "www.mubtkir.com") +
 
                         '</a>' +
 

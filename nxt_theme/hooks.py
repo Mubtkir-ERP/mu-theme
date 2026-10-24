@@ -26,6 +26,9 @@ app_include_js = [
     "/assets/nxt_theme/js/stock_entry_type_arabic.js"
 ]
 
+extend_bootinfo = "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.boot_session"
+after_migrate = "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.after_migrate"
+
 # include js, css files in header of web template
 # web_include_css = "/assets/nxt_theme/css/nxt_theme.css"
 # web_include_js = "/assets/nxt_theme/js/nxt_theme.js"

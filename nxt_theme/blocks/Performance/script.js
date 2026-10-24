@@ -1541,110 +1541,34 @@ content.innerHTML = `
      14. FOOTER
   ========================================================= */
 
-  function renderFooter() {
+    function renderFooter() {
+    if (!footerEl) return;
+    const _cfg = (window.frappe && frappe.boot && frappe.boot.theme_settings) || {};
+    const _ph = _cfg.phone || "0115110455";
+    const _em = _cfg.email || "sales@mubtkir.com";
+    const _web = _cfg.website || "www.mubtkir.com";
 
-    if (!footerEl)
-      return;
-
-
-    footerEl.innerHTML = `
-
-      <div class="erp-footer-inner">
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ☎
-          </span>
-
-          <span class="erp-footer-label">
-
-            ${
-              isArabic
-                ? "الهاتف الموحد:"
-                : "Phone:"
-            }
-
-          </span>
-
-          <a
-            href="tel:0115110455"
-            class="erp-footer-link"
-            dir="ltr"
-          >
-            0115110455
-          </a>
-
-        </div>
-
-
-        <span class="erp-footer-sep">
-          |
-        </span>
-
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ✉
-          </span>
-
-          <span class="erp-footer-label">
-
-            ${
-              isArabic
-                ? "البريد الإلكتروني:"
-                : "Email:"
-            }
-
-          </span>
-
-          <a
-            href="mailto:sales@mubtkir.com"
-            class="erp-footer-link"
-          >
-            sales@mubtkir.com
-          </a>
-
-        </div>
-
-
-        <span class="erp-footer-sep">
-          |
-        </span>
-
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ◎
-          </span>
-
-          <span class="erp-footer-label">
-
-            ${
-              isArabic
-                ? "الموقع:"
-                : "Website:"
-            }
-
-          </span>
-
-          <a
-            href="https://www.mubtkir.com"
-            class="erp-footer-link"
-            target="_blank"
-            rel="noopener"
-          >
-            www.mubtkir.com
-          </a>
-
-        </div>
-
-      </div>
-
-    `;
-
+    footerEl.innerHTML = [
+      '<div class="erp-footer-inner">',
+      '  <div class="erp-footer-item">',
+      '    <span class="erp-footer-icon">☎</span>',
+      '    <span class="erp-footer-label">' + (isArabic ? "الهاتف الموحد:" : "Phone:") + '</span>',
+      '    <a href="tel:' + _ph + '" class="erp-footer-link" dir="ltr">' + _ph + '</a>',
+      '  </div>',
+      '  <span class="erp-footer-sep">|</span>',
+      '  <div class="erp-footer-item">',
+      '    <span class="erp-footer-icon">✉</span>',
+      '    <span class="erp-footer-label">' + (isArabic ? "البريد الإلكتروني:" : "Email:") + '</span>',
+      '    <a href="mailto:' + _em + '" class="erp-footer-link">' + _em + '</a>',
+      '  </div>',
+      '  <span class="erp-footer-sep">|</span>',
+      '  <div class="erp-footer-item">',
+      '    <span class="erp-footer-icon">🌐</span>',
+      '    <span class="erp-footer-label">' + (isArabic ? "الموقع:" : "Website:") + '</span>',
+      '    <a href="https://' + _web + '" class="erp-footer-link" target="_blank" rel="noopener">' + _web + '</a>',
+      '  </div>',
+      '</div>'
+    ].join("\n");
   }
 
 

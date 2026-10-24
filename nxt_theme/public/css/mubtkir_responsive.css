@@ -88,54 +88,83 @@
 	}
 }
 
-/* تجميع أزرار الإجراءات في شاشة التابلت داخل قائمة 3 نقاط مثل الجوال لمنع تزاحم رأس الصفحة */
-@media (max-width: 1024px) {
-	.page-head .custom-actions,
-	.page-head .inner-group-button,
-	.page-head .custom-btn-group,
+/* تجميع أزرار الإجراءات في شاشات التابلت والجوال (< 1280px) داخل قائمة 3 نقاط مثل الجوال تماماً */
+@media (max-width: 1280px) {
+	.page-head .page-actions .custom-actions,
+	.page-head .page-actions .actions-btn-group,
+	.page-head .page-actions .inner-group-button,
+	.page-head .page-actions .custom-btn-group,
+	.page-head .page-actions .page-icon-group,
+	.page-head .page-actions .standard-actions > *:not(.primary-action):not(.menu-btn-group),
+	.page-head .page-actions > button:not(.primary-action),
+	.page-actions .custom-actions,
+	.page-actions .actions-btn-group,
 	.page-actions .inner-group-button,
 	.page-actions .custom-btn-group,
-	.page-actions .custom-actions,
-	.page-actions .page-icon-group {
+	.page-actions .page-icon-group,
+	.page-actions .standard-actions > *:not(.primary-action):not(.menu-btn-group),
+	.page-actions > button:not(.primary-action),
+	.page-actions > div:not(.standard-actions),
+	.page-head .custom-actions,
+	.page-head .actions-btn-group,
+	.page-head .inner-group-button,
+	.page-head .custom-btn-group,
+	.page-head .page-icon-group,
+	.page-head .standard-actions > *:not(.primary-action):not(.menu-btn-group) {
 		display: none !important;
 	}
+}
 
-	/* إصلاح قائمة 3 نقاط داخل doctype على التابلت والجوال لتبدأ أسفل الزر مباشرة وتمرير سلس بدون قص */
-	.page-head .menu-btn-group,
-	.page-actions .menu-btn-group {
-		position: relative !important;
-	}
+/* إصلاح قائمة 3 نقاط لكافة الشاشات لتبدأ أسفل الزر مباشرة وتفتح للأسفل دائماً ولا تختفي خلف الناف بار */
+.page-head .menu-btn-group,
+.page-actions .menu-btn-group,
+.menu-btn-group {
+	position: relative !important;
+	display: inline-block !important;
+}
 
-	.page-head .menu-btn-group .dropdown-menu,
-	.page-actions .menu-btn-group .dropdown-menu,
-	.menu-btn-group .dropdown-menu {
-		position: absolute !important;
-		top: 100% !important;
-		bottom: auto !important;
-		transform: none !important;
-		margin-top: 0.25rem !important;
-		max-height: 70vh !important;
-		overflow-y: auto !important;
-		-webkit-overflow-scrolling: touch !important;
-		z-index: 1060 !important;
-		min-width: 220px !important;
-		max-width: 90vw !important;
-		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-	}
+.page-head .menu-btn-group .dropdown-menu,
+.page-actions .menu-btn-group .dropdown-menu,
+.menu-btn-group .dropdown-menu {
+	position: absolute !important;
+	top: 100% !important;
+	bottom: auto !important;
+	transform: none !important;
+	margin-top: 6px !important;
+	max-height: calc(100vh - 120px) !important;
+	overflow-y: auto !important;
+	-webkit-overflow-scrolling: touch !important;
+	z-index: 9999 !important;
+	min-width: 240px !important;
+	max-width: 90vw !important;
+	box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.15) !important;
+}
 
-	[dir="rtl"] .page-head .menu-btn-group .dropdown-menu,
-	[dir="rtl"] .page-actions .menu-btn-group .dropdown-menu,
-	[dir="rtl"] .menu-btn-group .dropdown-menu {
-		left: 0 !important;
-		right: auto !important;
-	}
+[dir="rtl"] .page-head .menu-btn-group .dropdown-menu,
+[dir="rtl"] .page-actions .menu-btn-group .dropdown-menu,
+[dir="rtl"] .menu-btn-group .dropdown-menu {
+	left: 0 !important;
+	right: auto !important;
+}
 
-	[dir="ltr"] .page-head .menu-btn-group .dropdown-menu,
-	[dir="ltr"] .page-actions .menu-btn-group .dropdown-menu,
-	[dir="ltr"] .menu-btn-group .dropdown-menu {
-		right: 0 !important;
-		left: auto !important;
-	}
+[dir="ltr"] .page-head .menu-btn-group .dropdown-menu,
+[dir="ltr"] .page-actions .menu-btn-group .dropdown-menu,
+[dir="ltr"] .menu-btn-group .dropdown-menu {
+	right: 0 !important;
+	left: auto !important;
+}
+
+/* رفع طبقة العرض لمنع اختفاء القائمة خلف الناف بار */
+.content:has(.menu-btn-group .dropdown-menu.show),
+.content:has(.show),
+.page-head:has(.dropdown-menu.show),
+.page-head:has(.show),
+.page-actions:has(.show),
+.standard-actions:has(.show),
+.menu-btn-group.show,
+.menu-btn-group.open {
+	z-index: 1200 !important;
+	position: relative !important;
 }
 
 /* ضبط الشعار واسم الشركة لمنع تداخل النصوص والنزول لأسفل */

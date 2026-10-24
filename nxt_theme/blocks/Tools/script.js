@@ -45,7 +45,7 @@
   /* ═══════════════════════════════════════════════════
      ③ التذييل
   ═══════════════════════════════════════════════════ */
-  const footerInfo = { phone:"0115110455", email:"sales@mubtkir.com", website:"www.mubtkir.com", labels:{ phoneEn:"Phone", phoneAr:"الهاتف الموحد", emailEn:"Email", emailAr:"البريد الإلكتروني", websiteEn:"Website", websiteAr:"الموقع" }};
+  const footerInfo = { phone: (window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.phone) || "0115110455", email: (window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.email) || "sales@mubtkir.com", website: (window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.website) || "www.mubtkir.com", labels:{ phoneEn:"Phone", phoneAr:"الهاتف الموحد", emailEn:"Email", emailAr:"البريد الإلكتروني", websiteEn:"Website", websiteAr:"الموقع" }};
 
   /* ═══════════════════════════════════════════════════
      ④ الأقسام والبطاقات
