@@ -11,23 +11,19 @@ function closeSidebarAllScreens() {
 	} catch (e) {}
 }
 
-$(document).on("click", ".link_to_page", (e) => {
-	let el = e.currentTarget;
-	
-	let title = $(el).data("title");
-	let is_public = $(el).data("is_public");
-	let is_link = $(el).data("is_link");
-	
-	let hasSubMenu = $(el).parent().find("ul").length > 0;
+$(document).on("click", ".link_to_page", function (e) {
+	// إذا كان النقر على السهم، نتركه فقط لمعالج السهم لفتح/إغلاق المجموعة الفرعية
+	if ($(e.target).closest(".side-menu__link__chevron").length) {
+		return;
+	}
+
+	let title = $(this).data("title");
+	let is_public = $(this).data("is_public");
+	let is_link = $(this).data("is_link");
 
 	if (is_link) {
 		frappe.set_route("List", title);
 		closeSidebarAllScreens();
-		return;
-	}
-
-	// إذا كان عنصراً رئيسياً له قائمة فرعية، يفتح القائمة الفرعية فقط ولا يغلق
-	if (hasSubMenu) {
 		return;
 	}
 

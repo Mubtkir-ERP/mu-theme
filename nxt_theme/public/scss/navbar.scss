@@ -66,23 +66,28 @@
 }
 
 
-@media (min-width: 682px) {
+@media (min-width: 768px) {
   .short-search-icon {
-      display: none;
+      display: none !important;
   }
   
   .searchbar {
-      display: flex;
+      display: flex !important;
   }
 }
 
-@media (max-width: 681px) {
+@media (max-width: 767px) {
   .searchbar {
-      display: none;
+      display: none !important;
+  }
+  .short-search-icon {
+      display: flex !important;
   }
 }
 
-// close-mobile-menu remains visible on mobile so user can close the menu
+.close-mobile-menu {
+  display: none !important;
+}
 
 .mark-all-as-read-bell {
   display: none;
