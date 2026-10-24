@@ -97,6 +97,7 @@ def get_context(context):
 			"color_theme_1": hex_to_rgb(theme_settings.get("primary_color") or "#060960"),
 			"color_theme_2": hex_to_rgb(theme_settings.get("secondary_color") or "#5EB182"),
 			"skin_name": theme_settings.get("skin") or "razor",
+			"is_dark_theme": is_dark_color(theme_settings.get("primary_color") or "#060960"),
 			"company_switcher": get_company_switcher_context(),
 		}
 	)
@@ -139,3 +140,15 @@ def hex_to_rgb(hex_code):
     
     rgb = tuple(int(hex_code[i:i+2], 16) for i in (0, 2, 4))
     return f"{rgb[0]} {rgb[1]} {rgb[2]}"
+
+
+def is_dark_color(hex_code):
+	try:
+		h = str(hex_code).lstrip('#')
+		if len(h) < 6:
+			return True
+		r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+		luminance = (0.299 * r + 0.587 * g + 0.114 * b)
+		return luminance < 145
+	except Exception:
+		return True

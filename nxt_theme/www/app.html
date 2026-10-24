@@ -40,7 +40,7 @@
 			}
 		</style>
 	</head>
-	<body>
+	<body class="{% if is_dark_theme or skin_name in ['exort', 'echo', 'viper', 'shuriken'] %}theme-dark-nav{% endif %}">
 		
 		{% include "templates/includes/splash_screen.html" %}
 

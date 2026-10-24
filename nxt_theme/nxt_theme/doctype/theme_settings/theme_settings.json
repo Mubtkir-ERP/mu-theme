@@ -28,7 +28,7 @@
    "fieldname": "skin",
    "fieldtype": "Select",
    "label": "Skin",
-   "options": "razor\necho\nexort\ndagger\nravage\nhook\nviper\nshuriken\nraze\nhavoc\nhurricane"
+   "options": "razor\necho\nexort\nviper\nshuriken"
   },
   {
    "fieldname": "column_break_czh4",

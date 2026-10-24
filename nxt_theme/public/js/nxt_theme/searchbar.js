@@ -75,10 +75,16 @@ document.addEventListener(
             } else {
                 openSearchModal();
             }
-        }
     },
     true
 );
 
-
-  
+$(function() {
+    const isArabic = (window.frappe && frappe.boot && (frappe.boot.lang === "ar" || frappe.boot.language === "ar")) || 
+                     document.documentElement.dir === "rtl" || 
+                     document.documentElement.lang === "ar";
+    if (isArabic) {
+        $(".searchbar-placeholder").text("بحث سريع...");
+        $("#navbar-search").attr("placeholder", "بحث سريع...");
+    }
+});

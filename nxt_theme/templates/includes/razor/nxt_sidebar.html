@@ -33,8 +33,7 @@
     <!-- الشعار + اسم الشركة -->
     <a
       class="flex items-center transition-[margin] duration-300
-             group-[.side-menu--collapsed.side-menu--on-hover]:xl:ml-0
-             group-[.side-menu--collapsed]:xl:ml-4 branding"
+             group-[.side-menu--collapsed.side-menu--on-hover]:xl:ml-0 branding"
       href=""
     >
 
@@ -42,7 +41,8 @@
       <img
         src="{{ company_logo or '/assets/nxt_theme/images/small_icon.ico' }}"
         alt=""
-        style="width: 40px; margin-right: 16px !important; margin-left: 1.0rem;"
+        class="company-brand-logo"
+        style="width: 40px;"
       >
 
       <!-- اسم الشركة (يختفي عند تصغير القائمة) -->

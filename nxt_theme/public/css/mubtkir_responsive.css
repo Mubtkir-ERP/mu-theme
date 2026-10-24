@@ -1,4 +1,4 @@
-/* MUBTKIR — تحسينات تجاوب الشريط العلوي والأزرار والجداول على مختلف الأجهزة */
+/* MUBTKIR — تحسينات شاملة للتجاوب، السكنات، الشعار، الألوان، ترقيم الصفوف، والجداول */
 
 /* شريط البحث: يظهر كصندوق على الكمبيوتر (>= 1280px)، ويتحول لأيقونة مصغرة على التابلت والجوال (< 1280px) */
 @media (min-width: 1280px) {
@@ -55,7 +55,6 @@
 
 /* شاشات التابلت والمتوسطة (768px إلى 1279px) */
 @media (min-width: 768px) and (max-width: 1279px) {
-	/* تقصير شريط مسار الصفحة (Breadcrumbs) لمنع التزاحم */
 	#navbar-breadcrumbs {
 		max-width: clamp(140px, 20vw, 240px) !important;
 		overflow: hidden !important;
@@ -65,13 +64,11 @@
 		display: none !important;
 	}
 
-	/* إخفاء زر ملء الشاشة وزر المساعدة في التابلت */
 	.request-full-screen,
 	.mub-hide-mobile {
 		display: none !important;
 	}
 
-	/* تقليص التباعد بين أيقونات الشريط العلوي */
 	.dropdown.ml-3,
 	.dropdown.ml-5 {
 		margin-left: 0.25rem !important;
@@ -83,6 +80,133 @@
 		padding-right: 0.75rem !important;
 		gap: 0.35rem !important;
 	}
+}
+
+/* توسيط الشعار في الواجهة العربية والإنجليزية في كل السكنات وعند طي القائمة */
+.branding {
+	display: flex !important;
+	align-items: center !important;
+}
+
+.branding img,
+.company-brand-logo {
+	max-width: 40px !important;
+	max-height: 40px !important;
+	object-fit: contain !important;
+}
+
+/* عند طي/تصغير القائمة الجانبية (Collapsed Sidebar) في كل اللغات والسكنات */
+.side-menu--collapsed:not(.side-menu--on-hover) .branding,
+.group-\[\.side-menu--collapsed\]:not(.group-\[\.side-menu--collapsed\.side-menu--on-hover\]) .branding,
+.side-menu--collapsed .branding {
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	width: 100% !important;
+	justify-content: center !important;
+}
+
+.side-menu--collapsed:not(.side-menu--on-hover) .branding img,
+.group-\[\.side-menu--collapsed\]:not(.group-\[\.side-menu--collapsed\.side-menu--on-hover\]) .branding img,
+.side-menu--collapsed .branding img,
+.side-menu--collapsed .company-brand-logo {
+	margin-left: auto !important;
+	margin-right: auto !important;
+	display: block !important;
+}
+
+[dir="rtl"] .side-menu--collapsed .branding {
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	justify-content: center !important;
+}
+
+[dir="rtl"] .side-menu--collapsed .branding img,
+[dir="rtl"] .side-menu--collapsed .company-brand-logo {
+	margin: 0 auto !important;
+}
+
+/* إخفاء زر سهم الطي عند طي القائمة لتوسيط الشعار تماماً داخل العمود */
+.side-menu--collapsed:not(.side-menu--on-hover) .toggle-compact-menu,
+.group-\[\.side-menu--collapsed\]:not(.group-\[\.side-menu--collapsed\.side-menu--on-hover\]) .toggle-compact-menu {
+	display: none !important;
+}
+
+/* خطوط وأيقونات بيضاء واضحة في الشريط العلوي عند استخدام سكنات أو ألوان داكنة */
+.theme-dark-nav .box,
+.theme-dark-nav .top-bar,
+.exort .box,
+.echo .top-bar,
+.box.bg-gradient-to-r,
+.box[class*="from-theme-1"] {
+	color: #ffffff !important;
+}
+
+.theme-dark-nav #navbar-breadcrumbs,
+.theme-dark-nav #navbar-breadcrumbs li,
+.theme-dark-nav #navbar-breadcrumbs a,
+.theme-dark-nav #navbar-breadcrumbs span,
+.exort .box #navbar-breadcrumbs,
+.exort .box #navbar-breadcrumbs li,
+.exort .box #navbar-breadcrumbs a,
+.exort .box #navbar-breadcrumbs span,
+.echo .top-bar #navbar-breadcrumbs,
+.echo .top-bar #navbar-breadcrumbs li,
+.echo .top-bar #navbar-breadcrumbs a,
+.echo .top-bar #navbar-breadcrumbs span,
+.box.bg-gradient-to-r #navbar-breadcrumbs,
+.box.bg-gradient-to-r #navbar-breadcrumbs *,
+.box[class*="from-theme-1"] #navbar-breadcrumbs,
+.box[class*="from-theme-1"] #navbar-breadcrumbs * {
+	color: #ffffff !important;
+	fill: #ffffff !important;
+}
+
+.theme-dark-nav .box [data-lucide],
+.theme-dark-nav .top-bar [data-lucide],
+.theme-dark-nav .box i,
+.theme-dark-nav .top-bar i,
+.exort .box [data-lucide],
+.exort .box i,
+.echo .top-bar [data-lucide],
+.echo .top-bar i,
+.box.bg-gradient-to-r [data-lucide],
+.box.bg-gradient-to-r i,
+.box[class*="from-theme-1"] [data-lucide],
+.box[class*="from-theme-1"] i {
+	color: #ffffff !important;
+	stroke: #ffffff !important;
+}
+
+.theme-dark-nav .company-switcher-current-label,
+.exort .box .company-switcher-current-label,
+.echo .top-bar .company-switcher-current-label,
+.box.bg-gradient-to-r .company-switcher-current-label,
+.box[class*="from-theme-1"] .company-switcher-current-label {
+	color: #ffffff !important;
+}
+
+.theme-dark-nav .hover\:bg-slate-100:hover,
+.exort .box .hover\:bg-slate-100:hover,
+.echo .top-bar .hover\:bg-slate-100:hover,
+.box.bg-gradient-to-r .hover\:bg-slate-100:hover,
+.box[class*="from-theme-1"] .hover\:bg-slate-100:hover {
+	background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* ترقيم عدد الصفوف في شاشة الجوال يظهر في سطر واحد دون التفاف */
+.list-count,
+.list-row-head .list-count,
+.list-row-head .level-left,
+.list-row-head .level-right,
+.list-row-head .level-item,
+.frappe-list .list-count,
+.frappe-list .result-status,
+.list-paging-area .btn-paging {
+	white-space: nowrap !important;
+	word-break: keep-all !important;
+	flex-wrap: nowrap !important;
+	display: inline-flex !important;
+	align-items: center !important;
 }
 
 /* حل مشكلة أزرار رأس الصفحة والقائمة المنسدلة (3 نقاط) لعدم قصها أو اختفائها */
@@ -123,8 +247,94 @@
 	}
 }
 
-/* تحسين عرض جداول البيانات الفرعية (Child Tables / Items Grid) في الجوال والتابلت */
-@media (max-width: 991px) {
+/* تحويل الجداول الفرعية (Child Tables / Form Grid) إلى بطاقات منفصلة أنيقة في شاشات الجوال */
+@media (max-width: 767px) {
+	.form-grid {
+		background: transparent !important;
+		border: none !important;
+		box-shadow: none !important;
+	}
+
+	.form-grid .grid-heading-row {
+		display: none !important;
+	}
+
+	.form-grid .grid-body {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 0.75rem !important;
+		padding: 0.25rem 0 !important;
+		overflow: visible !important;
+		width: 100% !important;
+	}
+
+	.form-grid .grid-body .rows {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 0.75rem !important;
+		min-width: 0 !important;
+		width: 100% !important;
+	}
+
+	.form-grid .grid-row {
+		background: #ffffff !important;
+		border: 1px solid #e2e8f0 !important;
+		border-radius: 0.75rem !important;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+		padding: 0.75rem !important;
+		margin-bottom: 0 !important;
+		transition: all 0.2s ease !important;
+		display: block !important;
+		width: 100% !important;
+	}
+
+	.form-grid .grid-row:hover {
+		border-color: #cbd5e1 !important;
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+	}
+
+	.form-grid .grid-row .data-row {
+		display: flex !important;
+		flex-wrap: wrap !important;
+		min-width: 0 !important;
+		width: 100% !important;
+		gap: 0.5rem !important;
+		align-items: center !important;
+		border: none !important;
+		padding: 0 !important;
+	}
+
+	.form-grid .grid-static-col {
+		min-height: auto !important;
+		border: none !important;
+		padding: 0.25rem 0.5rem !important;
+		white-space: normal !important;
+		word-break: break-word !important;
+	}
+
+	.form-grid .grid-row-index {
+		font-weight: 600 !important;
+		color: #64748b !important;
+		background: #f1f5f9 !important;
+		padding: 2px 8px !important;
+		border-radius: 9999px !important;
+		font-size: 0.75rem !important;
+	}
+
+	.form-grid .grid-footer {
+		margin-top: 0.5rem !important;
+	}
+
+	.form-grid .grid-footer .grid-add-row {
+		width: 100% !important;
+		justify-content: center !important;
+		border-radius: 0.5rem !important;
+		padding: 0.5rem 1rem !important;
+	}
+}
+
+/* تحسين الجداول الفرعية على أجهزة التابلت (768px إلى 991px): تمرير أفقي نظيف */
+@media (min-width: 768px) and (max-width: 991px) {
 	.form-grid {
 		border-radius: 8px !important;
 		overflow: hidden !important;
