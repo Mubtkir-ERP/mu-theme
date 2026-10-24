@@ -19,7 +19,7 @@ function toggleMobileSidebar(e) {
 		e.stopPropagation();
 	}
 	const now = Date.now();
-	if (now - lastMenuClickTime < 350) {
+	if (now - lastMenuClickTime < 300) {
 		return;
 	}
 	lastMenuClickTime = now;
@@ -66,7 +66,7 @@ $(document).on("click", ".link_to_page", function (e) {
 
 // إغلاق القائمة الجانبية في التابلت والجوال عند النقر خارجها
 $(document).on("click", function (e) {
-	if (Date.now() - lastMenuClickTime < 400) {
+	if (Date.now() - lastMenuClickTime < 350) {
 		return;
 	}
 
@@ -78,7 +78,7 @@ $(document).on("click", function (e) {
 	}
 
 	// إذا كان النقر داخل السايدبار لا نغلق
-	if ($target.closest(".side-menu").length) {
+	if ($target.closest(".side-menu, #nxt_sidebar, #exort_nxt_sidebar, #viper_nxt_sidebar").length) {
 		return;
 	}
 
@@ -88,21 +88,17 @@ $(document).on("click", function (e) {
 	}
 });
 
-// نقل كافة أزرار الإجراءات في شاشة التابلت داخل قائمة 3 نقاط
+// نقل كافة أزرار الإجراءات في شاشة التابلت داخل قائمة 3 نقاط في أول القائمة مثل الجوال
 function syncTabletActionsToMenu() {
 	if (window.innerWidth > 1280) return;
 
-	const $menu = $(".page-actions .menu-btn-group .dropdown-menu, .page-head .menu-btn-group .dropdown-menu, .menu-btn-group .dropdown-menu");
+	const $menu = $(".page-actions .menu-btn-group .dropdown-menu, .page-head .menu-btn-group .dropdown-menu, .menu-btn-group .dropdown-menu").first();
 	if (!$menu.length) return;
 
-	// رفع طبقة العرض وتثبيت فتح القائمة للأسفل دائماً لمنع قصها أو اختفائها خلف الناف بار
-	$(".content, .page-head, .page-actions").css("z-index", "1200");
-	$menu.css({
-		"top": "100%",
-		"bottom": "auto",
-		"transform": "none",
-		"z-index": "9999"
-	});
+	// إزالة أي عناصر تم حقنها سابقاً لمنع التكرار
+	$menu.find(".tablet-injected-action, .tablet-injected-divider").remove();
+
+	const itemsToPrepend = [];
 
 	// 1. فحص مجموعات الأزرار المنسدلة مثل "Actions" أو "Get Items From" أو "Create"
 	$(".page-actions .actions-btn-group, .page-head .actions-btn-group, .page-actions .inner-group-button, .page-head .inner-group-button, .page-actions .custom-actions .btn-group").each(function () {
@@ -116,14 +112,12 @@ function syncTabletActionsToMenu() {
 				? (groupTitle + " > " + itemText)
 				: itemText;
 
-			if (!$menu.find(`[data-tablet-action="${fullLabel}"]`).length) {
-				const $newLi = $(`<li data-tablet-action="${fullLabel}"><a class="dropdown-item grey-link cursor-pointer"><span>${fullLabel}</span></a></li>`);
-				$newLi.on("click", function (e) {
-					e.preventDefault();
-					$item[0].click();
-				});
-				$menu.append($newLi);
-			}
+			const $li = $(`<li class="tablet-injected-action"><a class="dropdown-item grey-link cursor-pointer" style="font-weight: 600; color: var(--primary, #3867AE);"><span>${fullLabel}</span></a></li>`);
+			$li.on("click", function (e) {
+				e.preventDefault();
+				$item[0].click();
+			});
+			itemsToPrepend.push($li);
 		});
 	});
 
@@ -133,32 +127,33 @@ function syncTabletActionsToMenu() {
 		const label = $btn.text().trim();
 		if (!label || label === "..." || label === "Menu" || label === "القائمة" || label.length < 2) return;
 
-		if (!$menu.find(`[data-tablet-action="${label}"]`).length) {
-			const $newLi = $(`<li data-tablet-action="${label}"><a class="dropdown-item grey-link cursor-pointer"><span>${label}</span></a></li>`);
-			$newLi.on("click", function (e) {
-				e.preventDefault();
-				$btn[0].click();
-			});
-			$menu.append($newLi);
-		}
+		const $li = $(`<li class="tablet-injected-action"><a class="dropdown-item grey-link cursor-pointer" style="font-weight: 600; color: var(--primary, #3867AE);"><span>${label}</span></a></li>`);
+		$li.on("click", function (e) {
+			e.preventDefault();
+			$btn[0].click();
+		});
+		itemsToPrepend.push($li);
 	});
+
+	// وضع كافة الإجراءات في أول القائمة (في الأعلى مثل الجوال تماماً) متبوعة بفاصل
+	if (itemsToPrepend.length) {
+		const $divider = $('<li class="divider dropdown-divider tablet-injected-divider" style="margin: 6px 0; border-top: 1px solid #e2e8f0;"></li>');
+		$menu.prepend($divider);
+		for (let i = itemsToPrepend.length - 1; i >= 0; i--) {
+			$menu.prepend(itemsToPrepend[i]);
+		}
+	}
 }
 
-// تنفيذ المزامنة فور فتح قائمة 3 نقاط وضبط طبقة العرض
+// تنفيذ المزامنة فور فتح قائمة 3 نقاط مع تثبيت فتح القائمة للأسفل دائماً
 $(document).on("show.bs.dropdown shown.bs.dropdown pointerdown mousedown click", ".menu-btn-group, .menu-btn-group button", function () {
 	syncTabletActionsToMenu();
-	$(".content, .page-head, .page-actions").css("z-index", "1200");
 	const $dropdown = $(this).closest(".menu-btn-group").find(".dropdown-menu");
 	$dropdown.css({
 		"top": "100%",
 		"bottom": "auto",
-		"transform": "none",
-		"z-index": "9999"
+		"transform": "none"
 	});
-});
-
-$(document).on("hidden.bs.dropdown", ".menu-btn-group", function () {
-	$(".content, .page-head, .page-actions").css("z-index", "");
 });
 
 if (window.frappe && frappe.router) {

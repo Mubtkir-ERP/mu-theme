@@ -104,7 +104,6 @@
 	.page-actions .page-icon-group,
 	.page-actions .standard-actions > *:not(.primary-action):not(.menu-btn-group),
 	.page-actions > button:not(.primary-action),
-	.page-actions > div:not(.standard-actions),
 	.page-head .custom-actions,
 	.page-head .actions-btn-group,
 	.page-head .inner-group-button,
@@ -131,10 +130,10 @@
 	bottom: auto !important;
 	transform: none !important;
 	margin-top: 6px !important;
-	max-height: calc(100vh - 120px) !important;
+	max-height: calc(100vh - 140px) !important;
 	overflow-y: auto !important;
 	-webkit-overflow-scrolling: touch !important;
-	z-index: 9999 !important;
+	z-index: 1050 !important;
 	min-width: 240px !important;
 	max-width: 90vw !important;
 	box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.15) !important;
@@ -154,17 +153,29 @@
 	left: auto !important;
 }
 
-/* رفع طبقة العرض لمنع اختفاء القائمة خلف الناف بار */
-.content:has(.menu-btn-group .dropdown-menu.show),
-.content:has(.show),
-.page-head:has(.dropdown-menu.show),
-.page-head:has(.show),
-.page-actions:has(.show),
-.standard-actions:has(.show),
-.menu-btn-group.show,
-.menu-btn-group.open {
-	z-index: 1200 !important;
-	position: relative !important;
+/* ضبط طبقات العرض الدائمة: الشريط العلوي دائماً في المقدمة فوق المحتوى لتعمل كافة أزراره */
+.top-bar,
+.box.fixed,
+.fixed.h-\[65px\],
+[id*="nxt_sidebar"],
+#nxt_sidebar,
+#exort_nxt_sidebar,
+#viper_nxt_sidebar,
+.side-menu {
+	z-index: 1000 !important;
+}
+
+/* القائمة الجانبية عند فتحها في الجوال والتابلت ترتفع فوق كافة العناصر */
+.side-menu.side-menu--mobile-menu-open,
+[id*="nxt_sidebar"].side-menu--mobile-menu-open {
+	z-index: 2000 !important;
+}
+
+/* المحتوى الرئيسي يكون بطبقة طبيعية ويمر أسفل الناف بار عند التمرير دون حجب الأزرار */
+.content,
+.main-section {
+	z-index: 10 !important;
+	position: relative;
 }
 
 /* ضبط الشعار واسم الشركة لمنع تداخل النصوص والنزول لأسفل */
@@ -287,5 +298,4 @@
 	align-items: center !important;
 	justify-content: center !important;
 	position: relative !important;
-	z-index: 30 !important;
 }
