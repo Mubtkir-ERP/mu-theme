@@ -11,12 +11,21 @@ function closeSidebarAllScreens() {
 	} catch (e) {}
 }
 
-// فتح القائمة الجانبية في كل السكنات والشاشات
-$(document).on("click pointerdown", ".open-mobile-menu", function (e) {
+let menuToggleTimestamp = 0;
+
+// فتح وإغلاق القائمة الجانبية في كل السكنات والشاشات
+$(document).on("click", ".open-mobile-menu", function (e) {
 	e.preventDefault();
 	e.stopPropagation();
-	$(".side-menu").addClass("side-menu--mobile-menu-open");
-	$(".close-mobile-menu").addClass("close-mobile-menu--mobile-menu-open");
+	menuToggleTimestamp = Date.now();
+
+	if ($(".side-menu").hasClass("side-menu--mobile-menu-open")) {
+		$(".side-menu").removeClass("side-menu--mobile-menu-open side-menu--on-hover");
+		$(".close-mobile-menu").removeClass("close-mobile-menu--mobile-menu-open");
+	} else {
+		$(".side-menu").addClass("side-menu--mobile-menu-open");
+		$(".close-mobile-menu").addClass("close-mobile-menu--mobile-menu-open");
+	}
 });
 
 $(document).on("click", ".link_to_page", function (e) {
@@ -42,80 +51,82 @@ $(document).on("click", ".link_to_page", function (e) {
 	closeSidebarAllScreens();
 });
 
-// إغلاق القائمة الجانبية في التابلت والجوال عند النقر في أي مكان في الشاشة خارج القائمة
-$(document).on("click pointerdown", function (e) {
+// إغلاق القائمة الجانبية في التابلت والجوال عند النقر خارجها
+$(document).on("click", function (e) {
+	// منع الإغلاق التلقائي في نفس لحظة الفتح
+	if (Date.now() - menuToggleTimestamp < 400) {
+		return;
+	}
+
 	const $target = $(e.target);
 
-	// لا تفعل شيئاً إذا كان النقر على زر فتح القائمة
+	// إذا كان النقر على زر القائمة لا نفعل شيئاً
 	if ($target.closest(".open-mobile-menu").length) {
 		return;
 	}
 
-	// 1. إذا كانت القائمة مفتوحة كقائمة عائمة (الجوال والتابلت)
+	// إذا كانت القائمة مفتوحة على التابلت أو الجوال والنقر خارج صندوق القائمة الفعلي
 	if ($(".side-menu").hasClass("side-menu--mobile-menu-open")) {
-		// النقر على الخلفية المعتمة أو في وسط الشاشة أو خارج روابط القائمة
-		if ($target.hasClass("side-menu-backdrop") || !$target.closest(".scrollable-ref, .side-menu__link, .branding").length) {
+		if ($target.hasClass("side-menu-backdrop") || !$target.closest(".side-menu__content").length) {
 			$(".side-menu").removeClass("side-menu--mobile-menu-open side-menu--on-hover");
 			$(".close-mobile-menu").removeClass("close-mobile-menu--mobile-menu-open");
 		}
 	}
-
-	// 2. على شاشات التابلت والجوال (< 1280px): النقر على محتوى الصفحة يقفل القائمة إن كانت غير ثابتة
-	if (window.innerWidth < 1280) {
-		if ($target.closest(".content, .top-bar, .page-container, #body, main, .main-section").length) {
-			$(".side-menu").removeClass("side-menu--mobile-menu-open side-menu--on-hover");
-			$(".side-menu").addClass("side-menu--collapsed");
-			$(".content").addClass("content--compact");
-		}
-	}
 });
 
-// نقل أزرار الإجراءات المخصصة على شاشة التابلت إلى قائمة 3 نقاط
+// نقل أزرار الإجراءات في شاشة التابلت داخل قائمة 3 نقاط
 function syncTabletActionsToMenu() {
 	if (window.innerWidth > 1024) return;
 
 	const $menu = $(".page-actions .menu-btn-group .dropdown-menu, .page-head .menu-btn-group .dropdown-menu");
 	if (!$menu.length) return;
 
-	$(".page-actions .inner-group-button, .page-actions .custom-btn-group, .page-actions .custom-actions button").each(function () {
-		const $btn = $(this);
-		if ($btn.hasClass("dropdown") || $btn.hasClass("btn-group")) {
-			const groupTitle = $btn.find(".dropdown-toggle").text().trim();
-			$btn.find(".dropdown-menu li, .dropdown-menu a").each(function () {
-				const $item = $(this);
-				const itemText = $item.text().trim();
-				if (!itemText) return;
-				const fullLabel = groupTitle ? (groupTitle + " > " + itemText) : itemText;
+	// فحص مجموعات الأزرار المنسدلة مثل "الحصول على البنود من" أو "معاينة" أو "انشاء"
+	$(".page-actions .inner-group-button, .page-head .inner-group-button, .page-actions .custom-actions .btn-group").each(function () {
+		const $group = $(this);
+		const groupTitle = $group.find(".dropdown-toggle").text().trim();
+		$group.find(".dropdown-menu li, .dropdown-menu a").each(function () {
+			const $item = $(this);
+			const itemText = $item.text().trim();
+			if (!itemText) return;
+			const fullLabel = groupTitle ? (groupTitle + " > " + itemText) : itemText;
 
-				if (!$menu.find(`[data-tablet-action="${fullLabel}"]`).length) {
-					const $newLi = $(`<li><a class="dropdown-item grey-link cursor-pointer" data-tablet-action="${fullLabel}"><span>${fullLabel}</span></a></li>`);
-					$newLi.on("click", function (e) {
-						e.preventDefault();
-						$item.trigger("click");
-					});
-					$menu.append($newLi);
-				}
-			});
-		} else {
-			const label = $btn.text().trim();
-			if (!label || label === "..." || label === "Menu") return;
-
-			if (!$menu.find(`[data-tablet-action="${label}"]`).length) {
-				const $newLi = $(`<li><a class="dropdown-item grey-link cursor-pointer" data-tablet-action="${label}"><span>${label}</span></a></li>`);
+			if (!$menu.find(`[data-tablet-action="${fullLabel}"]`).length) {
+				const $newLi = $(`<li data-tablet-action="${fullLabel}"><a class="dropdown-item grey-link cursor-pointer"><span>${fullLabel}</span></a></li>`);
 				$newLi.on("click", function (e) {
 					e.preventDefault();
-					$btn.trigger("click");
+					$item[0].click();
 				});
 				$menu.append($newLi);
 			}
+		});
+	});
+
+	// فحص الأزرار الفردية المخصصة مثل "Send WhatsApp" أو "Add Follow"
+	$(".page-actions .custom-actions button, .page-head .custom-actions button, .page-actions .custom-btn-group button").each(function () {
+		const $btn = $(this);
+		const label = $btn.text().trim();
+		if (!label || label === "..." || label === "Menu" || label.length < 2) return;
+
+		if (!$menu.find(`[data-tablet-action="${label}"]`).length) {
+			const $newLi = $(`<li data-tablet-action="${label}"><a class="dropdown-item grey-link cursor-pointer"><span>${label}</span></a></li>`);
+			$newLi.on("click", function (e) {
+				e.preventDefault();
+				$btn[0].click();
+			});
+			$menu.append($newLi);
 		}
 	});
 }
 
-$(document).on("click", ".menu-btn-group button, .page-actions .menu-btn-group", function () {
+// تنفيذ المزامنة فور ضغط زر 3 نقاط
+$(document).on("pointerdown mousedown click", ".menu-btn-group, .menu-btn-group button", function () {
 	syncTabletActionsToMenu();
 });
 
-$(document).on("page-change form-refresh", function () {
-	setTimeout(syncTabletActionsToMenu, 300);
-});
+if (window.frappe && frappe.router) {
+	frappe.router.on("change", function () {
+		setTimeout(syncTabletActionsToMenu, 500);
+		setTimeout(syncTabletActionsToMenu, 1200);
+	});
+}

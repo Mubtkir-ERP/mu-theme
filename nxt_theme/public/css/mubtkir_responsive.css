@@ -100,21 +100,41 @@
 		display: none !important;
 	}
 
-	/* إصلاح قائمة 3 نقاط داخل doctype على التابلت والجوال لعدم قصها من فوق وإظهار كل الخيارات مع إمكانية التمرير */
+	/* إصلاح قائمة 3 نقاط داخل doctype على التابلت والجوال لتبدأ أسفل الزر مباشرة وتمرير سلس بدون قص */
+	.page-head .menu-btn-group,
+	.page-actions .menu-btn-group {
+		position: relative !important;
+	}
+
 	.page-head .menu-btn-group .dropdown-menu,
 	.page-actions .menu-btn-group .dropdown-menu,
 	.menu-btn-group .dropdown-menu {
-		position: fixed !important;
-		top: 65px !important;
+		position: absolute !important;
+		top: 100% !important;
 		bottom: auto !important;
 		transform: none !important;
-		max-height: calc(100vh - 85px) !important;
+		margin-top: 0.25rem !important;
+		max-height: 70vh !important;
 		overflow-y: auto !important;
 		-webkit-overflow-scrolling: touch !important;
 		z-index: 1060 !important;
-		min-width: 240px !important;
+		min-width: 220px !important;
 		max-width: 90vw !important;
 		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+	}
+
+	[dir="rtl"] .page-head .menu-btn-group .dropdown-menu,
+	[dir="rtl"] .page-actions .menu-btn-group .dropdown-menu,
+	[dir="rtl"] .menu-btn-group .dropdown-menu {
+		left: 0 !important;
+		right: auto !important;
+	}
+
+	[dir="ltr"] .page-head .menu-btn-group .dropdown-menu,
+	[dir="ltr"] .page-actions .menu-btn-group .dropdown-menu,
+	[dir="ltr"] .menu-btn-group .dropdown-menu {
+		right: 0 !important;
+		left: auto !important;
 	}
 }
 
