@@ -1,7 +1,7 @@
-/* MUBTKIR — تحسينات تجاوب الشريط العلوي على الأجهزة المختلفة */
+/* MUBTKIR — تحسينات تجاوب الشريط العلوي والأزرار والجداول على مختلف الأجهزة */
 
-/* شريط البحث: يظهر كصندوق على التابلت والكمبيوتر (>= 768px)، ويتحول لأيقونة مصغرة على الجوال (< 768px) */
-@media (min-width: 768px) {
+/* شريط البحث: يظهر كصندوق على الكمبيوتر (>= 1280px)، ويتحول لأيقونة مصغرة على التابلت والجوال (< 1280px) */
+@media (min-width: 1280px) {
 	.short-search-icon {
 		display: none !important;
 	}
@@ -10,7 +10,7 @@
 	}
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1279px) {
 	.searchbar {
 		display: none !important;
 	}
@@ -18,7 +18,7 @@
 		display: flex !important;
 	}
 
-	/* إخفاء العناصر الزائدة في الجوال لتوفير المساحة */
+	/* إخفاء العناصر الزائدة لتوفير المساحة */
 	.mub-hide-mobile,
 	.request-full-screen,
 	nav[aria-label="breadcrumb"] {
@@ -32,7 +32,7 @@
 		gap: 0.25rem !important;
 	}
 
-	/* ضبط هوامش الأزرار والقوائم المنسدلة في الجوال */
+	/* ضبط هوامش الأزرار والقوائم المنسدلة */
 	.dropdown.ml-3,
 	.dropdown.ml-5 {
 		margin-left: 0.15rem !important;
@@ -53,15 +53,8 @@
 	}
 }
 
-/* شاشات التابلت والمتوسطة (768px إلى 1279px): إظهار مربع البحث وضبط الأزرار لمنع الخروج */
+/* شاشات التابلت والمتوسطة (768px إلى 1279px) */
 @media (min-width: 768px) and (max-width: 1279px) {
-	/* جعل صندوق البحث مرناً ولا يأخذ عرضاً ثابتاً ضخماً */
-	.searchbar > div {
-		width: clamp(160px, 18vw, 220px) !important;
-		padding-left: 0.5rem !important;
-		padding-right: 0.5rem !important;
-	}
-
 	/* تقصير شريط مسار الصفحة (Breadcrumbs) لمنع التزاحم */
 	#navbar-breadcrumbs {
 		max-width: clamp(140px, 20vw, 240px) !important;
@@ -72,7 +65,7 @@
 		display: none !important;
 	}
 
-	/* إخفاء زر ملء الشاشة وزر المساعدة في التابلت لتوفير المساحة للأزرار الهامة ومربع البحث */
+	/* إخفاء زر ملء الشاشة وزر المساعدة في التابلت */
 	.request-full-screen,
 	.mub-hide-mobile {
 		display: none !important;
@@ -90,14 +83,27 @@
 		padding-right: 0.75rem !important;
 		gap: 0.35rem !important;
 	}
+}
 
-	/* جعل شريط أزرار النموذج (Action Buttons) يقبل التمرير بدون قص */
-	.page-head .page-actions,
-	.standard-actions {
-		overflow-x: auto !important;
-		flex-wrap: nowrap !important;
-		scrollbar-width: none !important;
-	}
+/* حل مشكلة أزرار رأس الصفحة والقائمة المنسدلة (3 نقاط) لعدم قصها أو اختفائها */
+.page-head,
+.page-head .page-actions,
+.standard-actions,
+.custom-actions,
+.menu-btn-group,
+.actions-btn-group {
+	overflow: visible !important;
+}
+
+.page-head .page-actions {
+	flex-wrap: wrap !important;
+	gap: 0.35rem !important;
+}
+
+.menu-btn-group .dropdown-menu,
+.actions-btn-group .dropdown-menu,
+.page-actions .dropdown-menu {
+	z-index: 1050 !important;
 }
 
 /* الجوالات الصغيرة (< 480px): تنسيق مضغوط ومرتب */
@@ -114,6 +120,41 @@
 	#user_avatar {
 		width: 30px !important;
 		height: 30px !important;
+	}
+}
+
+/* تحسين عرض جداول البيانات الفرعية (Child Tables / Items Grid) في الجوال والتابلت */
+@media (max-width: 991px) {
+	.form-grid {
+		border-radius: 8px !important;
+		overflow: hidden !important;
+		border: 1px solid var(--border-color, #e2e8f0) !important;
+	}
+	.form-grid .grid-body {
+		overflow-x: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		display: block !important;
+		width: 100% !important;
+	}
+	.form-grid .grid-heading-row,
+	.form-grid .grid-body .rows {
+		min-width: 580px !important;
+	}
+	.form-grid .grid-row .data-row {
+		min-width: 580px !important;
+		align-items: center !important;
+	}
+	.form-grid .grid-static-col {
+		white-space: normal !important;
+		word-break: break-word !important;
+		overflow: visible !important;
+	}
+	.form-grid .grid-body::-webkit-scrollbar {
+		height: 6px;
+	}
+	.form-grid .grid-body::-webkit-scrollbar-thumb {
+		background: rgba(100, 116, 139, 0.4);
+		border-radius: 4px;
 	}
 }
 
@@ -134,4 +175,3 @@
 	position: relative !important;
 	z-index: 30 !important;
 }
-
