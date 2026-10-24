@@ -39,8 +39,14 @@
 		margin-right: 0.15rem !important;
 	}
 
-	/* إخفاء اسم الشركة النصّي بجانب زر التبديل والاكتفاء بالأيقونة */
-	.company-switcher-current-label {
+	/* إخفاء اسم الشركة النصّي في شاشات الجوال والتابلت لتوفير المساحة للناف بار والاكتفاء بالشعار */
+	.company-switcher-current-label,
+	.branding div,
+	.branding span,
+	.side-menu__content .branding div,
+	.side-menu__content a.items-center div,
+	.top-bar .font-medium,
+	.box .side-menu__content .font-medium {
 		display: none !important;
 	}
 
@@ -84,8 +90,31 @@
 
 /* تجميع أزرار الإجراءات في شاشة التابلت داخل قائمة 3 نقاط مثل الجوال لمنع تزاحم رأس الصفحة */
 @media (max-width: 1024px) {
-	.page-head .custom-actions {
+	.page-head .custom-actions,
+	.page-head .inner-group-button,
+	.page-head .custom-btn-group,
+	.page-actions .inner-group-button,
+	.page-actions .custom-btn-group,
+	.page-actions .custom-actions,
+	.page-actions .page-icon-group {
 		display: none !important;
+	}
+
+	/* إصلاح قائمة 3 نقاط داخل doctype على التابلت والجوال لعدم قصها من فوق وإظهار كل الخيارات مع إمكانية التمرير */
+	.page-head .menu-btn-group .dropdown-menu,
+	.page-actions .menu-btn-group .dropdown-menu,
+	.menu-btn-group .dropdown-menu {
+		position: fixed !important;
+		top: 65px !important;
+		bottom: auto !important;
+		transform: none !important;
+		max-height: calc(100vh - 85px) !important;
+		overflow-y: auto !important;
+		-webkit-overflow-scrolling: touch !important;
+		z-index: 1060 !important;
+		min-width: 240px !important;
+		max-width: 90vw !important;
+		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
 	}
 }
 
@@ -139,36 +168,6 @@
 .side-menu--collapsed:not(.side-menu--on-hover) .toggle-compact-menu,
 .group-\[\.side-menu--collapsed\]:not(.group-\[\.side-menu--collapsed\.side-menu--on-hover\]) .toggle-compact-menu {
 	display: none !important;
-}
-
-/* أيقونات الشريط العلوي: ألوان طبيعية واضحة في السكنات الفاتحة (مثل razor) */
-.box [data-lucide],
-.box i,
-.top-bar [data-lucide],
-.top-bar i {
-	color: #475569;
-	stroke: #475569;
-}
-
-/* تحويل الأيقونات والنصوص للأبيض فقط عندما يكون شريط التنقل داكناً أو بتدرج لوني (مثل exort) */
-.exort .box [data-lucide],
-.exort .box i,
-.exort .box #navbar-breadcrumbs,
-.exort .box #navbar-breadcrumbs *,
-.exort .box .company-switcher-current-label,
-.box.bg-gradient-to-r [data-lucide],
-.box.bg-gradient-to-r i,
-.box.bg-gradient-to-r #navbar-breadcrumbs,
-.box.bg-gradient-to-r #navbar-breadcrumbs *,
-.box.bg-gradient-to-r .company-switcher-current-label {
-	color: #ffffff !important;
-	stroke: #ffffff !important;
-	fill: #ffffff !important;
-}
-
-.exort .box .hover\:bg-white\/10:hover,
-.box.bg-gradient-to-r .hover\:bg-slate-100:hover {
-	background-color: rgba(255, 255, 255, 0.15) !important;
 }
 
 /* ترقيم عدد الصفوف في شاشة الجوال يظهر في سطر واحد دون التفاف */

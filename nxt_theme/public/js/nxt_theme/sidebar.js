@@ -53,7 +53,8 @@ $(document).on("click pointerdown", function (e) {
 
 	// 1. إذا كانت القائمة مفتوحة كقائمة عائمة (الجوال والتابلت)
 	if ($(".side-menu").hasClass("side-menu--mobile-menu-open")) {
-		if (!$target.closest(".side-menu__content, .scrollable-ref").length) {
+		// النقر على الخلفية المعتمة أو في وسط الشاشة أو خارج روابط القائمة
+		if ($target.hasClass("side-menu-backdrop") || !$target.closest(".scrollable-ref, .side-menu__link, .branding").length) {
 			$(".side-menu").removeClass("side-menu--mobile-menu-open side-menu--on-hover");
 			$(".close-mobile-menu").removeClass("close-mobile-menu--mobile-menu-open");
 		}
@@ -61,10 +62,60 @@ $(document).on("click pointerdown", function (e) {
 
 	// 2. على شاشات التابلت والجوال (< 1280px): النقر على محتوى الصفحة يقفل القائمة إن كانت غير ثابتة
 	if (window.innerWidth < 1280) {
-		if ($target.closest(".content, .top-bar, .page-container, #body").length) {
+		if ($target.closest(".content, .top-bar, .page-container, #body, main, .main-section").length) {
 			$(".side-menu").removeClass("side-menu--mobile-menu-open side-menu--on-hover");
 			$(".side-menu").addClass("side-menu--collapsed");
 			$(".content").addClass("content--compact");
 		}
 	}
+});
+
+// نقل أزرار الإجراءات المخصصة على شاشة التابلت إلى قائمة 3 نقاط
+function syncTabletActionsToMenu() {
+	if (window.innerWidth > 1024) return;
+
+	const $menu = $(".page-actions .menu-btn-group .dropdown-menu, .page-head .menu-btn-group .dropdown-menu");
+	if (!$menu.length) return;
+
+	$(".page-actions .inner-group-button, .page-actions .custom-btn-group, .page-actions .custom-actions button").each(function () {
+		const $btn = $(this);
+		if ($btn.hasClass("dropdown") || $btn.hasClass("btn-group")) {
+			const groupTitle = $btn.find(".dropdown-toggle").text().trim();
+			$btn.find(".dropdown-menu li, .dropdown-menu a").each(function () {
+				const $item = $(this);
+				const itemText = $item.text().trim();
+				if (!itemText) return;
+				const fullLabel = groupTitle ? (groupTitle + " > " + itemText) : itemText;
+
+				if (!$menu.find(`[data-tablet-action="${fullLabel}"]`).length) {
+					const $newLi = $(`<li><a class="dropdown-item grey-link cursor-pointer" data-tablet-action="${fullLabel}"><span>${fullLabel}</span></a></li>`);
+					$newLi.on("click", function (e) {
+						e.preventDefault();
+						$item.trigger("click");
+					});
+					$menu.append($newLi);
+				}
+			});
+		} else {
+			const label = $btn.text().trim();
+			if (!label || label === "..." || label === "Menu") return;
+
+			if (!$menu.find(`[data-tablet-action="${label}"]`).length) {
+				const $newLi = $(`<li><a class="dropdown-item grey-link cursor-pointer" data-tablet-action="${label}"><span>${label}</span></a></li>`);
+				$newLi.on("click", function (e) {
+					e.preventDefault();
+					$btn.trigger("click");
+				});
+				$menu.append($newLi);
+			}
+		}
+	});
+}
+
+$(document).on("click", ".menu-btn-group button, .page-actions .menu-btn-group", function () {
+	syncTabletActionsToMenu();
+});
+
+$(document).on("page-change form-refresh", function () {
+	setTimeout(syncTabletActionsToMenu, 300);
 });
