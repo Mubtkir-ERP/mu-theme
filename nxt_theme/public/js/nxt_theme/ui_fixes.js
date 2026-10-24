@@ -60,7 +60,39 @@ import { unlockBodyScrollIfNoModal } from "./modal_utils";
 					frappe.msgprint("حدث خطأ أثناء سحب الكتل: " + err.message);
 				}
 			});
-			$(".page-head .page-actions, .page-actions .standard-actions").first().prepend($btn);
+			const $syncBtn = $(`<button class="btn btn-secondary btn-sm btn-sync-all-blocks mr-2 ml-2" style="font-weight: 500;">🔄 تطبيق التعديلات على كافة الكتل في السايت</button>`);
+			$syncBtn.on("click", async function () {
+				frappe.confirm(__("هل تريد تطبيق التعديلات الجديدة (إلغاء الهوفر وتحديث المنتجات) على كافة الكتل في الموقع؟"), async function () {
+					frappe.dom.freeze(__("جاري تطبيق التعديلات على كافة الكتل..."));
+					try {
+						const resp = await fetch("/assets/nxt_theme/blocks/all_blocks.json?v=" + Date.now());
+						const blocks = await resp.json();
+						let count = 0;
+						for (const b of blocks) {
+							await frappe.call({
+								method: "frappe.client.set_value",
+								args: {
+									doctype: "Custom HTML Block",
+									name: b.name,
+									fieldname: {
+										html: b.html,
+										script: b.script,
+										style: b.style,
+									},
+								},
+							});
+							count++;
+						}
+						frappe.dom.unfreeze();
+						frappe.show_alert({ message: `تم تحديث ${count} كتلة بنجاح في الموقع!`, indicator: "green" });
+						setTimeout(() => location.reload(), 1500);
+					} catch (err) {
+						frappe.dom.unfreeze();
+						frappe.msgprint("حدث خطأ أثناء تطبيق الكتل: " + err.message);
+					}
+				});
+			});
+			$(".page-head .page-actions, .page-actions .standard-actions").first().prepend($syncBtn).prepend($btn);
 		}
 	}
 
