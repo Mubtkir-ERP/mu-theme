@@ -66,7 +66,11 @@
         $(".content").first().addClass("content--compact");
       }
     });
-
+    $(document).on("click pointerdown", ".open-mobile-menu", function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      $(".side-menu").first().addClass("side-menu--mobile-menu-open");
+    });
     $(".request-full-screen").first().on("click", function(event) {
       event.preventDefault();
       const el = document.documentElement;
