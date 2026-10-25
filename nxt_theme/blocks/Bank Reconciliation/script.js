@@ -416,33 +416,30 @@
     overlay.setAttribute("dir", isArabic ? "rtl" : "ltr");
 
     overlay.innerHTML = `
-      <div class="erp-modal-box" style="border: 1px solid rgba(56, 103, 174, 0.22); border-radius: 16px; box-shadow: 0 10px 30px rgba(36, 59, 99, 0.12);">
-        <button type="button" class="erp-modal-close" data-modal-close style="color: #644DA6;">✕</button>
-        <div class="erp-modal-header" style="display:flex; align-items:center; gap:10px;">
-          <span class="erp-modal-icon" style="font-size:24px;">${desc?.icon || "📄"}</span>
-          <h3 class="erp-modal-title" style="color: #243B63; font-weight:800; margin:0;">${escapeHtml(title)}</h3>
+      <div class="erp-modal-box">
+        <button type="button" class="erp-modal-close" data-modal-close>✕</button>
+        <div class="erp-modal-header">
+          <span class="erp-modal-icon">${desc?.icon || "📄"}</span>
+          <h3 class="erp-modal-title">${escapeHtml(title)}</h3>
         </div>
-        <p class="erp-modal-summary" style="color: #66758A; margin: 12px 0 14px; line-height: 1.6; font-size: 13.5px;">${escapeHtml(summary)}</p>
-        
-        <div class="erp-modal-steps-section" style="background: rgba(56, 103, 174, 0.05); border: 1px solid rgba(56, 103, 174, 0.15); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
-          <h4 style="font-size: 13px; font-weight: 700; color: #243B63; margin: 0 0 10px 0;">
-            ${isArabic ? "📌 خطوات الاستخدام المباشرة:" : "📌 Step-by-Step Instructions:"}
-          </h4>
-          <ol class="erp-modal-steps-list" style="margin: 0; padding-right: 20px; padding-left: 20px;">
-            ${steps.map(s => `<li style="margin-bottom: 8px; color: #243B63; font-size: 13px; line-height: 1.5;">${escapeHtml(s)}</li>`).join("")}
+        <p class="erp-modal-summary">${escapeHtml(summary)}</p>
+
+        <div class="erp-modal-steps is-shown" data-modal-steps>
+          <ol class="erp-modal-steps-list">
+            ${steps.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
           </ol>
         </div>
 
-        <button
-          type="button"
-          class="erp-modal-launch-btn"
-          data-modal-launch
-          style="background: #3867AE; color: #ffffff; border: none; border-radius: 10px; padding: 12px 18px; font-weight: 700; width: 100%; cursor: pointer; font-size: 14px; transition: background 0.2s ease;"
-          onmouseover="this.style.background='#0F84B5'"
-          onmouseout="this.style.background='#3867AE'"
-        >
-          ${isArabic ? "🚀 فتح الشاشة الآن" : "🚀 Open Record Now"}
-        </button>
+        <div style="margin-top: 18px;">
+          <button
+            type="button"
+            class="erp-quick-btn"
+            data-modal-launch
+            style="width: 100%; min-height: 42px;"
+          >
+            <span class="erp-quick-label">${isArabic ? "فتح الشاشة" : "Open Screen"}</span>
+          </button>
+        </div>
       </div>
     `;
 
@@ -496,7 +493,7 @@
         <h2 class="erp-section-title erp-cycle-title">
           ${isArabic ? "دورة مطابقة البنك ومدى" : "Bank Reconciliation Cycle"}
         </h2>
-        <div class="erp-cycle-grid" style="grid-template-columns: repeat(${cycleCards.length}, minmax(0, 1fr));">
+        <div class="erp-cycle-grid">
           ${cardsHtml}
         </div>
       </section>
@@ -562,7 +559,6 @@
 
   /* =========================================================
      15. RENDER SHORTCUTS (Exact bank_reconciliation.json order)
-     الالتزام الصارم بألوان الهوية: Primary #3867AE | Hover #0F84B5
   ========================================================= */
   function renderQuickActions() {
     if (!quickActions) return;
@@ -570,25 +566,15 @@
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(isArabic ? "اختصاراتك" : "Your Shortcuts")}</h2>
       <div class="erp-quick-grid">
-        ${shortcuts.map((btn, index) => {
-          const isPrimary = !!btn.highlight;
-          const bgStyle = isPrimary
-            ? "background: #3867AE; color: #ffffff; border: 1px solid #3867AE; font-weight: 700;"
-            : "background: rgba(56, 103, 174, 0.07); color: #243B63; border: 1px solid rgba(56, 103, 174, 0.22); font-weight: 600;";
-
-          return `
-            <button
-              type="button"
-              class="erp-quick-btn ${isPrimary ? "erp-quick-btn-primary" : ""}"
-              data-shortcut-index="${index}"
-              style="${bgStyle} transition: all 0.2s ease;"
-              onmouseover="this.style.background='#0F84B5'; this.style.color='#ffffff'; this.style.borderColor='#0F84B5';"
-              onmouseout="${isPrimary ? "this.style.background='#3867AE'; this.style.color='#ffffff'; this.style.borderColor='#3867AE';" : "this.style.background='rgba(56, 103, 174, 0.07)'; this.style.color='#243B63'; this.style.borderColor='rgba(56, 103, 174, 0.22)';"}"
-            >
-              <span class="erp-quick-label">${escapeHtml(isArabic ? btn.labelAr : btn.labelEn)}</span>
-            </button>
-          `;
-        }).join("")}
+        ${shortcuts.map((btn, index) => `
+          <button
+            type="button"
+            class="erp-quick-btn"
+            data-shortcut-index="${index}"
+          >
+            <span class="erp-quick-label">${escapeHtml(isArabic ? btn.labelAr : btn.labelEn)}</span>
+          </button>
+        `).join("")}
       </div>
     `;
 

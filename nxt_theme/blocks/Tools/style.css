@@ -233,7 +233,6 @@
 
   line-height: 1.3;
 
-  direction: ltr;
 }
 
 
@@ -1780,18 +1779,71 @@ html[data-theme="dark"]
   transform: translateY(-8px) !important;
 }
 
-/* Force Western Arabic / English digits (1, 2, 3...) in both AR and EN */
+/* =========================================================
+   RTL ALIGNMENTS & NUMERAL FORMATTING (ARABIC RIGHT ALIGN)
+   الواجهة العربية من اليمين تماماً والأرقام بالإنجليزية
+========================================================= */
+
+[dir="rtl"] .erp-dashboard-wrapper,
+.erp-dashboard-rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .erp-stat-card,
+.erp-dashboard-rtl .erp-stat-card {
+  text-align: right;
+}
+
+[dir="rtl"] .erp-stat-info,
+.erp-dashboard-rtl .erp-stat-info {
+  direction: rtl !important;
+  text-align: right !important;
+  align-items: flex-start !important;
+}
+
+[dir="rtl"] .erp-stat-value,
+.erp-dashboard-rtl .erp-stat-value {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+[dir="rtl"] .erp-stat-label,
+.erp-dashboard-rtl .erp-stat-label {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+[dir="rtl"] .erp-modal-box,
+[dir="rtl"].erp-modal-overlay .erp-modal-box {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .erp-modal-steps-list,
+.erp-dashboard-rtl .erp-modal-steps-list {
+  direction: rtl !important;
+  text-align: right !important;
+  padding: 0 20px !important;
+}
+
+[dir="rtl"] .erp-modal-steps-list li,
+.erp-dashboard-rtl .erp-modal-steps-list li {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+[dir="rtl"] .erp-modal-steps-list li::before,
+.erp-dashboard-rtl .erp-modal-steps-list li::before {
+  margin-inline-end: 9px !important;
+}
+
+/* Force English numerals (1, 2, 3...) without breaking RTL */
 .erp-cycle-number,
 .erp-stat-value,
 .erp-stat-icon,
-.erp-stat-info,
-.erp-modal-steps-list,
-.erp-modal-steps-list li,
-.erp-modal-steps-list li::marker,
-.erp-cycle-card,
+.erp-modal-steps-list li::before,
 [data-stat-id] {
-  direction: ltr !important;
-  unicode-bidi: isolate !important;
   font-variant-numeric: lining-nums tabular-nums !important;
   font-feature-settings: "lnum" 1, "tnum" 1 !important;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;

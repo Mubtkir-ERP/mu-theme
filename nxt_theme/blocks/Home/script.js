@@ -275,9 +275,8 @@
       background:
         var(--brand-primary) !important;
       color: #ffffff !important;
-      font-size: 11px;
-      font-weight: 700;
-      direction: ltr;
+      font-variant-numeric: lining-nums tabular-nums !important;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
     }
 
     .hm-sh-count.zero {

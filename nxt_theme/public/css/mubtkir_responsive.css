@@ -109,39 +109,70 @@
   }
 }
 
-/* 4. Force Western/English digits (1, 2, 3...) in both AR and EN */
+/* 4. Force Western/English digits (1, 2, 3...) in both AR and EN without breaking RTL */
 .erp-cycle-number,
+.erp-stat-value,
 .erp-stat-icon,
-.erp-modal-steps-list li::marker,
+.erp-modal-steps-list li::before,
 [data-stat-id] {
-  direction: ltr !important;
-  unicode-bidi: isolate !important;
   font-variant-numeric: lining-nums tabular-nums !important;
   font-feature-settings: "lnum" 1, "tnum" 1 !important;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
 }
 
-.erp-stat-value {
-  font-variant-numeric: lining-nums tabular-nums !important;
-  font-feature-settings: "lnum" 1, "tnum" 1 !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+/* 5. Ensure RTL numbers, stats, and modal steps flow strictly from right (اليمين) in Arabic */
+[dir="rtl"] .erp-dashboard-wrapper,
+.erp-dashboard-rtl {
+  direction: rtl;
+  text-align: right;
 }
 
-/* 5. Ensure RTL numbers and stats align strictly to the right (يمين) in Arabic */
+[dir="rtl"] .erp-stat-card,
 .erp-dashboard-rtl .erp-stat-card {
   text-align: right !important;
 }
 
+[dir="rtl"] .erp-stat-info,
 .erp-dashboard-rtl .erp-stat-info {
   direction: rtl !important;
   text-align: right !important;
   align-items: flex-start !important;
 }
 
-.erp-dashboard-rtl .erp-stat-value,
+[dir="rtl"] .erp-stat-value,
+.erp-dashboard-rtl .erp-stat-value {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+[dir="rtl"] .erp-stat-label,
 .erp-dashboard-rtl .erp-stat-label {
   direction: rtl !important;
   text-align: right !important;
+}
+
+[dir="rtl"] .erp-modal-box,
+[dir="rtl"].erp-modal-overlay .erp-modal-box {
+  direction: rtl;
+  text-align: right;
+}
+
+[dir="rtl"] .erp-modal-steps-list,
+.erp-dashboard-rtl .erp-modal-steps-list {
+  direction: rtl !important;
+  text-align: right !important;
+  padding: 0 20px !important;
+}
+
+[dir="rtl"] .erp-modal-steps-list li,
+.erp-dashboard-rtl .erp-modal-steps-list li {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+[dir="rtl"] .erp-modal-steps-list li::before,
+.erp-dashboard-rtl .erp-modal-steps-list li::before {
+  margin-inline-end: 9px !important;
 }
 
 /* 6. Ensure modal steps are shown directly by default without needing to click toggle */
@@ -157,3 +188,4 @@
   pointer-events: auto !important;
   margin-top: 14px !important;
 }
+
