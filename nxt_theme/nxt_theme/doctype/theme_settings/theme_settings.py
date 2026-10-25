@@ -152,6 +152,10 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			candidates.extend(["Integrations", "ERPNext Integrations"])
 		elif block_name == "Financial Reports":
 			candidates.extend(["Accounting Reports", "Financial Reports"])
+		elif block_name == "Bank Reconciliation":
+			candidates.extend(["Bank Reconciliation", "Bank-Reconciliation", "Bank reconciliation", "مطابقة البنك"])
+		elif block_name == "Gas Operations":
+			candidates.extend(["Gas Operations", "Gas-Operations", "Gas operations", "إدارة عمليات الغاز", "عمليات الغاز"])
 
 		ws_name = None
 		for c in candidates:

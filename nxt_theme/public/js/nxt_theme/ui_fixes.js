@@ -111,5 +111,41 @@ import { unlockBodyScrollIfNoModal } from "./modal_utils";
 			setTimeout(unlock_scroll, 300);
 			setTimeout(add_export_blocks_button, 500);
 		});
+
+		// Global modal helper: Steps shown directly + Launch button in brand primary #3867AE
+		$(document).on("click", ".erp-info-link, [data-info-item]", function () {
+			setTimeout(function () {
+				const $modal = $(".erp-modal-box");
+				if (!$modal.length) return;
+				$modal.find(".erp-modal-toggle-steps").hide();
+				$modal.find(".erp-modal-steps").show().addClass("is-shown").css({
+					display: "block",
+					maxHeight: "none",
+					opacity: "1",
+					visibility: "visible",
+					marginTop: "14px"
+				});
+				if (!$modal.find(".erp-modal-launch-btn, [data-modal-launch]").length) {
+					const isAr = document.documentElement.lang === "ar" || $("html").attr("dir") === "rtl" || $("[data-erp-dashboard]").attr("dir") === "rtl";
+					const title = $modal.find(".erp-modal-title").text().trim();
+					const $launchBtn = $(`
+						<button type="button" class="erp-modal-launch-btn" style="background: #3867AE; color: #ffffff; border: none; border-radius: 10px; padding: 12px 18px; font-weight: 700; width: 100%; margin-top: 16px; cursor: pointer; font-size: 14px; transition: background 0.2s ease;">
+							${isAr ? "🚀 فتح الشاشة الآن" : "🚀 Open Record Now"}
+						</button>
+					`);
+					$launchBtn.on("click", function () {
+						$modal.closest(".erp-modal-overlay").remove();
+						if (window.frappe && frappe.set_route) {
+							frappe.set_route("List", title);
+						}
+					});
+					$launchBtn.hover(
+						function () { $(this).css("background", "#0F84B5"); },
+						function () { $(this).css("background", "#3867AE"); }
+					);
+					$modal.append($launchBtn);
+				}
+			}, 60);
+		});
 	});
 })();

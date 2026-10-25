@@ -1,0 +1,2710 @@
+/* =========================================================
+   MUBTKIR ERP — BUYING WORKSPACE
+   Unified Professional Brand Theme
+   لوحة تحكم قسم المشتريات
+========================================================= */
+
+
+/* =========================================================
+   1. ROOT + BRAND COLORS
+   ألوان الهوية الرسمية
+========================================================= */
+
+.erp-dashboard-wrapper {
+
+  --brand-primary: #3867AE;
+  --brand-secondary: #0F84B5;
+  --brand-accent: #0BA1B8;
+  --brand-purple: #644DA6;
+
+  --brand-text: #243B63;
+  --brand-muted: #66758A;
+
+  --brand-border: rgba(56, 103, 174, 0.22);
+  --brand-border-strong: rgba(56, 103, 174, 0.38);
+
+  --brand-soft: rgba(56, 103, 174, 0.07);
+  --brand-soft-secondary: rgba(15, 132, 181, 0.07);
+  --brand-soft-accent: rgba(11, 161, 184, 0.07);
+  --brand-soft-purple: rgba(100, 77, 166, 0.07);
+
+  position: relative;
+  isolation: isolate;
+
+  width: 100%;
+
+  padding: 14px 16px 36px;
+
+  overflow: visible;
+
+  color: var(--brand-text);
+}
+
+
+/* =========================================================
+   2. FONT
+========================================================= */
+
+.erp-dashboard-wrapper,
+.erp-dashboard-wrapper * {
+
+  box-sizing: border-box;
+
+  font-family:
+    "Tajawal",
+    "Inter",
+    Arial,
+    sans-serif !important;
+}
+
+
+/* =========================================================
+   3. RTL
+========================================================= */
+
+.erp-dashboard-wrapper.erp-dashboard-rtl {
+
+  direction: rtl;
+  text-align: right;
+}
+
+
+/* =========================================================
+   BACKGROUND
+   صورة واحدة في الخلفية بدون تكرار
+========================================================= */
+
+.erp-dashboard-bg {
+    position: absolute !important;
+
+    top: 50px;
+    left: 50%;
+
+    /* حجم الصورة */
+    width: 78%;
+    max-width: 1200px;
+
+    height: auto;
+
+    transform: translateX(-50%);
+
+    /* الشفافية */
+    opacity: 0.03;
+
+    object-fit: contain;
+
+    pointer-events: none;
+    user-select: none;
+
+    z-index: 0;
+}
+
+
+/* الحاوية الرئيسية */
+.erp-dashboard-wrapper {
+    position: relative !important;
+    isolation: isolate;
+}
+
+
+/* المحتوى فوق الخلفية */
+.erp-purchase-cycle-section,
+.erp-stats-section,
+.erp-quick-actions,
+.erp-dashboard-content,
+.erp-footer {
+    position: relative !important;
+    z-index: 2;
+}
+
+/* =========================================================
+   المحتوى فوق الخلفية
+========================================================= */
+
+.erp-purchase-cycle-section,
+.erp-stats-section,
+.erp-quick-actions,
+.erp-dashboard-content,
+.erp-footer {
+
+    position: relative;
+
+    z-index: 2;
+}
+/* =========================================================
+   إبقاء جميع عناصر الداشبورد فوق الخلفية
+========================================================= */
+
+.erp-purchase-cycle-section,
+.erp-stats-section,
+.erp-quick-actions,
+.erp-dashboard-content,
+.erp-footer {
+    position: relative;
+    z-index: 2;
+}
+
+/* =========================================================
+   5. CONTENT LAYER
+   جميع المحتويات تظهر فوق الخلفية
+========================================================= */
+
+.erp-purchase-cycle-section,
+.erp-stats-section,
+.erp-quick-actions,
+.erp-dashboard-content,
+.erp-footer {
+
+  position: relative;
+
+  z-index: 2;
+}
+
+
+.erp-dashboard-content,
+.erp-module-section,
+.erp-dashboard-grid {
+
+  background: transparent !important;
+}
+
+
+/* =========================================================
+   6. SECTION TITLE
+========================================================= */
+
+.erp-section-title {
+
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  min-height: 36px;
+
+  margin: 0 0 16px;
+
+  padding: 0 0 10px;
+
+  border-bottom:
+    1px solid var(--brand-border);
+
+  color:
+    var(--brand-text) !important;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  line-height: 1.4;
+}
+
+
+.erp-section-title::after {
+
+  content: "";
+
+  position: absolute;
+
+  bottom: -1px;
+
+  width: 52px;
+  height: 2px;
+
+  border-radius: 20px;
+
+  background: var(--brand-primary);
+}
+
+
+.erp-dashboard-rtl
+.erp-section-title::after {
+
+  right: 0;
+}
+
+
+.erp-dashboard-wrapper:not(.erp-dashboard-rtl)
+.erp-section-title::after {
+
+  left: 0;
+}
+
+
+/* =========================================================
+   7. PURCHASE CYCLE SECTION
+========================================================= */
+
+.erp-purchase-cycle-section {
+
+  margin: 18px 0 24px;
+}
+
+
+.erp-cycle-container {
+
+  position: relative;
+
+  padding: 18px 18px 20px;
+
+  border:
+    1px solid var(--brand-border);
+
+  border-radius: 16px;
+
+  /*
+     شبه معتم حتى يبقى الـ Pattern ظاهراً بخفة
+  */
+
+  background:
+    rgba(255, 255, 255, 0.94);
+
+  box-shadow:
+    0 5px 18px rgba(36, 59, 99, 0.06);
+}
+
+
+.erp-cycle-title {
+
+  margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   SALES / PURCHASE CYCLE GRID
+   توزيع البطاقات على كامل عرض الصفحة
+========================================================= */
+
+.erp-cycle-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  gap: 18px;
+
+  width: 100%;
+
+  align-items: stretch;
+}
+
+
+.erp-cycle-item {
+  position: relative;
+
+  display: flex;
+
+  width: 100%;
+
+  min-width: 0;
+}
+
+
+/* البطاقة تتمدد حسب عرض العمود */
+.erp-cycle-card {
+  width: 100%;
+
+  min-width: 0;
+
+  min-height: 180px;
+}
+
+/* =========================================================
+   9. PURCHASE CYCLE CARD
+========================================================= */
+
+.erp-cycle-card {
+
+  --cycle-color:
+    var(--brand-primary);
+
+  --cycle-soft:
+    var(--brand-soft);
+
+  position: relative;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: flex-start;
+
+  width: 100%;
+
+  min-width: 0;
+  min-height: 180px;
+
+  padding: 17px 11px 15px;
+
+  overflow: visible;
+
+  border:
+    1px solid var(--brand-border);
+
+  border-radius: 14px;
+
+  outline: none;
+
+  background:
+    rgba(255, 255, 255, 0.96);
+
+  color:
+    var(--brand-text) !important;
+
+  font-family: inherit;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.20s ease,
+    border-color 0.20s ease,
+    box-shadow 0.20s ease;
+}
+
+
+.erp-cycle-card::before {
+
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  border-radius: inherit;
+
+  background:
+    var(--cycle-soft);
+
+  opacity: 0.42;
+
+  pointer-events: none;
+}
+
+
+.erp-cycle-card::after {
+
+  content: "";
+
+  position: absolute;
+
+  right: 0;
+  bottom: 0;
+
+  width: 0;
+  height: 3px;
+
+  background:
+    var(--cycle-color);
+
+  transition:
+    width 0.25s ease;
+}
+
+
+.erp-dashboard-wrapper:not(.erp-dashboard-rtl)
+.erp-cycle-card::after {
+
+  right: auto;
+  left: 0;
+}
+
+
+.erp-cycle-card > * {
+
+  position: relative;
+
+  z-index: 2;
+}
+
+
+@media (hover: hover) {
+
+  .erp-cycle-card:hover {
+
+    transform:
+      translateY(-4px);
+
+    border-color:
+      var(--cycle-color);
+
+    box-shadow:
+      0 12px 28px rgba(36, 59, 99, 0.12);
+  }
+
+
+  .erp-cycle-card:hover::after {
+
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   10. CYCLE NUMBER
+========================================================= */
+
+.erp-cycle-number {
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  margin-bottom: 14px;
+
+  border-radius: 50%;
+
+  background:
+    var(--cycle-color);
+
+  color:
+    #ffffff !important;
+
+  font-size: 18px;
+  font-weight: 800;
+
+  line-height: 1;
+
+  box-shadow:
+    0 5px 14px rgba(36, 59, 99, 0.12);
+}
+
+
+/* =========================================================
+   11. CYCLE TITLE
+========================================================= */
+
+.erp-cycle-card-title {
+
+  display: block;
+
+  width: 100%;
+
+  margin-bottom: 7px;
+
+  color:
+    var(--brand-text) !important;
+
+  font-size: 13.5px;
+  font-weight: 800;
+
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   12. CYCLE DESCRIPTION
+========================================================= */
+
+.erp-cycle-description {
+
+  display: block;
+
+  width: 100%;
+
+  color:
+    var(--brand-muted) !important;
+
+  font-size: 10.5px;
+  font-weight: 500;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   13. CYCLE BRAND COLORS
+========================================================= */
+
+.erp-cycle-card.cycle-tone-1 {
+
+  --cycle-color:
+    var(--brand-primary);
+
+  --cycle-soft:
+    var(--brand-soft);
+}
+
+
+.erp-cycle-card.cycle-tone-2 {
+
+  --cycle-color:
+    var(--brand-secondary);
+
+  --cycle-soft:
+    var(--brand-soft-secondary);
+}
+
+
+.erp-cycle-card.cycle-tone-3 {
+
+  --cycle-color:
+    var(--brand-accent);
+
+  --cycle-soft:
+    var(--brand-soft-accent);
+}
+
+
+.erp-cycle-card.cycle-tone-4 {
+
+  --cycle-color:
+    var(--brand-purple);
+
+  --cycle-soft:
+    var(--brand-soft-purple);
+}
+
+
+/* =========================================================
+   14. CYCLE ARROW
+========================================================= */
+
+.erp-cycle-arrow {
+
+  position: absolute;
+
+  top: 50%;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 20px;
+  height: 20px;
+
+  color:
+    var(--brand-primary) !important;
+
+  font-size: 20px;
+  font-weight: 800;
+
+  line-height: 1;
+
+  opacity: 0.55;
+
+  transform:
+    translateY(-50%);
+
+  pointer-events: none;
+
+  z-index: 10;
+}
+
+
+.erp-dashboard-rtl
+.erp-cycle-arrow {
+
+  left: -17px;
+}
+
+
+.erp-dashboard-wrapper:not(.erp-dashboard-rtl)
+.erp-cycle-arrow {
+
+  right: -17px;
+}
+
+
+/* =========================================================
+   15. OVERVIEW SECTION
+========================================================= */
+
+.erp-stats-section {
+
+  margin: 0 0 24px;
+}
+
+
+.erp-overview-container {
+
+  padding: 18px;
+
+  border:
+    1px solid var(--brand-border);
+
+  border-radius: 16px;
+
+  background:
+    rgba(255, 255, 255, 0.94);
+
+  box-shadow:
+    0 5px 18px rgba(36, 59, 99, 0.06);
+}
+
+
+/* =========================================================
+   16. STATS GRID
+========================================================= */
+
+.erp-stats-grid {
+
+  display: grid !important;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr)) !important;
+
+  gap: 14px;
+
+  margin: 0;
+}
+
+
+/* =========================================================
+   17. STAT CARD
+========================================================= */
+
+.erp-stat-card {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  min-width: 0;
+
+  min-height: 88px;
+
+  padding: 16px 18px;
+
+  border:
+    1px solid var(--brand-border);
+
+  border-radius: 14px;
+
+  background:
+    rgba(255, 255, 255, 0.96);
+
+  box-shadow:
+    0 4px 14px rgba(36, 59, 99, 0.05);
+
+  transition:
+    transform 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+
+@media (hover: hover) {
+
+  .erp-stat-card:hover {
+
+    transform:
+      translateY(-3px);
+
+    border-color:
+      var(--brand-border-strong);
+
+    box-shadow:
+      0 10px 26px rgba(36, 59, 99, 0.10);
+  }
+}
+
+
+/* =========================================================
+   18. STAT ICON
+========================================================= */
+
+.erp-stat-icon {
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 46px;
+  height: 46px;
+
+  flex: 0 0 46px;
+
+  border-radius: 12px;
+
+  background:
+    var(--brand-soft);
+
+  color:
+    var(--brand-primary) !important;
+
+  font-size: 11px !important;
+  font-weight: 800;
+
+  letter-spacing: 0.4px;
+}
+
+
+.erp-stat-card.overview-tone-1
+.erp-stat-icon {
+
+  background:
+    var(--brand-soft);
+
+  color:
+    var(--brand-primary) !important;
+}
+
+
+.erp-stat-card.overview-tone-2
+.erp-stat-icon {
+
+  background:
+    var(--brand-soft-secondary);
+
+  color:
+    var(--brand-secondary) !important;
+}
+
+
+.erp-stat-card.overview-tone-3
+.erp-stat-icon {
+
+  background:
+    var(--brand-soft-accent);
+
+  color:
+    var(--brand-accent) !important;
+}
+
+
+.erp-stat-card.overview-tone-4
+.erp-stat-icon {
+
+  background:
+    var(--brand-soft-purple);
+
+  color:
+    var(--brand-purple) !important;
+}
+
+
+/* =========================================================
+   19. STAT INFO
+========================================================= */
+
+.erp-stat-info {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+
+  min-width: 0;
+
+  color:
+    var(--brand-text) !important;
+}
+
+
+.erp-stat-value,
+.erp-stat-card .erp-stat-value {
+
+  color:
+    var(--brand-text) !important;
+
+  font-size:
+    20px !important;
+
+  font-weight:
+    800 !important;
+
+  line-height: 1.3;
+
+  font-variant-numeric: lining-nums tabular-nums !important;
+  font-feature-settings: "lnum" 1, "tnum" 1 !important;
+}
+
+
+.erp-stat-label,
+.erp-stat-card .erp-stat-label {
+
+  color:
+    var(--brand-text) !important;
+
+  font-size:
+    12px !important;
+
+  font-weight:
+    600 !important;
+
+  line-height: 1.45;
+}
+
+
+.erp-dashboard-rtl .erp-stat-card {
+  text-align: right !important;
+}
+
+.erp-dashboard-rtl .erp-stat-info {
+  direction: rtl !important;
+  text-align: right !important;
+  align-items: flex-start !important;
+}
+
+.erp-dashboard-rtl .erp-stat-value,
+.erp-dashboard-rtl .erp-stat-label {
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+
+/* =========================================================
+   20. QUICK ACTIONS
+   تم إبقاء تصميم الاختصارات كما كان
+========================================================= */
+
+.erp-quick-actions {
+
+  margin-bottom: 24px;
+}
+
+
+/* =========================================================
+   21. QUICK ACTIONS GRID
+========================================================= */
+
+.erp-quick-grid {
+
+  display: grid !important;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr)) !important;
+
+  gap: 12px;
+}
+
+
+/* =========================================================
+   22. QUICK BUTTON
+========================================================= */
+
+.erp-quick-btn {
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 48px;
+
+  padding:
+    11px 14px;
+
+  border:
+    1px solid var(--brand-border);
+
+  border-radius: 10px;
+
+  outline: none;
+
+  background:
+    var(--brand-soft);
+
+  color:
+    var(--brand-primary) !important;
+
+  font-family: inherit;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  line-height: 1.4;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+
+.erp-quick-btn:nth-child(1) {
+
+  background:
+    var(--brand-soft);
+}
+
+
+.erp-quick-btn:nth-child(2) {
+
+  background:
+    var(--brand-soft-secondary);
+}
+
+
+.erp-quick-btn:nth-child(3) {
+
+  background:
+    var(--brand-soft-accent);
+}
+
+
+.erp-quick-btn:nth-child(4) {
+
+  background:
+    var(--brand-soft-purple);
+}
+
+
+.erp-quick-btn,
+.erp-quick-btn .erp-quick-label {
+
+  color:
+    var(--brand-primary) !important;
+}
+
+
+@media (hover: hover) {
+
+  .erp-quick-btn:hover {
+
+    transform:
+      translateY(-2px);
+
+    color:
+      var(--brand-secondary) !important;
+
+    border-color:
+      var(--brand-secondary);
+
+    background:
+      rgba(15, 132, 181, 0.10);
+
+    box-shadow:
+      0 6px 16px rgba(56, 103, 174, 0.12);
+  }
+}
+
+
+.erp-quick-btn:active {
+
+  transform:
+    scale(0.98);
+}
+
+
+.erp-quick-label {
+
+  width: 100%;
+
+  white-space: normal;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   23. MODULE SECTION
+========================================================= */
+
+.erp-module-section {
+
+  margin-top: 24px;
+}
+
+
+/* =========================================================
+   24. REPORT CARDS GRID
+========================================================= */
+
+.erp-dashboard-grid {
+
+  display: grid !important;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr)) !important;
+
+  align-items: start;
+
+  gap: 16px;
+
+  width: 100%;
+
+  overflow: visible;
+}
+
+
+/* =========================================================
+   25. REPORT CARD
+========================================================= */
+
+.erp-card {
+
+  --erp-accent:
+    var(--brand-primary);
+
+  --erp-soft:
+    var(--brand-soft);
+
+  position: relative;
+
+  z-index: 1;
+
+  min-width: 0;
+
+  min-height: auto;
+  max-height: none;
+
+  padding:
+    0 16px;
+
+  overflow: visible;
+
+  border:
+    1px solid var(--brand-border);
+
+  border-radius: 14px;
+
+  background:
+    rgba(255, 255, 255, 0.95);
+
+  color:
+    var(--brand-text) !important;
+
+  box-shadow:
+    0 5px 16px rgba(36, 59, 99, 0.06);
+
+  transition:
+    max-height 0.4s ease,
+    transform 0.28s ease,
+    box-shadow 0.28s ease,
+    border-color 0.28s ease,
+    padding-bottom 0.28s ease;
+}
+
+
+.erp-card::before {
+
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 0;
+
+  background:
+    var(--erp-soft);
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  transition:
+    opacity 0.25s ease;
+}
+
+
+.erp-card::after {
+
+  content: "";
+
+  position: absolute;
+
+  right: 0;
+  bottom: 0;
+
+  z-index: 4;
+
+  width: 0;
+  height: 3px;
+
+  background:
+    var(--erp-accent);
+
+  transition:
+    width 0.3s ease;
+}
+
+
+.erp-dashboard-wrapper:not(.erp-dashboard-rtl)
+.erp-card::after {
+
+  right: auto;
+  left: 0;
+}
+
+
+/* =========================================================
+   26. CARD BRAND TONES
+========================================================= */
+
+.erp-card.tone-0 {
+
+  --erp-accent:
+    var(--brand-primary);
+
+  --erp-soft:
+    var(--brand-soft);
+}
+
+
+.erp-card.tone-1 {
+
+  --erp-accent:
+    var(--brand-secondary);
+
+  --erp-soft:
+    var(--brand-soft-secondary);
+}
+
+
+.erp-card.tone-2 {
+
+  --erp-accent:
+    var(--brand-accent);
+
+  --erp-soft:
+    var(--brand-soft-accent);
+}
+
+
+.erp-card.tone-3 {
+
+  --erp-accent:
+    var(--brand-purple);
+
+  --erp-soft:
+    var(--brand-soft-purple);
+}
+
+
+.erp-card.tone-4 {
+
+  --erp-accent:
+    var(--brand-primary);
+
+  --erp-soft:
+    var(--brand-soft);
+}
+
+
+/* =========================================================
+   27. CARD OPEN
+========================================================= */
+
+.erp-card.is-open {
+
+  z-index: 30;
+
+  max-height: 590px;
+
+  padding-bottom: 15px;
+
+  border-color:
+    var(--erp-accent);
+
+  transform:
+    translateY(-5px);
+
+  box-shadow:
+    0 18px 40px rgba(36, 59, 99, 0.14);
+}
+
+
+.erp-card.is-open::before {
+
+  opacity: 1;
+}
+
+
+.erp-card.is-open::after {
+
+  width: 100%;
+}
+
+
+@media (hover: hover) {
+
+  .erp-card:hover,
+  .erp-card:focus-within {
+
+    z-index: 30;
+
+    max-height: 590px;
+
+    padding-bottom: 15px;
+
+    border-color:
+      var(--erp-accent);
+
+    transform:
+      translateY(-5px);
+
+    box-shadow:
+      0 18px 40px rgba(36, 59, 99, 0.14);
+  }
+
+
+  .erp-card:hover::before,
+  .erp-card:focus-within::before {
+
+    opacity: 1;
+  }
+
+
+  .erp-card:hover::after,
+  .erp-card:focus-within::after {
+
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   28. CARD HEADING
+========================================================= */
+
+.erp-card-heading {
+
+  position: relative;
+
+  z-index: 2;
+
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  width: 100%;
+  height: 72px;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  border-bottom:
+    1px solid transparent;
+
+  outline: none;
+
+  background:
+    transparent;
+
+  color:
+    var(--brand-text) !important;
+
+  font-family: inherit;
+
+  text-align: inherit;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.22s ease,
+    margin-bottom 0.22s ease;
+}
+
+
+.erp-card.is-open
+.erp-card-heading {
+
+  margin-bottom: 10px;
+
+  border-bottom-color:
+    var(--brand-border);
+}
+
+
+@media (hover: hover) {
+
+  .erp-card:hover
+  .erp-card-heading,
+
+  .erp-card:focus-within
+  .erp-card-heading {
+
+    margin-bottom: 10px;
+
+    border-bottom-color:
+      var(--brand-border);
+  }
+}
+
+
+/* =========================================================
+   29. CARD ICON
+========================================================= */
+
+.erp-icon {
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+
+  flex:
+    0 0 34px;
+
+  border-radius:
+    9px;
+
+  background:
+    var(--erp-soft);
+
+  font-size:
+    17px;
+}
+
+
+/* =========================================================
+   30. CARD TITLE
+========================================================= */
+
+.erp-card-title,
+.erp-card .erp-card-title {
+
+  flex: 1;
+
+  min-width: 0;
+
+  color:
+    var(--brand-text) !important;
+
+  font-size:
+    16px;
+
+  font-weight:
+    800;
+
+  line-height:
+    1.5;
+}
+
+
+/* =========================================================
+   31. CARD CHEVRON
+========================================================= */
+
+.erp-card-chevron {
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+
+  flex:
+    0 0 28px;
+
+  border-radius:
+    8px;
+
+  background:
+    var(--erp-soft);
+
+  color:
+    var(--erp-accent) !important;
+
+  font-size:
+    17px;
+
+  transition:
+    transform 0.22s ease;
+}
+
+
+.erp-card.is-open
+.erp-card-chevron {
+
+  transform:
+    rotate(180deg);
+}
+
+
+@media (hover: hover) {
+
+  .erp-card:hover
+  .erp-card-chevron,
+
+  .erp-card:focus-within
+  .erp-card-chevron {
+
+    transform:
+      rotate(180deg);
+  }
+}
+
+
+/* =========================================================
+   32. CARD LINKS
+========================================================= */
+
+.erp-card-links {
+
+  position: relative;
+
+  z-index: 2;
+
+  display: grid;
+
+  gap: 5px;
+
+  max-height: none;
+
+  margin: 0;
+  padding: 0;
+
+  overflow: visible;
+
+  opacity: 1;
+  visibility: visible;
+
+  pointer-events: auto;
+
+  transform: none;
+
+  transition:
+    max-height 0.38s ease,
+    opacity 0.2s ease,
+    visibility 0.2s ease,
+    transform 0.28s ease;
+}
+
+
+.erp-card.is-open
+.erp-card-links {
+
+  max-height: 480px;
+
+  overflow-y: auto;
+
+  opacity: 1;
+  visibility: visible;
+
+  pointer-events: auto;
+
+  transform:
+    translateY(0);
+}
+
+
+/* Hover expansion disabled - cards open by default */
+
+
+/* =========================================================
+   33. LINK ROW
+========================================================= */
+
+.erp-link-row {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  width: 100%;
+}
+
+
+/* =========================================================
+   34. CARD LINK
+========================================================= */
+
+.erp-link {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  flex: 1;
+
+  min-width: 0;
+  min-height: 36px;
+
+  padding:
+    7px 10px;
+
+  border:
+    1px solid transparent;
+
+  border-radius:
+    8px;
+
+  outline: none;
+
+  background:
+    transparent;
+
+  color:
+    var(--brand-text) !important;
+
+  font-family: inherit;
+
+  font-size:
+    13px;
+
+  font-weight:
+    500;
+
+  line-height:
+    1.45;
+
+  text-align:
+    inherit;
+
+  cursor: pointer;
+
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.16s ease;
+}
+
+
+.erp-link-text {
+
+  flex: 1;
+
+  min-width: 0;
+
+  color:
+    inherit !important;
+}
+
+
+.erp-link:hover,
+.erp-link:focus {
+
+  border-color:
+    var(--brand-border);
+
+  background:
+    var(--erp-soft);
+
+  color:
+    var(--erp-accent) !important;
+}
+
+
+.erp-dashboard-rtl
+.erp-link:hover,
+
+.erp-dashboard-rtl
+.erp-link:focus {
+
+  transform:
+    translateX(-3px);
+}
+
+
+.erp-dashboard-wrapper:not(.erp-dashboard-rtl)
+.erp-link:hover,
+
+.erp-dashboard-wrapper:not(.erp-dashboard-rtl)
+.erp-link:focus {
+
+  transform:
+    translateX(3px);
+}
+
+
+/* =========================================================
+   35. LINK ARROW
+========================================================= */
+
+.erp-link-arrow {
+
+  flex:
+    0 0 auto;
+
+  color:
+    var(--erp-accent) !important;
+
+  font-size:
+    13px;
+
+  font-weight:
+    800;
+
+  opacity: 0;
+
+  transition:
+    opacity 0.16s ease;
+}
+
+
+.erp-link:hover
+.erp-link-arrow,
+
+.erp-link:focus
+.erp-link-arrow {
+
+  opacity: 1;
+}
+
+
+/* =========================================================
+   36. DETAILS BUTTON
+========================================================= */
+
+.erp-info-link {
+
+  flex:
+    0 0 auto;
+
+  padding:
+    5px 10px;
+
+  border:
+    1px solid var(--brand-border);
+
+  border-radius:
+    7px;
+
+  outline: none;
+
+  background:
+    var(--brand-soft);
+
+  color:
+    var(--brand-primary) !important;
+
+  font-family:
+    inherit;
+
+  font-size:
+    12px;
+
+  font-weight:
+    600;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+
+.erp-info-link:hover {
+
+  border-color:
+    var(--brand-primary);
+
+  background:
+    rgba(56, 103, 174, 0.13);
+
+  color:
+    var(--brand-primary) !important;
+}
+
+
+/* =========================================================
+   37. SCROLLBAR
+========================================================= */
+
+.erp-card-links::-webkit-scrollbar {
+
+  width: 5px;
+}
+
+
+.erp-card-links::-webkit-scrollbar-track {
+
+  background:
+    transparent;
+}
+
+
+.erp-card-links::-webkit-scrollbar-thumb {
+
+  border-radius:
+    10px;
+
+  background:
+    var(--brand-primary);
+}
+
+
+/* =========================================================
+   38. FOOTER
+========================================================= */
+
+.erp-footer {
+
+  --footer-font-size:
+    15px;
+
+  margin-top:
+    34px;
+
+  padding:
+    20px 12px 4px;
+
+  border-top:
+    1px solid var(--brand-border);
+
+  color:
+    var(--brand-text);
+}
+
+
+.erp-footer-inner {
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap:
+    10px 22px;
+
+  width: 100%;
+}
+
+
+.erp-footer-item {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  color:
+    var(--brand-text) !important;
+
+  font-size:
+    var(--footer-font-size) !important;
+
+  font-weight:
+    600;
+
+  line-height:
+    1.6;
+}
+
+
+.erp-footer-icon {
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color:
+    var(--brand-primary) !important;
+
+  font-size:
+    17px !important;
+
+  line-height:
+    1;
+}
+
+
+.erp-footer-label {
+
+  color:
+    var(--brand-text) !important;
+
+  font-size:
+    var(--footer-font-size) !important;
+
+  font-weight:
+    700 !important;
+}
+
+
+.erp-footer-link {
+
+  color:
+    var(--brand-primary) !important;
+
+  font-size:
+    var(--footer-font-size) !important;
+
+  font-weight:
+    600 !important;
+
+  text-decoration: none;
+
+  transition:
+    color 0.18s ease;
+}
+
+
+.erp-footer-link:hover {
+
+  color:
+    var(--brand-secondary) !important;
+
+  text-decoration:
+    underline;
+}
+
+
+.erp-footer-sep {
+
+  color:
+    var(--brand-border-strong) !important;
+
+  font-size:
+    20px;
+
+  font-weight:
+    300;
+
+  line-height:
+    1;
+}
+
+
+/* =========================================================
+   39. MODAL OVERLAY
+========================================================= */
+
+.erp-modal-overlay {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index:
+    99999 !important;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background:
+    rgba(12, 27, 54, 0) !important;
+
+  transition:
+    background 0.28s ease;
+}
+
+
+.erp-modal-overlay.is-visible {
+
+  background:
+    rgba(12, 27, 54, 0.52) !important;
+}
+
+
+/* =========================================================
+   40. MODAL BOX
+========================================================= */
+
+.erp-modal-box {
+
+  position: relative;
+
+  width: 100%;
+
+  max-width: 480px;
+  max-height: 85vh;
+
+  padding:
+    28px 24px;
+
+  overflow-y: auto;
+
+  border:
+    1px solid var(--brand-border);
+
+  border-radius:
+    16px;
+
+  background:
+    #ffffff !important;
+
+  box-shadow:
+    0 24px 64px rgba(12, 27, 54, 0.28) !important;
+
+  opacity: 0;
+
+  transform:
+    translateY(24px)
+    scale(0.97);
+
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s ease;
+}
+
+
+.erp-modal-overlay.is-visible
+.erp-modal-box {
+
+  opacity: 1;
+
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+
+/* =========================================================
+   41. MODAL CLOSE
+========================================================= */
+
+.erp-modal-close {
+
+  position: absolute;
+
+  top: 12px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  border: 0;
+
+  border-radius:
+    8px;
+
+  background:
+    var(--brand-soft);
+
+  color:
+    var(--brand-primary) !important;
+
+  font-size:
+    15px;
+
+  cursor:
+    pointer;
+}
+
+
+[dir="rtl"]
+.erp-modal-close {
+
+  left: 12px;
+}
+
+
+[dir="ltr"]
+.erp-modal-close {
+
+  right: 12px;
+}
+
+
+/* =========================================================
+   42. MODAL CONTENT
+========================================================= */
+
+.erp-modal-header {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+
+  margin-bottom:
+    15px;
+}
+
+
+.erp-modal-icon {
+
+  font-size:
+    28px;
+
+  line-height:
+    1;
+}
+
+
+.erp-modal-title {
+
+  margin: 0;
+
+  color:
+    var(--brand-text) !important;
+
+  font-size:
+    18px;
+
+  font-weight:
+    800;
+}
+
+
+.erp-modal-summary {
+
+  margin:
+    0 0 16px;
+
+  color:
+    var(--brand-text) !important;
+
+  font-size:
+    13.5px;
+
+  line-height:
+    1.75;
+}
+
+
+/* =========================================================
+   43. MODAL STEPS BUTTON
+========================================================= */
+
+.erp-modal-toggle-steps {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding:
+    8px 16px;
+
+  border:
+    1px solid var(--brand-primary);
+
+  border-radius:
+    9px;
+
+  background:
+    var(--brand-soft);
+
+  color:
+    var(--brand-primary) !important;
+
+  font-family:
+    inherit;
+
+  font-size:
+    12.5px;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+}
+
+
+.erp-modal-toggle-steps:hover {
+
+  background:
+    rgba(56, 103, 174, 0.13);
+}
+
+
+/* =========================================================
+   44. MODAL STEPS
+========================================================= */
+
+.erp-modal-steps {
+
+  max-height: 0;
+
+  overflow: visible;
+
+  opacity: 0;
+
+  margin-top: 0;
+
+  transition:
+    max-height 0.38s ease,
+    opacity 0.25s ease,
+    margin-top 0.25s ease;
+}
+
+
+.erp-modal-steps.is-shown {
+
+  max-height: 500px;
+
+  opacity: 1;
+
+  margin-top:
+    15px;
+}
+
+
+.erp-modal-steps-list {
+
+  margin: 0;
+
+  padding:
+    0 20px;
+
+  list-style: none;
+
+  counter-reset:
+    step-counter;
+}
+
+
+.erp-modal-steps-list li {
+
+  position: relative;
+
+  counter-increment:
+    step-counter;
+
+  padding:
+    9px 0;
+
+  border-bottom:
+    1px solid rgba(56, 103, 174, 0.10);
+
+  color:
+    var(--brand-text) !important;
+
+  font-size:
+    12.5px;
+
+  line-height:
+    1.65;
+}
+
+
+.erp-modal-steps-list li:last-child {
+
+  border-bottom: 0;
+}
+
+
+.erp-modal-steps-list li::before {
+
+  content:
+    counter(step-counter);
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 22px;
+  height: 22px;
+
+  margin-inline-end:
+    9px;
+
+  border-radius:
+    50%;
+
+  background:
+    var(--brand-primary);
+
+  color:
+    #ffffff;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+}
+
+
+/* =========================================================
+   45. DARK MODE
+========================================================= */
+
+[data-theme="dark"]
+.erp-dashboard-wrapper,
+
+html[data-theme="dark"]
+.erp-dashboard-wrapper {
+
+  --brand-text:
+    #E9EEF7;
+
+  --brand-muted:
+    #A7B2C5;
+
+  --brand-border:
+    rgba(15, 132, 181, 0.22);
+
+  --brand-border-strong:
+    rgba(15, 132, 181, 0.40);
+}
+
+
+/*
+   في الوضع الداكن نقلل وضوح Pattern
+*/
+
+[data-theme="dark"]
+.erp-dashboard-wrapper::before,
+
+html[data-theme="dark"]
+.erp-dashboard-wrapper::before {
+
+  opacity: 0.025;
+}
+
+
+[data-theme="dark"]
+.erp-cycle-container,
+
+html[data-theme="dark"]
+.erp-cycle-container,
+
+[data-theme="dark"]
+.erp-overview-container,
+
+html[data-theme="dark"]
+.erp-overview-container,
+
+[data-theme="dark"]
+.erp-cycle-card,
+
+html[data-theme="dark"]
+.erp-cycle-card,
+
+[data-theme="dark"]
+.erp-card,
+
+html[data-theme="dark"]
+.erp-card,
+
+[data-theme="dark"]
+.erp-stat-card,
+
+html[data-theme="dark"]
+.erp-stat-card {
+
+  background:
+    rgba(32, 36, 44, 0.95);
+
+  box-shadow:
+    0 7px 22px rgba(0, 0, 0, 0.18);
+}
+
+
+[data-theme="dark"]
+.erp-modal-box,
+
+html[data-theme="dark"]
+.erp-modal-box {
+
+  background:
+    var(--fg-color, #20242c) !important;
+}
+
+
+/* =========================================================
+   46. LARGE TABLET
+========================================================= */
+
+@media (max-width: 1250px) {
+
+  .erp-cycle-grid {
+
+    grid-template-columns:
+      repeat(4, minmax(0, 1fr));
+  }
+
+
+  .erp-cycle-arrow {
+
+    display: none;
+  }
+
+
+  /*
+     نصغر الـ Pattern قليلاً
+  */
+
+  .erp-dashboard-wrapper::before {
+
+    -webkit-mask-size:
+      155px auto;
+
+    mask-size:
+      155px auto;
+  }
+}
+
+
+/* =========================================================
+   47. TABLET
+========================================================= */
+
+@media (max-width: 1050px) {
+
+  .erp-dashboard-grid {
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+
+/* =========================================================
+   48. SMALL TABLET
+========================================================= */
+
+@media (max-width: 850px) {
+
+  .erp-cycle-grid {
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+
+  .erp-overview-container
+  .erp-stats-grid {
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr)) !important;
+  }
+
+
+  .erp-quick-grid {
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+
+/* =========================================================
+   49. MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .erp-dashboard-wrapper {
+
+    padding:
+      8px 8px 26px;
+  }
+
+
+  /*
+     نحافظ على Pattern في الجوال
+     لكن نصغره ونخففه
+  */
+
+  .erp-dashboard-wrapper::before {
+
+    -webkit-mask-size:
+      115px auto;
+
+    mask-size:
+      115px auto;
+
+    opacity:
+      0.025;
+  }
+
+
+  /* دورة المشتريات */
+
+  .erp-cycle-container {
+
+    padding:
+      12px;
+  }
+
+
+  .erp-cycle-grid {
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap:
+      8px;
+  }
+
+
+  .erp-cycle-card {
+
+    min-height:
+      155px;
+
+    padding:
+      13px 8px;
+  }
+
+
+  .erp-cycle-number {
+
+    width:
+      36px;
+
+    height:
+      36px;
+
+    flex-basis:
+      36px;
+
+    margin-bottom:
+      10px;
+
+    font-size:
+      15px;
+  }
+
+
+  .erp-cycle-card-title {
+
+    font-size:
+      12px;
+  }
+
+
+  .erp-cycle-description {
+
+    font-size:
+      9.5px;
+
+    line-height:
+      1.55;
+  }
+
+
+  /* نظرة عامة */
+
+  .erp-overview-container {
+
+    padding:
+      12px;
+  }
+
+
+  .erp-overview-container
+  .erp-stats-grid {
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr)) !important;
+
+    gap:
+      9px;
+  }
+
+
+  .erp-stat-card {
+
+    min-height:
+      76px;
+
+    padding:
+      11px;
+
+    gap:
+      8px;
+  }
+
+
+  .erp-stat-icon {
+
+    width:
+      36px;
+
+    height:
+      36px;
+
+    flex-basis:
+      36px;
+
+    font-size:
+      9px !important;
+  }
+
+
+  .erp-stat-value,
+  .erp-stat-card .erp-stat-value {
+
+    font-size:
+      15px !important;
+  }
+
+
+  .erp-stat-label,
+  .erp-stat-card .erp-stat-label {
+
+    font-size:
+      10px !important;
+  }
+
+
+  /* الاختصارات */
+
+  .erp-quick-grid {
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr)) !important;
+
+    gap:
+      8px;
+  }
+
+
+  .erp-quick-btn {
+
+    min-height:
+      43px;
+
+    padding:
+      9px 7px;
+
+    font-size:
+      11.5px;
+  }
+
+
+  /* التقارير */
+
+  .erp-dashboard-grid {
+
+    grid-template-columns:
+      1fr !important;
+
+    gap:
+      11px;
+  }
+
+
+  .erp-card.is-open {
+
+    transform:
+      translateY(-2px);
+  }
+
+
+  /* الفوتر */
+
+  .erp-footer {
+
+    --footer-font-size:
+      13px;
+
+    margin-top:
+      26px;
+
+    padding-top:
+      16px;
+  }
+
+
+  .erp-footer-inner {
+
+    flex-direction:
+      column;
+
+    gap:
+      8px;
+  }
+
+
+  .erp-footer-item {
+
+    justify-content:
+      center;
+  }
+
+
+  .erp-footer-icon {
+
+    font-size:
+      15px !important;
+  }
+
+
+  .erp-footer-sep {
+
+    display:
+      none;
+  }
+
+
+  /* المودال */
+
+  .erp-modal-overlay {
+
+    align-items:
+      flex-end;
+
+    padding:
+      10px;
+  }
+
+
+  .erp-modal-box {
+
+    max-height:
+      82vh;
+
+    padding:
+      22px 17px;
+
+    border-radius:
+      16px 16px 0 0;
+  }
+}
+
+.erp-card.is-collapsed {
+  padding-bottom: 0 !important;
+}
+
+.erp-card.is-collapsed .erp-card-heading {
+  margin-bottom: 0 !important;
+  border-bottom-color: transparent !important;
+}
+
+.erp-card.is-collapsed .erp-card-chevron {
+  transform: rotate(0deg) !important;
+}
+
+.erp-card.is-collapsed .erp-card-links {
+  max-height: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(-8px) !important;
+}
+
+/* Force Western Arabic / English digits (1, 2, 3...) in both AR and EN */
+.erp-cycle-number,
+.erp-stat-value,
+.erp-stat-icon,
+.erp-stat-info,
+.erp-modal-steps-list,
+.erp-modal-steps-list li,
+.erp-modal-steps-list li::marker,
+.erp-cycle-card,
+[data-stat-id] {
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  font-variant-numeric: lining-nums tabular-nums !important;
+  font-feature-settings: "lnum" 1, "tnum" 1 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+}

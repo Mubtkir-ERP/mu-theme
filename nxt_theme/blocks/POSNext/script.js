@@ -2,7 +2,7 @@
   /* =========================================================
      MUBTKIR ERP — POSNEXT WORKSPACE
      لوحة تحكم نقاط البيع الموحدة
-     Aligned strictly with posnext.json workspace definition
+     Aligned strictly with Mubtkir Brand Identity & posnext.json
   ========================================================= */
 
   const root = root_element.querySelector("[data-erp-dashboard]");
@@ -139,7 +139,7 @@
     "Reports & Settings": "التقارير والإعدادات",
     "Point of Sale": "نقاط البيع",
 
-    // Card Titles (Exact posnext.json)
+    // Card Titles
     "Reports": "التقارير",
     "Configuration": "الإعدادات والتكوين",
     "Shift Management": "إدارة الورديات",
@@ -147,7 +147,7 @@
     "Items": "الأصناف والمنتجات",
     "Vouchers": "القسائم مسبقة الدفع",
 
-    // Links / Items (Exact posnext.json)
+    // Links / Items
     "Sales vs Shifts Report": "تقرير المبيعات مقابل الورديات",
     "Cashier Performance Report": "تقرير أداء الكاشير",
     "Payments and Cash Control Report": "تقرير المدفوعات والرقابة النقدية",
@@ -191,7 +191,20 @@
   ]);
 
   /* =========================================================
-     5. POS CYCLE (دورة نقاط البيع)
+     5. DETAILS BUTTON RULE
+     الشرط الإلزامي: زر تفاصيل لكل الشاشات بدون استثناء
+     ولكن الإعدادات والتقارير ممنوع وضع زر تفاصيل لها
+  ========================================================= */
+  function hasDetailsButton(cardTitle, itemName) {
+    if (reportNames.has(itemName)) return false;
+    if (singleDocs.has(itemName)) return false;
+    if (/report|تقارير|تقرير/i.test(cardTitle) || /report|تقرير/i.test(itemName)) return false;
+    if (/setting|config|إعداد|اعداد|تكوين/i.test(cardTitle) || /setting|إعداد|اعداد/i.test(itemName)) return false;
+    return true;
+  }
+
+  /* =========================================================
+     6. POS CYCLE (دورة نقاط البيع)
   ========================================================= */
   const cycleCards = [
     {
@@ -241,7 +254,8 @@
   ];
 
   /* =========================================================
-     6. OVERVIEW / STATS (نظرة عامة — 4 بطاقات)
+     7. OVERVIEW / STATS (نظرة عامة — 4 بطاقات)
+     سحب الأرقام من فواتير نقاط البيع ودفتر الأستاذ والرصيد الفعلي
   ========================================================= */
   let invoiceCache = null;
   function loadTodayPOSInvoices() {
@@ -319,12 +333,13 @@
       short: "VOUCHER",
       labelAr: "القسائم النشطة",
       labelEn: "Active Vouchers",
-      fetch: () => safeCount("Prepaid Voucher Balance", { balance_amount: [">", 0] })
+      fetch: () => safeCount("Prepaid Voucher Balance", { current_balance: [">", 0] })
     }
   ];
 
   /* =========================================================
-     7. SHORTCUTS (اختصاراتك — Exact posnext.json order)
+     8. SHORTCUTS (اختصاراتك — Exact posnext.json order)
+     الالتزام التام بألوان الهوية: Primary #3867AE | Hover #0F84B5
   ========================================================= */
   const shortcuts = [
     {
@@ -393,7 +408,8 @@
   ];
 
   /* =========================================================
-     8. CARDS & LINKS (Exact posnext.json structure & order)
+     9. CARDS & LINKS (Exact posnext.json structure & order)
+     أيقونات معبرة للمربعات دون عشوائية ودون تكرار
   ========================================================= */
   const sections = [
     [
@@ -420,7 +436,7 @@
         ],
         [
           "Shift Management",
-          "🕒",
+          "⏱️",
           [
             "POS Opening Shift",
             "POS Closing Shift"
@@ -443,7 +459,7 @@
         ],
         [
           "Vouchers",
-          "🎟️",
+          "💳",
           [
             "Prepaid Voucher Report",
             "Prepaid Voucher Balance",
@@ -455,11 +471,11 @@
   ];
 
   /* =========================================================
-     9. ITEM GUIDANCE & DESCRIPTIONS (Modal details)
+     10. ITEM GUIDANCE & DESCRIPTIONS (Modal details)
   ========================================================= */
   const itemDescriptions = {
     "POS Opening Shift": {
-      icon: "🕒",
+      icon: "⏱️",
       summaryAr: "فتح وردية جديدة للكاشير، وتحديد ملف نقطة البيع والرصيد النقدي الافتتاحي في الصندوق.",
       summaryEn: "Open a new cashier shift, set the POS Profile, and record opening float cash balance.",
       stepsAr: [
@@ -494,42 +510,6 @@
         "System automatically aggregates sales and payment modes",
         "Count drawer cash and enter actual counted amounts",
         "Review reconciliation variances and submit"
-      ]
-    },
-    "POS Settings": {
-      icon: "⚙️",
-      summaryAr: "تهيئة الإعدادات العامة لنقاط البيع، والطباعة التلقائية، وخصائص واجهة POS Next.",
-      summaryEn: "Configure global POS parameters, auto printing, and POS Next cashier preferences.",
-      stepsAr: [
-        "فتح شاشة إعدادات نقاط البيع",
-        "تحديد الخيارات العامة للفوترة والمزامنة السحابية",
-        "ضبط إعدادات الطباعة والقوالب الافتراضية",
-        "حفظ التغييرات لتطبيقها فورياً على جميع الكاشيرات"
-      ],
-      stepsEn: [
-        "Open POS Settings",
-        "Configure global billing and cloud sync options",
-        "Set print formats and hardware preferences",
-        "Save changes to apply across all cashiers"
-      ]
-    },
-    "POS Profile": {
-      icon: "🏪",
-      summaryAr: "إنشاء وتخصيص ملف نقطة البيع لكل كاشير أو فرع وتحديد المستودع وطرق الدفع وقوائم الأسعار.",
-      summaryEn: "Create POS Profiles per branch/cashier, defining warehouse, payment methods, and price lists.",
-      stepsAr: [
-        "اضغط «ملف نقطة بيع جديد»",
-        "أدخل اسم الملف وحدد الشركة والفرع",
-        "حدد مستودع الصرف الافتراضي وقائمة الأسعار",
-        "أضف طرق الدفع المعتمدة (نقدي، مدى، فيزا)",
-        "حدد المستخدمين والكاشيرات المصرح لهم ثم اضغط حفظ"
-      ],
-      stepsEn: [
-        "Click «New POS Profile»",
-        "Set profile name, company, and branch",
-        "Assign default warehouse and price list",
-        "Add accepted payment methods (Cash, Card, etc.)",
-        "Assign authorized cashiers and save"
       ]
     },
     "POS Offer": {
@@ -622,113 +602,11 @@
         "Inspect transaction type (Credit / Debit)",
         "Verify linked POS invoice and cashier shift"
       ]
-    },
-    "Sales vs Shifts Report": {
-      icon: "📊",
-      summaryAr: "تقرير شامل يقارن إجمالي المبيعات مقابل الورديات المنفذة وتوزيع الإيرادات حسب الكاشير والفرع.",
-      summaryEn: "Comprehensive report comparing gross sales against shifts, broken down by cashier and branch.",
-      stepsAr: [
-        "فتح تقرير المبيعات مقابل الورديات",
-        "تحديد نطاق التواريخ والشركة والفرع",
-        "تطبيق الفلاتر لاستعراض ملخص الورديات والمبيعات",
-        "تصدير التقرير أو طباعته للمطابقة المحاسبية"
-      ],
-      stepsEn: [
-        "Open Sales vs Shifts Report",
-        "Set date range, company, and branch filters",
-        "Run report to review shift sales summaries",
-        "Export to Excel/PDF for accounting audit"
-      ]
-    },
-    "Cashier Performance Report": {
-      icon: "👤",
-      summaryAr: "مؤشرات أداء الكاشيرات ومعدل إصدار الفواتير وسرعة العمليات ومتوسط قيمة السلة.",
-      summaryEn: "Cashier KPIs, invoice velocity, transaction speed, and average basket size analysis.",
-      stepsAr: [
-        "فتح تقرير أداء الكاشير",
-        "تحديد الفترة الزمنية واختيار الكاشير",
-        "تحليل إجمالي العمليات وقيم الفواتير المنجزة",
-        "مقارنة الكفاءة التشغيلية بين نقاط البيع"
-      ],
-      stepsEn: [
-        "Open Cashier Performance Report",
-        "Select period and cashier filter",
-        "Analyze total transactions and invoice values",
-        "Compare operational efficiency across cashiers"
-      ]
-    },
-    "Payments and Cash Control Report": {
-      icon: "💰",
-      summaryAr: "تقرير رقابة حركة النقدية وطرق الدفع والتحقق من فروقات التسوية بين المسجل والفعلي.",
-      summaryEn: "Cash control report verifying payment mode breakdowns and shift cash reconciliation variances.",
-      stepsAr: [
-        "فتح تقرير المدفوعات والرقابة النقدية",
-        "تحديد تاريخ المطابقة وملف نقطة البيع",
-        "مراجعة إجماليات طرق الدفع (مدى، نقدي، فيزا)",
-        "التحقق من أي عجز أو زيادة في الصناديق"
-      ],
-      stepsEn: [
-        "Open Payments and Cash Control Report",
-        "Set audit date and POS Profile",
-        "Review breakdown of payments (Cash, Card, etc.)",
-        "Audit cash shortages or overages per register"
-      ]
-    },
-    "Inventory Impact and Fast Movers Report": {
-      icon: "📈",
-      summaryAr: "تحليل حركة الأصناف المباعة عبر نقاط البيع وتحديد المنتجات الأكثر مبيعاً وأثرها على المخزون.",
-      summaryEn: "Fast-moving items analysis from POS sales and their real-time impact on warehouse inventory.",
-      stepsAr: [
-        "فتح تقرير أثر المخزون والأصناف سريعة الحركة",
-        "تحديد المستودع ومجموعة الأصناف",
-        "الاطلاع على الأصناف الأكثر دوراناً وطلباً",
-        "التخطيط لإعادة طلب الكميات قبل نفاد المخزون"
-      ],
-      stepsEn: [
-        "Open Inventory Impact and Fast Movers Report",
-        "Select warehouse and item group",
-        "Identify top-selling products and velocity",
-        "Plan inventory replenishment before stockouts"
-      ]
-    },
-    "Offline Sync and System Health Report": {
-      icon: "🔄",
-      summaryAr: "متابعة سجل المزامنة لحركات نقاط البيع دون اتصال والاطمئنان على سلامة العمليات.",
-      summaryEn: "Monitor offline transaction queue sync status and overall POS system operational health.",
-      stepsAr: [
-        "فتح تقرير المزامنة وصحة النظام",
-        "مراجعة الفواتير المعلقة بانتظار المزامنة",
-        "التحقق من حالة اتصال أجهزة نقاط البيع بالخادم",
-        "معالجة أي أخطاء مزامنة أو تعارضات فوراً"
-      ],
-      stepsEn: [
-        "Open Offline Sync and System Health Report",
-        "Review pending offline transactions queue",
-        "Check network connectivity and sync logs",
-        "Troubleshoot any synchronization conflicts"
-      ]
-    },
-    "Prepaid Voucher Report": {
-      icon: "📑",
-      summaryAr: "تقرير تحليلي لكافة القسائم مسبقة الدفع ومعدلات استبدالها والأرصدة المتبقية والمصروفة.",
-      summaryEn: "Analytical report of all prepaid vouchers, redemption rates, and outstanding balances.",
-      stepsAr: [
-        "فتح تقرير القسائم مسبقة الدفع",
-        "تحديد العميل أو الفرع أو الفترة",
-        "استعراض إجمالي المبالغ المصدرة والمستبدلة",
-        "متابعة الالتزامات المالية للأرصدة المعلقة"
-      ],
-      stepsEn: [
-        "Open Prepaid Voucher Report",
-        "Filter by customer, branch, or date range",
-        "Review total issued vs redeemed voucher amounts",
-        "Monitor outstanding voucher balance liabilities"
-      ]
     }
   };
 
   /* =========================================================
-     10. FOOTER INFO
+     11. FOOTER INFO
   ========================================================= */
   const footerInfo = {
     phone: (window.frappe?.boot?.theme_settings?.phone) || "0115110455",
@@ -745,7 +623,9 @@
   };
 
   /* =========================================================
-     11. MODAL DIALOG (تفاصيل الشاشات والتقارير)
+     12. MODAL DIALOG (تفاصيل الشاشات والعمليات)
+     الخطوات تظهر مباشرة بدون الحاجة للضغط على زر إظهار الخطوات
+     وزر فتح الشاشة موجود وواضح في الأسفل
   ========================================================= */
   function showInfoModal(itemName) {
     const desc = itemDescriptions[itemName];
@@ -762,22 +642,31 @@
     overlay.setAttribute("dir", isArabic ? "rtl" : "ltr");
 
     overlay.innerHTML = `
-      <div class="erp-modal-box">
-        <button type="button" class="erp-modal-close" data-modal-close>✕</button>
-        <div class="erp-modal-header">
-          <span class="erp-modal-icon">${desc?.icon || "📄"}</span>
-          <h3 class="erp-modal-title">${escapeHtml(title)}</h3>
+      <div class="erp-modal-box" style="border: 1px solid rgba(56, 103, 174, 0.22); border-radius: 16px; box-shadow: 0 10px 30px rgba(36, 59, 99, 0.12);">
+        <button type="button" class="erp-modal-close" data-modal-close style="color: #644DA6;">✕</button>
+        <div class="erp-modal-header" style="display:flex; align-items:center; gap:10px;">
+          <span class="erp-modal-icon" style="font-size:24px;">${desc?.icon || "📄"}</span>
+          <h3 class="erp-modal-title" style="color: #243B63; font-weight:800; margin:0;">${escapeHtml(title)}</h3>
         </div>
-        <p class="erp-modal-summary">${escapeHtml(summary)}</p>
-        <button type="button" class="erp-modal-toggle-steps" data-modal-toggle-steps>
-          ${isArabic ? "📖 خطوات الاستخدام" : "📖 Step-by-Step Guide"}
-        </button>
-        <div class="erp-modal-steps" data-modal-steps>
-          <ol class="erp-modal-steps-list">
-            ${steps.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
+        <p class="erp-modal-summary" style="color: #66758A; margin: 12px 0 14px; line-height: 1.6; font-size: 13.5px;">${escapeHtml(summary)}</p>
+        
+        <div class="erp-modal-steps-section" style="background: rgba(56, 103, 174, 0.05); border: 1px solid rgba(56, 103, 174, 0.15); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #243B63; margin: 0 0 10px 0;">
+            ${isArabic ? "📌 خطوات الاستخدام المباشرة:" : "📌 Step-by-Step Instructions:"}
+          </h4>
+          <ol class="erp-modal-steps-list" style="margin: 0; padding-right: 20px; padding-left: 20px;">
+            ${steps.map(s => `<li style="margin-bottom: 8px; color: #243B63; font-size: 13px; line-height: 1.5;">${escapeHtml(s)}</li>`).join("")}
           </ol>
         </div>
-        <button type="button" class="erp-quick-btn" data-modal-launch style="width:100%; margin-top:14px;">
+
+        <button
+          type="button"
+          class="erp-modal-launch-btn"
+          data-modal-launch
+          style="background: #3867AE; color: #ffffff; border: none; border-radius: 10px; padding: 12px 18px; font-weight: 700; width: 100%; cursor: pointer; font-size: 14px; transition: background 0.2s ease;"
+          onmouseover="this.style.background='#0F84B5'"
+          onmouseout="this.style.background='#3867AE'"
+        >
           ${isArabic ? "🚀 فتح الشاشة الآن" : "🚀 Open Record Now"}
         </button>
       </div>
@@ -793,14 +682,6 @@
       if (e.target === overlay) overlay.remove();
     });
 
-    const toggleBtn = overlay.querySelector("[data-modal-toggle-steps]");
-    const stepsBox = overlay.querySelector("[data-modal-steps]");
-    if (toggleBtn && stepsBox) {
-      toggleBtn.addEventListener("click", () => {
-        stepsBox.classList.toggle("is-shown");
-      });
-    }
-
     const launchBtn = overlay.querySelector("[data-modal-launch]");
     if (launchBtn) {
       launchBtn.addEventListener("click", () => {
@@ -811,7 +692,7 @@
   }
 
   /* =========================================================
-     12. RENDER CYCLE
+     13. RENDER CYCLE
   ========================================================= */
   function renderCycle() {
     if (!cycleSection) return;
@@ -824,7 +705,7 @@
         <div class="erp-cycle-item">
           <button
             type="button"
-            class="erp-cycle-card cycle-tone-${(index % 5) + 1}"
+            class="erp-cycle-card cycle-tone-${(index % 4) + 1}"
             data-pos-cycle="${index}"
           >
             <span class="erp-cycle-number">${card.step}</span>
@@ -867,7 +748,7 @@
   }
 
   /* =========================================================
-     13. RENDER STATS
+     14. RENDER STATS (أرقام إنجليزية ومحاذاة يمين في العربي)
   ========================================================= */
   function renderStats() {
     if (!statsSection) return;
@@ -908,7 +789,8 @@
   }
 
   /* =========================================================
-     14. RENDER SHORTCUTS (Exact posnext.json order)
+     15. RENDER SHORTCUTS (Exact posnext.json order)
+     الالتزام الصارم بألوان الهوية: Primary #3867AE | Hover #0F84B5
   ========================================================= */
   function renderQuickActions() {
     if (!quickActions) return;
@@ -918,12 +800,18 @@
       <div class="erp-quick-grid">
         ${shortcuts.map((btn, index) => {
           const isPrimary = btn.type === "pos";
+          const bgStyle = isPrimary
+            ? "background: #3867AE; color: #ffffff; border: 1px solid #3867AE; font-weight: 700;"
+            : "background: rgba(56, 103, 174, 0.07); color: #243B63; border: 1px solid rgba(56, 103, 174, 0.22); font-weight: 600;";
+
           return `
             <button
               type="button"
               class="erp-quick-btn ${isPrimary ? "erp-quick-btn-primary" : ""}"
               data-shortcut-index="${index}"
-              style="${isPrimary ? "background: linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff; font-weight:700;" : ""}"
+              style="${bgStyle} transition: all 0.2s ease;"
+              onmouseover="this.style.background='#0F84B5'; this.style.color='#ffffff'; this.style.borderColor='#0F84B5';"
+              onmouseout="${isPrimary ? "this.style.background='#3867AE'; this.style.color='#ffffff'; this.style.borderColor='#3867AE';" : "this.style.background='rgba(56, 103, 174, 0.07)'; this.style.color='#243B63'; this.style.borderColor='rgba(56, 103, 174, 0.22)';"}"
             >
               <span class="erp-quick-label">${escapeHtml(isArabic ? btn.labelAr : btn.labelEn)}</span>
             </button>
@@ -948,7 +836,8 @@
   }
 
   /* =========================================================
-     15. RENDER SECTIONS & CARDS (Exact posnext.json structure)
+     16. RENDER SECTIONS & CARDS (Exact posnext.json structure)
+     زر تفاصيل يظهر فقط للشاشات والعمليات ويُمنع في التقارير والإعدادات
   ========================================================= */
   function renderSections() {
     if (!content) return;
@@ -962,8 +851,8 @@
 
         const linksHtml = items.map(item => {
           const detailText = isArabic ? "تفاصيل" : "Details";
-          const hasDesc = !!itemDescriptions[item];
-          const infoBtn = hasDesc
+          const showDetails = hasDetailsButton(cardTitle, item);
+          const infoBtn = showDetails
             ? `<button type="button" class="erp-info-link" data-info-item="${escapeHtml(item)}">${detailText}</button>`
             : "";
 
@@ -984,7 +873,7 @@
 
         return `
           <article
-            class="erp-card is-open tone-${(secIndex + cardIndex) % 5}"
+            class="erp-card is-open tone-${(secIndex + cardIndex) % 4}"
             data-erp-card
           >
             <button
@@ -1045,7 +934,7 @@
   }
 
   /* =========================================================
-     16. RENDER FOOTER
+     17. RENDER FOOTER
   ========================================================= */
   function renderFooter() {
     if (!footerEl) return;
@@ -1075,7 +964,7 @@
   }
 
   /* =========================================================
-     17. INIT
+     18. INIT
   ========================================================= */
   try { renderCycle(); } catch (e) { console.error("POS Cycle Error:", e); }
   try { renderStats(); } catch (e) { console.error("POS Stats Error:", e); }

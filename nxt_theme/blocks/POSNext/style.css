@@ -818,7 +818,8 @@
 
   line-height: 1.3;
 
-  direction: ltr;
+  font-variant-numeric: lining-nums tabular-nums !important;
+  font-feature-settings: "lnum" 1, "tnum" 1 !important;
 }
 
 
@@ -835,6 +836,23 @@
     600 !important;
 
   line-height: 1.45;
+}
+
+
+.erp-dashboard-rtl .erp-stat-card {
+  text-align: right !important;
+}
+
+.erp-dashboard-rtl .erp-stat-info {
+  direction: rtl !important;
+  text-align: right !important;
+  align-items: flex-start !important;
+}
+
+.erp-dashboard-rtl .erp-stat-value,
+.erp-dashboard-rtl .erp-stat-label {
+  direction: rtl !important;
+  text-align: right !important;
 }
 
 
