@@ -1,6 +1,137 @@
-/* MUBTKIR — تحسينات شاملة للتجاوب، السكنات، الشعار، الألوان، وترتيب عناصر التابلت والجوال */
+/* MUBTKIR — النظام الحديث المتكامل: ناف بار مستقل، سايدبار منفصل، وطبقات عرض قياسية */
 
-/* شريط البحث: يظهر كصندوق على الكمبيوتر (>= 1280px)، ويتحول لأيقونة مصغرة على التابلت والجوال (< 1280px) */
+/* =========================================================
+   1. شريط التنقل العلوي المستقل (Mubtkir Modern Navbar)
+   ========================================================= */
+.nxt-modern-navbar {
+	position: sticky !important;
+	top: 0 !important;
+	height: 65px !important;
+	min-height: 65px !important;
+	max-height: 65px !important;
+	z-index: 1000 !important;
+	background: rgba(255, 255, 255, 0.96) !important;
+	backdrop-filter: blur(12px) !important;
+	-webkit-backdrop-filter: blur(12px) !important;
+	border-bottom: 1px solid rgba(226, 232, 240, 0.85) !important;
+	box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.04) !important;
+	display: flex !important;
+	align-items: center !important;
+	width: 100% !important;
+	padding: 0 1rem !important;
+	box-sizing: border-box !important;
+}
+
+.dark .nxt-modern-navbar {
+	background: rgba(30, 41, 59, 0.96) !important;
+	border-bottom: 1px solid rgba(51, 65, 85, 0.85) !important;
+}
+
+.nxt-navbar-inner {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	width: 100% !important;
+	height: 100% !important;
+	gap: 0.5rem !important;
+}
+
+/* =========================================================
+   2. طبقة التعتيم المستقلة لشاشات التابلت والجوال (Backdrop)
+   ========================================================= */
+.nxt-sidebar-backdrop {
+	position: fixed !important;
+	inset: 0 !important;
+	background: rgba(0, 0, 0, 0.65) !important;
+	z-index: 1040 !important;
+	display: none;
+	opacity: 0;
+	transition: opacity 0.25s ease-in-out !important;
+	-webkit-tap-highlight-color: transparent !important;
+}
+
+.nxt-sidebar-backdrop.active,
+.side-menu--mobile-menu-open ~ .nxt-sidebar-backdrop {
+	display: block !important;
+	opacity: 1 !important;
+}
+
+/* =========================================================
+   3. القائمة الجانبية المستقلة وهيكلة الشاشات (Sidebar Drawer)
+   ========================================================= */
+.side-menu {
+	z-index: 1050 !important;
+}
+
+@media (min-width: 1280px) {
+	.nxt-sidebar-backdrop {
+		display: none !important;
+	}
+
+	.side-menu {
+		position: fixed !important;
+		top: 0 !important;
+		bottom: 0 !important;
+		inset-inline-start: 0 !important;
+		width: 275px !important;
+		transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+	}
+
+	.side-menu.side-menu--collapsed:not(.side-menu--on-hover) {
+		width: 91px !important;
+	}
+
+	/* إزاحة المحتوى على الكمبيوتر */
+	.content,
+	.main-section,
+	.nxt-main-wrapper {
+		margin-inline-start: 275px !important;
+		transition: margin-inline-start 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+	}
+
+	.content.content--compact,
+	.nxt-main-wrapper.content--compact {
+		margin-inline-start: 91px !important;
+	}
+}
+
+@media (max-width: 1279px) {
+	/* على التابلت والجوال: القائمة الجانبية Drawer ينزلق فوق كل العناصر */
+	.side-menu {
+		position: fixed !important;
+		top: 0 !important;
+		bottom: 0 !important;
+		inset-inline-start: 0 !important;
+		width: 275px !important;
+		max-width: 85vw !important;
+		height: 100vh !important;
+		transform: translateX(-100%) !important;
+		transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+		box-shadow: none !important;
+		margin: 0 !important;
+	}
+
+	[dir="rtl"] .side-menu {
+		transform: translateX(100%) !important;
+	}
+
+	.side-menu.side-menu--mobile-menu-open {
+		transform: translateX(0) !important;
+		box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.35), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
+	}
+
+	/* المحتوى يمتد لكامل الشاشة بانسيابية */
+	.content,
+	.main-section,
+	.nxt-main-wrapper {
+		margin-inline-start: 0 !important;
+		width: 100% !important;
+	}
+}
+
+/* =========================================================
+   4. شريط البحث والتجاوب
+   ========================================================= */
 @media (min-width: 1280px) {
 	.short-search-icon {
 		display: none !important;
@@ -18,48 +149,20 @@
 		display: flex !important;
 	}
 
-	/* إخفاء العناصر الزائدة لتوفير المساحة */
 	.mub-hide-mobile,
-	.request-full-screen,
-	nav[aria-label="breadcrumb"] {
+	.request-full-screen {
 		display: none !important;
 	}
 
-	/* تقليص هوامش الشريط العلوي لمنع خروج العناصر */
-	.box .flex.h-full.w-full.items-center {
-		padding-left: 0.35rem !important;
-		padding-right: 0.35rem !important;
-		gap: 0.25rem !important;
-	}
-
-	/* ضبط هوامش الأزرار والقوائم المنسدلة */
-	.dropdown.ml-3,
-	.dropdown.ml-5 {
-		margin-left: 0.15rem !important;
-		margin-right: 0.15rem !important;
-	}
-
-	/* إخفاء اسم الشركة النصّي في شاشات الجوال والتابلت لتوفير المساحة للناف بار والاكتفاء بالشعار */
+	/* إخفاء اسم الشركة النصي على الجوال والتابلت لتوفير مساحة للناف بار */
 	.company-switcher-current-label,
 	.branding div,
-	.branding span,
-	.side-menu__content .branding div,
-	.side-menu__content a.items-center div,
-	.top-bar .font-medium,
-	.box .side-menu__content .font-medium {
+	.branding span {
 		display: none !important;
-	}
-
-	/* منع التمرير الأفقي في رأس الصفحة */
-	.top-bar,
-	.top-bar .box {
-		margin-left: 0.25rem !important;
-		margin-right: 0.25rem !important;
-		max-width: calc(100vw - 0.5rem) !important;
 	}
 }
 
-/* شاشات التابلت والمتوسطة (768px إلى 1279px) */
+/* فتات الخبز (Breadcrumbs) على شاشات التابلت */
 @media (min-width: 768px) and (max-width: 1279px) {
 	#navbar-breadcrumbs {
 		max-width: clamp(140px, 20vw, 240px) !important;
@@ -69,26 +172,11 @@
 	#navbar-breadcrumbs li:not(:last-child):not(:first-child) {
 		display: none !important;
 	}
-
-	.request-full-screen,
-	.mub-hide-mobile {
-		display: none !important;
-	}
-
-	.dropdown.ml-3,
-	.dropdown.ml-5 {
-		margin-left: 0.25rem !important;
-		margin-right: 0.25rem !important;
-	}
-
-	.box .flex.h-full.w-full.items-center {
-		padding-left: 0.75rem !important;
-		padding-right: 0.75rem !important;
-		gap: 0.35rem !important;
-	}
 }
 
-/* تجميع أزرار الإجراءات في شاشة التابلت داخل قائمة 3 نقاط مثل الجوال لمنع تزاحم رأس الصفحة */
+/* =========================================================
+   5. تجميع الإجراءات وقائمة 3 نقاط (Dropdown)
+   ========================================================= */
 @media (max-width: 1024px) {
 	.page-head .custom-actions,
 	.page-head .inner-group-button,
@@ -99,26 +187,39 @@
 	.page-actions .page-icon-group {
 		display: none !important;
 	}
-
-	/* إصلاح قائمة 3 نقاط داخل doctype على التابلت والجوال لعدم قصها من فوق وإظهار كل الخيارات مع إمكانية التمرير */
-	.page-head .menu-btn-group .dropdown-menu,
-	.page-actions .menu-btn-group .dropdown-menu,
-	.menu-btn-group .dropdown-menu {
-		position: fixed !important;
-		top: 65px !important;
-		bottom: auto !important;
-		transform: none !important;
-		max-height: calc(100vh - 85px) !important;
-		overflow-y: auto !important;
-		-webkit-overflow-scrolling: touch !important;
-		z-index: 1060 !important;
-		min-width: 240px !important;
-		max-width: 90vw !important;
-		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-	}
 }
 
-/* ضبط الشعار واسم الشركة لمنع تداخل النصوص والنزول لأسفل */
+/* قائمة 3 نقاط تفتح دائماً فوق الناف بار وكافة العناصر */
+.page-head .menu-btn-group .dropdown-menu,
+.page-actions .menu-btn-group .dropdown-menu,
+.menu-btn-group .dropdown-menu {
+	z-index: 1060 !important;
+	max-height: calc(100vh - 85px) !important;
+	overflow-y: auto !important;
+	-webkit-overflow-scrolling: touch !important;
+	min-width: 240px !important;
+	max-width: 90vw !important;
+	box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.page-head,
+.page-head .page-actions,
+.standard-actions,
+.menu-btn-group,
+.actions-btn-group {
+	overflow: visible !important;
+}
+
+.page-head .page-actions {
+	display: flex !important;
+	flex-wrap: wrap !important;
+	align-items: center !important;
+	gap: 0.35rem !important;
+}
+
+/* =========================================================
+   6. الشعار واسم الشركة في السايدبار
+   ========================================================= */
 .branding {
 	display: inline-flex !important;
 	flex-direction: row !important;
@@ -136,7 +237,6 @@
 	flex-shrink: 0 !important;
 }
 
-/* عند فتح القائمة أو تمرير الماوس عليها: الشعار وبجانبه النص في سطر واحد */
 .side-menu:not(.side-menu--collapsed) .branding,
 .side-menu--on-hover .branding {
 	flex-direction: row !important;
@@ -148,7 +248,6 @@
 	margin: 0 !important;
 }
 
-/* عند طي/تصغير القائمة الجانبية (Collapsed Sidebar): إخفاء النص وتوسيط الأيقونة فقط */
 .side-menu--collapsed:not(.side-menu--on-hover) .branding {
 	margin: 0 auto !important;
 	width: 100% !important;
@@ -170,7 +269,9 @@
 	display: none !important;
 }
 
-/* ترقيم عدد الصفوف في شاشة الجوال يظهر في سطر واحد دون التفاف */
+/* =========================================================
+   7. ضبط عناصر الجداول والجوال
+   ========================================================= */
 .list-count,
 .list-row-head .list-count,
 .list-row-head .level-left,
@@ -186,49 +287,22 @@
 	align-items: center !important;
 }
 
-/* حل مشكلة أزرار رأس الصفحة والقائمة المنسدلة (3 نقاط) لعدم قصها أو اختفائها */
-.page-head,
-.page-head .page-actions,
-.standard-actions,
-.menu-btn-group,
-.actions-btn-group {
-	overflow: visible !important;
-}
-
-.page-head .page-actions {
-	flex-wrap: wrap !important;
-	gap: 0.35rem !important;
-}
-
-.menu-btn-group .dropdown-menu,
-.actions-btn-group .dropdown-menu,
-.page-actions .dropdown-menu {
-	z-index: 1050 !important;
-}
-
-/* الجوالات الصغيرة (< 480px): تنسيق مضغوط ومرتب */
 @media (max-width: 479px) {
-	.box .flex.h-full.w-full.items-center {
-		gap: 0.125rem !important;
-	}
-
 	.company-switcher-toggle {
 		padding-left: 0.35rem !important;
 		padding-right: 0.35rem !important;
 	}
 
 	#user_avatar {
-		width: 30px !important;
-		height: 30px !important;
+		width: 32px !important;
+		height: 32px !important;
 	}
 }
 
-/* إخفاء زر إغلاق القائمة الجانبية نهائياً على الجوال والتابلت */
 .close-mobile-menu {
 	display: none !important;
 }
 
-/* تحسين استجابة زر فتح القائمة الجانبية في الجوال */
 .open-mobile-menu {
 	cursor: pointer !important;
 	touch-action: manipulation !important;
@@ -237,6 +311,4 @@
 	display: inline-flex !important;
 	align-items: center !important;
 	justify-content: center !important;
-	position: relative !important;
-	z-index: 30 !important;
 }

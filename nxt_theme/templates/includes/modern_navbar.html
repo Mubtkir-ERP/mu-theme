@@ -1,0 +1,28 @@
+<header id="nxt_modern_navbar" class="nxt-modern-navbar">
+    <div class="nxt-navbar-inner">
+        <!-- Start: Mobile Menu Button, Search Icon (Mobile/Tablet), Breadcrumb -->
+        <div class="nxt-nav-start flex items-center gap-1.5 flex-none">
+            <a class="open-mobile-menu p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-darkmode-400 xl:hidden cursor-pointer flex items-center justify-center text-slate-700 dark:text-slate-200" href="javascript:;" title="{{ _('Menu') }}">
+                <i data-tw-merge="" data-lucide="align-justify" class="stroke-[1.5] h-5 w-5"></i>
+            </a>
+            <a class="short-search-icon p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-darkmode-400 xl:hidden cursor-pointer flex items-center justify-center text-slate-700 dark:text-slate-200" data-tw-toggle="modal" data-tw-target="#quick-search" href="javascript:;" title="{{ _('Search') }}">
+                <i data-tw-merge="" data-lucide="search" class="stroke-[1.5] h-5 w-5"></i>
+            </a>
+
+            <!-- Breadcrumbs for Desktop & Tablet -->
+            <div class="nxt-breadcrumb-wrap hidden md:flex items-center">
+                {% include "templates/includes/breadcrumb.html" ignore missing %}
+            </div>
+        </div>
+
+        <!-- Center: Desktop Search Bar -->
+        <div class="nxt-nav-center flex-1 max-w-[420px] mx-4 hidden xl:flex justify-center">
+            {% include "templates/includes/searchbar.html" ignore missing %}
+        </div>
+
+        <!-- End: Actions, Notifications, User Menu, Company Switcher -->
+        <div class="nxt-nav-end flex items-center gap-1 flex-none ms-auto">
+            {% include "templates/includes/user_manu.html" ignore missing %}
+        </div>
+    </div>
+</header>

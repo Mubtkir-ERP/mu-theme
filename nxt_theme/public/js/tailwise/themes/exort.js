@@ -59,16 +59,6 @@
         $(".content").first().addClass("content--compact");
       }
     });
-    $(".open-mobile-menu").first().on("click", function(event) {
-      event.preventDefault();
-      $(".side-menu").first().addClass("side-menu--mobile-menu-open");
-      $(".close-mobile-menu").first().addClass("close-mobile-menu--mobile-menu-open");
-    });
-    $(".close-mobile-menu").first().on("click", function(event) {
-      event.preventDefault();
-      $(".side-menu").first().removeClass("side-menu--mobile-menu-open");
-      $(".close-mobile-menu").first().removeClass("close-mobile-menu--mobile-menu-open");
-    });
     $(".request-full-screen").first().on("click", function(event) {
       event.preventDefault();
       const el = document.documentElement;
