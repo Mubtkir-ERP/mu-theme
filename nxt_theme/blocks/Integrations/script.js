@@ -432,8 +432,8 @@
               .join("");
 
             return `
-              <article class="erp-card tone-${(sectionIndex + cardIndex) % 5}" data-erp-card>
-                <button type="button" class="erp-card-heading" data-card-toggle aria-expanded="false">
+              <article class="erp-card is-open tone-${(sectionIndex + cardIndex) % 5}" data-erp-card>
+                <button type="button" class="erp-card-heading" data-card-toggle aria-expanded="true">
                   <span class="erp-icon" aria-hidden="true">${icon}</span>
                   <span class="erp-card-title">${escapeHtml(translate(cardName))}</span>
                   <span class="erp-card-chevron" aria-hidden="true">⌄</span>
@@ -560,23 +560,19 @@
     const selectedCard = cardButton.closest("[data-erp-card]");
     if (!selectedCard) return;
 
-    const shouldOpen = !selectedCard.classList.contains("is-open");
+      const isOpen =
+        selectedCard.classList.contains("is-open");
 
-    content.querySelectorAll("[data-erp-card]").forEach((card) => {
-      if (card !== selectedCard) {
-        card.classList.remove("is-open");
-        card.querySelector("[data-card-toggle]")?.setAttribute("aria-expanded", "false");
+      if (isOpen) {
+        selectedCard.classList.remove("is-open");
+        selectedCard.classList.add("is-collapsed");
+        cardButton.setAttribute("aria-expanded", "false");
+      } else {
+        selectedCard.classList.add("is-open");
+        selectedCard.classList.remove("is-collapsed");
+        cardButton.setAttribute("aria-expanded", "true");
       }
     });
-
-    if (shouldOpen) {
-      selectedCard.classList.add("is-open");
-      cardButton.setAttribute("aria-expanded", "true");
-    } else {
-      selectedCard.classList.remove("is-open");
-      cardButton.setAttribute("aria-expanded", "false");
-    }
-  });
 
 
   /* ─────────────────────────────────────────

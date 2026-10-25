@@ -330,8 +330,8 @@
             </button>${ib}</div>`;
         }).join("");
 
-        return`<article class="erp-card tone-${(si+ci)%5}" data-erp-card>
-          <button type="button" class="erp-card-heading" data-card-toggle aria-expanded="false">
+        return`<article class="erp-card is-open tone-${(si+ci)%5}" data-erp-card>
+          <button type="button" class="erp-card-heading" data-card-toggle aria-expanded="true">
             <span class="erp-icon">${c[1]}</span>
             <span class="erp-card-title">${escapeHtml(translate(c[0]))}</span>
             <span class="erp-card-chevron">⌄</span>

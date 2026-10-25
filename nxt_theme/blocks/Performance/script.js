@@ -1315,7 +1315,7 @@
 
               <article
                 class="
-                  erp-card
+                  erp-card is-open
                   tone-${index % 5}
                 "
                 data-performance-card

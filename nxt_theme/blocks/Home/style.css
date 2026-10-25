@@ -888,21 +888,20 @@
 
   gap: 5px;
 
-  max-height: 0;
+  max-height: none;
 
   margin: 0;
   padding: 0;
 
   overflow: visible;
 
-  opacity: 0;
+  opacity: 1;
 
-  visibility: hidden;
+  visibility: visible;
 
-  pointer-events: none;
+  pointer-events: auto;
 
-  transform:
-    translateY(-8px);
+  transform: none;
 
   transition:
     max-height 0.38s ease,
@@ -929,28 +928,7 @@
 }
 
 
-@media (hover: hover) {
-
-  .erp-card:hover
-  .erp-card-links,
-
-  .erp-card:focus-within
-  .erp-card-links {
-    max-height: 480px;
-
-    overflow-y: auto;
-
-    opacity: 1;
-
-    visibility: visible;
-
-    pointer-events: auto;
-
-    transform:
-      translateY(0);
-  }
-
-}
+/* Hover expansion disabled - cards open by default */
 
 
 /* =========================================================
@@ -1837,4 +1815,43 @@ html[data-theme="dark"]
       16px 16px 0 0;
   }
 
+}
+
+.erp-card.is-collapsed {
+  padding-bottom: 0 !important;
+}
+
+.erp-card.is-collapsed .erp-card-heading {
+  margin-bottom: 0 !important;
+  border-bottom-color: transparent !important;
+}
+
+.erp-card.is-collapsed .erp-card-chevron {
+  transform: rotate(0deg) !important;
+}
+
+.erp-card.is-collapsed .erp-card-links {
+  max-height: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: translateY(-8px) !important;
+}
+
+/* Force Western Arabic / English digits (1, 2, 3...) in both AR and EN */
+.erp-cycle-number,
+.erp-stat-value,
+.erp-stat-icon,
+.erp-stat-info,
+.erp-modal-steps-list,
+.erp-modal-steps-list li,
+.erp-modal-steps-list li::marker,
+.erp-cycle-card,
+[data-stat-id] {
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  font-variant-numeric: lining-nums tabular-nums !important;
+  font-feature-settings: "lnum" 1, "tnum" 1 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
 }

@@ -1527,7 +1527,7 @@ content.innerHTML =
 
                       <article
                         class="
-                          erp-card
+                          erp-card is-open
                           tone-${(sectionIndex + cardIndex) % 5}
                         "
                         data-hr-card

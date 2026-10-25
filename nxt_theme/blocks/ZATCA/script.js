@@ -1015,7 +1015,7 @@
 
                   <article
                     class="
-                      erp-card
+                      erp-card is-open
                       tone-${(sectionIndex + cardIndex) % 5}
                     "
                     data-erp-card
@@ -1025,7 +1025,7 @@
                       type="button"
                       class="erp-card-heading"
                       data-card-toggle
-                      aria-expanded="false"
+                      aria-expanded="true"
                     >
 
                       <span class="erp-icon">
@@ -1341,63 +1341,18 @@
       if (!selectedCard)
         return;
 
+      const isOpen =
+        selectedCard.classList.contains("is-open");
 
-      const shouldOpen =
-        !selectedCard.classList.contains(
-          "is-open"
-        );
-
-
-      content
-        .querySelectorAll(
-          "[data-erp-card]"
-        )
-        .forEach(card => {
-
-          if (card !== selectedCard) {
-
-            card.classList.remove(
-              "is-open"
-            );
-
-            card
-              .querySelector(
-                "[data-card-toggle]"
-              )
-              ?.setAttribute(
-                "aria-expanded",
-                "false"
-              );
-
-          }
-
-        });
-
-
-      if (shouldOpen) {
-
-        selectedCard.classList.add(
-          "is-open"
-        );
-
-        cardButton.setAttribute(
-          "aria-expanded",
-          "true"
-        );
-
+      if (isOpen) {
+        selectedCard.classList.remove("is-open");
+        selectedCard.classList.add("is-collapsed");
+        cardButton.setAttribute("aria-expanded", "false");
       } else {
-
-        selectedCard.classList.remove(
-          "is-open"
-        );
-
-        cardButton.setAttribute(
-          "aria-expanded",
-          "false"
-        );
-
+        selectedCard.classList.add("is-open");
+        selectedCard.classList.remove("is-collapsed");
+        cardButton.setAttribute("aria-expanded", "true");
       }
-
     }
   );
 

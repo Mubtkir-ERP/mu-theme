@@ -361,16 +361,20 @@
 
       [
 
-        [
+                [
           "Selling",
           "🛒",
           [
+            "Customer",
             "Quotation",
             "Sales Order",
             "Delivery Note",
-            "Sales Invoice"
+            "Sales Invoice",
+            "Blanket Order",
+            "Sales Partner",
+            "Sales Person"
           ]
-        ],
+        ],,
 
         [
           "Customer",
@@ -384,19 +388,21 @@
           ]
         ],
 
-        [
+                [
           "Items & Pricing",
           "💰",
           [
             "Item",
             "Item Price",
             "Price List",
-            "Product Bundle",
             "Item Group",
+            "Product Bundle",
             "Promotional Scheme",
-            "Pricing Rule"
+            "Pricing Rule",
+            "Shipping Rule",
+            "Coupon Code"
           ]
-        ],
+        ],,
 
         [
           "Settings",
@@ -451,6 +457,18 @@
   ========================================================= */
 
   const arabicFallback = {
+    "Blanket Order":
+      "طلب إطار شامل",
+
+    "Shipping Rule":
+      "قواعد الشحن",
+
+    "Coupon Code":
+      "رمز الخصم",
+
+    "Customer":
+      "العميل",
+
 
     "Reports & Masters":
       "البيانات الرئيسية والتقارير",
@@ -1083,7 +1101,357 @@
 
       ]
 
-    }
+    },
+    "Blanket Order": {
+      icon: "📑",
+      summaryAr:
+        "اتفاقية توريد دورية أو سنوية مع العميل بكميات وأسعار متفق عليها يتم إصدار طلبات مبيعات متعددة منها.",
+      summaryEn:
+        "A long-term sales agreement with a customer for quantities and rates fulfilled via partial orders.",
+      stepsAr: [
+        "اضغط «طلب إطار شامل جديد»",
+        "اختر العميل",
+        "حدد تاريخ البداية وتاريخ الانتهاء للاتفاقية",
+        "أضف المنتجات والكميات الإجمالية المتفق عليها والأسعار",
+        "اضغط «حفظ» ثم «تسجيل»",
+        "يمكن إصدار طلبات مبيعات مباشرة بناءً على الاتفاقية"
+      ],
+      stepsEn: [
+        "Click «New Blanket Order»",
+        "Select customer",
+        "Set agreement start and end dates",
+        "Add items, agreed quantities, and rates",
+        "Click «Save» then «Submit»",
+        "Create individual Sales Orders against this blanket order"
+      ]
+    },
+
+    "Sales Partner": {
+      icon: "🤝",
+      summaryAr:
+        "تعريف شركاء ووكلاء وموزعي المبيعات الخارجيين وتحديد نسب عمولاتهم على المبيعات.",
+      summaryEn:
+        "Define third-party sales partners, distributors, and agents with their commission percentages.",
+      stepsAr: [
+        "اضغط «شريك مبيعات جديد»",
+        "أدخل اسم الشريك أو الوكيل",
+        "حدد نوع الشريك (وكيل، موزع، وسيط)",
+        "أدخل نسبة العمولة الافتراضية",
+        "أضف معلومات الاتصال والعنوان",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Sales Partner»",
+        "Enter sales partner name",
+        "Select partner type (Agent, Distributor, Reseller)",
+        "Set default commission rate",
+        "Add contact details and address",
+        "Click «Save»"
+      ]
+    },
+
+    "Sales Person": {
+      icon: "👤",
+      summaryAr:
+        "إدارة بيانات مناديب المبيعات وتحديد أهداف المبيعات وعمولاتهم وربطهم بالعملاء والمعاملات.",
+      summaryEn:
+        "Manage sales reps, configure sales targets and commission structures, and link to customers.",
+      stepsAr: [
+        "اضغط «مندوب مبيعات جديد»",
+        "أدخل اسم مندوب المبيعات",
+        "حدد مندوب المبيعات الأب في الهيكل التنظيمي عند الحاجة",
+        "اربط سجل مندوب المبيعات بالموظف في النظام",
+        "أدخل أهداف المبيعات ونسبة العمولة",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Sales Person»",
+        "Enter sales person name",
+        "Select parent sales person in tree hierarchy if needed",
+        "Link to Employee record",
+        "Specify sales targets and commission rate",
+        "Click «Save»"
+      ]
+    },
+
+    "Customer Group": {
+      icon: "👥",
+      summaryAr:
+        "تصنيف العملاء إلى مجموعات لتسهيل التسعير وإعداد التقارير وتحديد شروط الائتمان.",
+      summaryEn:
+        "Categorize customers into groups for reporting, price list assignment, and credit terms.",
+      stepsAr: [
+        "اضغط «مجموعة عملاء جديدة»",
+        "أدخل اسم المجموعة",
+        "حدد المجموعة الأب في الهيكل الشجري",
+        "حدد قائمة الأسعار الافتراضية عند الحاجة",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Customer Group»",
+        "Enter customer group name",
+        "Select parent group in hierarchy",
+        "Assign default price list if needed",
+        "Click «Save»"
+      ]
+    },
+
+    "Contact": {
+      icon: "📞",
+      summaryAr:
+        "إدارة بيانات جهات الاتصال للأفراد والمسؤولين لدى العملاء والشركاء.",
+      summaryEn:
+        "Manage contact persons, mobile numbers, and emails for customers and suppliers.",
+      stepsAr: [
+        "اضغط «جهة اتصال جديدة»",
+        "أدخل الاسم الأول واسم العائلة",
+        "أدخل البريد الإلكتروني ورقم الهاتف",
+        "حدد المسمى الوظيفي والقسم",
+        "اربط جهة الاتصال بالعميل المحدد",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Contact»",
+        "Enter first name and last name",
+        "Enter email address and phone number",
+        "Set job designation and department",
+        "Link contact to Customer",
+        "Click «Save»"
+      ]
+    },
+
+    "Address": {
+      icon: "📍",
+      summaryAr:
+        "تسجيل وتعديل عناوين الفوترة والشحن ومواقع التسليم الخاصة بالعملاء.",
+      summaryEn:
+        "Record and manage billing, shipping, and delivery addresses for customers.",
+      stepsAr: [
+        "اضغط «عنوان جديد»",
+        "أدخل تفاصيل العنوان والشارع والمدينة",
+        "حدد نوع العنوان (فوترة / شحن / مكتب)",
+        "أدخل الرمز البريدي والدولة",
+        "اربط العنوان بالعميل",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Address»",
+        "Enter address lines, street, and city",
+        "Select address type (Billing / Shipping / Office)",
+        "Enter postal code and country",
+        "Link address to customer",
+        "Click «Save»"
+      ]
+    },
+
+    "Territory": {
+      icon: "🗺️",
+      summaryAr:
+        "تقسيم المناطق الجغرافية للبيع وتعيين مسؤولي المناطق وتتبع مبيعات كل منطقة.",
+      summaryEn:
+        "Manage sales territories, assign territory leads, and monitor regional sales performance.",
+      stepsAr: [
+        "اضغط «منطقة جديدة»",
+        "أدخل اسم المنطقة أو المدينة",
+        "حدد المنطقة الأب في الهيكل الشجري",
+        "عين مدير أو مندوب المنطقة",
+        "حدد هدف المبيعات للمنطقة",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Territory»",
+        "Enter territory or city name",
+        "Select parent territory in hierarchy",
+        "Assign territory manager or sales person",
+        "Define regional sales target",
+        "Click «Save»"
+      ]
+    },
+
+    "Product Bundle": {
+      icon: "🎁",
+      summaryAr:
+        "تجميع مجموعة من المنتجات معاً كحزمة مبيعات تباع بسعر واحد مع خصم المخزون لكل منتج تلقائياً.",
+      summaryEn:
+        "Bundle multiple products together sold as a package with automated stock deduction per item.",
+      stepsAr: [
+        "اضغط «حزمة منتجات جديدة»",
+        "اختر المنتج الرئيسي للحزمة (غير مخزني)",
+        "أضف المنتجات الفرعية المكونة للحزمة",
+        "حدد كمية كل منتج فرعي داخل الحزمة",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Product Bundle»",
+        "Select the parent bundle item (non-stock)",
+        "Add child items that make up the bundle",
+        "Set quantity for each child component",
+        "Click «Save»"
+      ]
+    },
+
+    "Item Group": {
+      icon: "📁",
+      summaryAr:
+        "تصنيف المنتجات والخدمات في مجموعات شجرية لتنظيم المخزون وقوائم الأسعار والتقارير.",
+      summaryEn:
+        "Classify items and services in a tree hierarchy for inventory, pricing, and analytics.",
+      stepsAr: [
+        "اضغط «مجموعة منتجات جديدة»",
+        "أدخل اسم المجموعة",
+        "حدد المجموعة الأب",
+        "حدد هل هي مجموعة رئيسية أم فرعية",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Item Group»",
+        "Enter group name",
+        "Select parent group",
+        "Specify if group node or leaf item group",
+        "Click «Save»"
+      ]
+    },
+
+    "Promotional Scheme": {
+      icon: "🏷️",
+      summaryAr:
+        "إنشاء خطط وعروض ترويجية مثل خصومات الكمية أو منتجات مجانية عند شراء أصناف محددة.",
+      summaryEn:
+        "Create sales promotions like quantity discounts or buy-X-get-Y-free offers.",
+      stepsAr: [
+        "اضغط «مخطط ترويجي جديد»",
+        "أدخل اسم العرض الترويجي",
+        "حدد فترة السريان وتاريخ البداية والنهاية",
+        "حدد المنتجات المشمولة بالعرض",
+        "أدخل قواعد الخصم أو الأصناف المجانية",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Promotional Scheme»",
+        "Enter promotion scheme name",
+        "Set validity dates",
+        "Select applicable items or groups",
+        "Configure discount slabs or free item rules",
+        "Click «Save»"
+      ]
+    },
+
+    "Shipping Rule": {
+      icon: "🚚",
+      summaryAr:
+        "تحديد رسوم وقواعد الشحن والتوصيل للعملاء بناءً على القيمة أو الوزن أو المنطقة.",
+      summaryEn:
+        "Define shipping charges and delivery rules based on order value, weight, or territory.",
+      stepsAr: [
+        "اضغط «قاعدة شحن جديدة»",
+        "أدخل اسم قاعدة الشحن",
+        "اختر نوع الشحن (مبيعات / مشتريات)",
+        "حدد حساب إيراد أو مصروف الشحن",
+        "حدد آلية الاحتساب (حسب القيمة أو الوزن)",
+        "أدخل شرائح الرسوم",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Shipping Rule»",
+        "Enter rule label",
+        "Select shipping type (Selling / Buying)",
+        "Link shipping account",
+        "Select calculation basis (Value / Weight)",
+        "Enter charge slabs",
+        "Click «Save»"
+      ]
+    },
+
+    "Coupon Code": {
+      icon: "🎟️",
+      summaryAr:
+        "إنشاء أكواد وكوبونات الخصم للمبيعات وتحديد شروط الاستخدام والحد الأقصى للخصم.",
+      summaryEn:
+        "Create promotional coupon codes with usage limits, validity periods, and discount rules.",
+      stepsAr: [
+        "اضغط «رمز خصم جديد»",
+        "أدخل اسم الرمز والكود الترويجي",
+        "اربط الكود بقاعدة تسعير",
+        "حدد تاريخ البداية والنهاية",
+        "حدد الحد الأقصى للاستخدام",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Coupon Code»",
+        "Enter coupon name and coupon code",
+        "Link to a Pricing Rule",
+        "Set valid from and to dates",
+        "Set maximum usage limit",
+        "Click «Save»"
+      ]
+    },
+
+    "Selling Settings": {
+      icon: "⚙️",
+      summaryAr:
+        "ضبط سياسات البيع والحد الائتماني للعملاء ونسب التسليم الزائد وإعدادات الفواتير.",
+      summaryEn:
+        "Configure selling workflow, credit limits, over-delivery tolerance, and invoice policies.",
+      stepsAr: [
+        "افتح «إعدادات المبيعات»",
+        "حدد سياسة حد الائتمان للعملاء",
+        "حدد نسبة السماح بالتسليم الزائد",
+        "حدد شروط تسعير المنتجات الإلزامية",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Open «Selling Settings»",
+        "Set customer credit limit action",
+        "Configure over-delivery allowance percentage",
+        "Set mandatory pricing rules",
+        "Click «Save»"
+      ]
+    },
+
+    "Sales Taxes and Charges Template": {
+      icon: "🧮",
+      summaryAr:
+        "قوالب الضرائب والرسوم المطبقة تلقائياً على عروض وفواتير المبيعات (مثل ضريبة القيمة المضافة 15%).",
+      summaryEn:
+        "Sales tax and charge templates applied automatically to quotations and sales invoices (e.g. 15% VAT).",
+      stepsAr: [
+        "اضغط «قالب ضرائب ورسوم مبيعات جديد»",
+        "أدخل عنوان القالب",
+        "حدد نوع الحساب الضريبي",
+        "أدخل نسبة الضريبة (15%)",
+        "حدد الشركة",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Sales Taxes and Charges Template»",
+        "Enter template title",
+        "Select tax ledger account",
+        "Enter tax rate (15%)",
+        "Select company",
+        "Click «Save»"
+      ]
+    },
+
+    "Terms and Conditions Template": {
+      icon: "📜",
+      summaryAr:
+        "قوالب الشروط والأحكام القياسية لعروض الأسعار وأوامر البيع والفواتير وسياسات الضمان والاسترجاع.",
+      summaryEn:
+        "Standard terms and conditions templates attached to sales quotes, orders, and invoices.",
+      stepsAr: [
+        "اضغط «قالب شروط وأحكام جديد»",
+        "أدخل اسم القالب",
+        "اكتب نصوص وشروط البيع والتسليم والضمان",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Terms and Conditions Template»",
+        "Enter template title",
+        "Write contract terms, warranty, and return policies",
+        "Click «Save»"
+      ]
+    },
+
 
   };
 
@@ -1861,7 +2229,7 @@
 
                       <article
                         class="
-                          erp-card
+                          erp-card is-open
                           tone-${(sectionIndex + cardIndex) % 5}
                         "
                         data-erp-card
@@ -1871,7 +2239,7 @@
                           type="button"
                           class="erp-card-heading"
                           data-card-toggle
-                          aria-expanded="false"
+                          aria-expanded="true"
                         >
 
                           <span class="erp-icon">
@@ -2164,68 +2532,18 @@
       if (!selectedCard)
         return;
 
+      const isOpen =
+        selectedCard.classList.contains("is-open");
 
-      const shouldOpen =
-        !selectedCard.classList.contains(
-          "is-open"
-        );
-
-
-      content
-        .querySelectorAll(
-          "[data-erp-card]"
-        )
-        .forEach(card => {
-
-          if (card !== selectedCard) {
-
-            card.classList.remove(
-              "is-open"
-            );
-
-
-            card
-              .querySelector(
-                "[data-card-toggle]"
-              )
-              ?.setAttribute(
-                "aria-expanded",
-                "false"
-              );
-
-          }
-
-        });
-
-
-      if (shouldOpen) {
-
-        selectedCard.classList.add(
-          "is-open"
-        );
-
-
-        cardButton.setAttribute(
-          "aria-expanded",
-          "true"
-        );
-
+      if (isOpen) {
+        selectedCard.classList.remove("is-open");
+        selectedCard.classList.add("is-collapsed");
+        cardButton.setAttribute("aria-expanded", "false");
+      } else {
+        selectedCard.classList.add("is-open");
+        selectedCard.classList.remove("is-collapsed");
+        cardButton.setAttribute("aria-expanded", "true");
       }
-
-      else {
-
-        selectedCard.classList.remove(
-          "is-open"
-        );
-
-
-        cardButton.setAttribute(
-          "aria-expanded",
-          "false"
-        );
-
-      }
-
     }
 
   );

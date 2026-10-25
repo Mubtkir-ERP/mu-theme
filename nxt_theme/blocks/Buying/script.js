@@ -1732,7 +1732,7 @@
 
             cardsHtml +=
 
-                '<article class="erp-card tone-' +
+                '<article class="erp-card is-open tone-' +
                 (c % 5) +
                 '" data-buy-card-container>' +
 

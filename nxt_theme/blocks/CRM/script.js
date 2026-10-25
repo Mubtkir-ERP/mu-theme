@@ -181,11 +181,9 @@
 
 
   function formatCurrency(number) {
-
     return (
       parseFloat(number) || 0
-    ).toLocaleString(
-      isArabic ? "ar-SA" : "en-US",
+    ).toLocaleString("en-US",
       {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
@@ -1995,7 +1993,7 @@
 
                       <article
                         class="
-                          erp-card
+                          erp-card is-open
                           tone-${(sectionIndex + cardIndex) % 5}
                         "
                         data-erp-card
@@ -2005,7 +2003,7 @@
                           type="button"
                           class="erp-card-heading"
                           data-card-toggle
-                          aria-expanded="false"
+                          aria-expanded="true"
                         >
 
                           <span class="erp-icon">
