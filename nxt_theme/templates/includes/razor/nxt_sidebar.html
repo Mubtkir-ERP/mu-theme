@@ -1,5 +1,14 @@
-<!-- زر إغلاق قائمة الجوال مخفي لعدم الحاجة إليه ولأن القائمة تغلق تلقائياً -->
-<div class="close-mobile-menu hidden" style="display: none !important;"></div>
+<!-- زر إغلاق قائمة الجوال -->
+<div
+  class="close-mobile-menu fixed ml-[275px] w-10 h-10 items-center justify-center sm:hidden z-50
+         [&.close-mobile-menu--mobile-menu-open]:flex"
+>
+  <!-- رابط الإغلاق -->
+  <a class="mt-5 ml-5" href="">
+    <!-- أيقونة X -->
+    <i data-lucide="x" class="stroke-[1] w-8 h-8 text-white"></i>
+  </a>
+</div>
 
 <!-- الحاوية الرئيسية للسايدبار -->
 <div
@@ -33,7 +42,8 @@
     <!-- الشعار + اسم الشركة -->
     <a
       class="flex items-center transition-[margin] duration-300
-             group-[.side-menu--collapsed.side-menu--on-hover]:xl:ml-0 branding"
+             group-[.side-menu--collapsed.side-menu--on-hover]:xl:ml-0
+             group-[.side-menu--collapsed]:xl:ml-4 branding"
       href=""
     >
 
@@ -41,8 +51,7 @@
       <img
         src="{{ company_logo or '/assets/nxt_theme/images/small_icon.ico' }}"
         alt=""
-        class="company-brand-logo"
-        style="width: 40px;"
+        style="width: 40px; margin-right: 16px !important; margin-left: 1.0rem;"
       >
 
       <!-- اسم الشركة (يختفي عند تصغير القائمة) -->

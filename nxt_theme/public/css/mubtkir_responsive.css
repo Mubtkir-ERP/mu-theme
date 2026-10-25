@@ -1,242 +1,45 @@
-/* MUBTKIR — تحسينات شاملة للتجاوب، السكنات، الشعار، الألوان، وترتيب عناصر التابلت والجوال */
+/* MUBTKIR — تحسينات تجاوب الشريط العلوي على الأجهزة الصغيرة
+   ملاحظة: قواعد محافِظة تستهدف مشاكل التجاوز في الجوال دون التأثير على سطح المكتب.
+   قابلة للضبط بعد الاختبار على جهازك بلقطة شاشة. */
 
-/* شريط البحث: يظهر كصندوق على الكمبيوتر (>= 1280px)، ويتحول لأيقونة مصغرة على التابلت والجوال (< 1280px) */
-@media (min-width: 1280px) {
-	.short-search-icon {
-		display: none !important;
-	}
-	.searchbar {
-		display: flex !important;
-	}
-}
-
+/* الشاشات دون xl (< 1280px): إخفاء مربع البحث العريض لأن هناك أيقونة بحث مصغّرة */
 @media (max-width: 1279px) {
-	.searchbar {
+	header .searchbar {
 		display: none !important;
-	}
-	.short-search-icon {
-		display: flex !important;
-	}
-
-	/* إخفاء العناصر الزائدة لتوفير المساحة */
-	.mub-hide-mobile,
-	.request-full-screen,
-	nav[aria-label="breadcrumb"] {
-		display: none !important;
-	}
-
-	/* تقليص هوامش الشريط العلوي لمنع خروج العناصر */
-	.box .flex.h-full.w-full.items-center {
-		padding-left: 0.35rem !important;
-		padding-right: 0.35rem !important;
-		gap: 0.25rem !important;
-	}
-
-	/* ضبط هوامش الأزرار والقوائم المنسدلة */
-	.dropdown.ml-3,
-	.dropdown.ml-5 {
-		margin-left: 0.15rem !important;
-		margin-right: 0.15rem !important;
-	}
-
-	/* إخفاء اسم الشركة النصّي في شاشات الجوال والتابلت لتوفير المساحة للناف بار والاكتفاء بالشعار */
-	.company-switcher-current-label,
-	.branding div,
-	.branding span,
-	.side-menu__content .branding div,
-	.side-menu__content a.items-center div,
-	.top-bar .font-medium,
-	.box .side-menu__content .font-medium {
-		display: none !important;
-	}
-
-	/* منع التمرير الأفقي في رأس الصفحة */
-	.top-bar,
-	.top-bar .box {
-		margin-left: 0.25rem !important;
-		margin-right: 0.25rem !important;
-		max-width: calc(100vw - 0.5rem) !important;
 	}
 }
 
-/* شاشات التابلت والمتوسطة (768px إلى 1279px) */
-@media (min-width: 768px) and (max-width: 1279px) {
-	#navbar-breadcrumbs {
-		max-width: clamp(140px, 20vw, 240px) !important;
-		overflow: hidden !important;
-		white-space: nowrap !important;
-	}
-	#navbar-breadcrumbs li:not(:last-child):not(:first-child) {
-		display: none !important;
-	}
-
-	.request-full-screen,
+/* الأجهزة اللوحية والجوالات (< 768px) */
+@media (max-width: 767px) {
+	/* إخفاء أيقونتي الإعدادات و"؟" في الشريط العلوي لتوفير مساحة */
 	.mub-hide-mobile {
 		display: none !important;
 	}
 
-	.dropdown.ml-3,
-	.dropdown.ml-5 {
-		margin-left: 0.25rem !important;
-		margin-right: 0.25rem !important;
+	/* منع تجاوز عناصر الشريط العلوي أفقياً */
+	header .box .flex.h-full.w-full.items-center {
+		overflow-x: auto;
+		overflow-y: hidden;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+	header .box .flex.h-full.w-full.items-center::-webkit-scrollbar {
+		display: none;
 	}
 
-	.box .flex.h-full.w-full.items-center {
-		padding-left: 0.75rem !important;
-		padding-right: 0.75rem !important;
-		gap: 0.35rem !important;
-	}
-}
-
-/* تجميع أزرار الإجراءات في شاشة التابلت داخل قائمة 3 نقاط مثل الجوال لمنع تزاحم رأس الصفحة */
-@media (max-width: 1024px) {
-	.page-head .custom-actions,
-	.page-head .inner-group-button,
-	.page-head .custom-btn-group,
-	.page-actions .inner-group-button,
-	.page-actions .custom-btn-group,
-	.page-actions .custom-actions,
-	.page-actions .page-icon-group {
+	/* إخفاء اسم الشركة النصّي بجانب زر التبديل (تبقى الأيقونة) */
+	.company-switcher-current-label {
 		display: none !important;
 	}
-
-	/* إصلاح قائمة 3 نقاط داخل doctype على التابلت والجوال لعدم قصها من فوق وإظهار كل الخيارات مع إمكانية التمرير */
-	.page-head .menu-btn-group .dropdown-menu,
-	.page-actions .menu-btn-group .dropdown-menu,
-	.menu-btn-group .dropdown-menu {
-		position: fixed !important;
-		top: 65px !important;
-		bottom: auto !important;
-		transform: none !important;
-		max-height: calc(100vh - 85px) !important;
-		overflow-y: auto !important;
-		-webkit-overflow-scrolling: touch !important;
-		z-index: 1060 !important;
-		min-width: 240px !important;
-		max-width: 90vw !important;
-		box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-	}
 }
 
-/* ضبط الشعار واسم الشركة لمنع تداخل النصوص والنزول لأسفل */
-.branding {
-	display: inline-flex !important;
-	flex-direction: row !important;
-	align-items: center !important;
-	gap: 0.5rem !important;
-}
-
-.branding img,
-.company-brand-logo {
-	width: 40px !important;
-	height: 40px !important;
-	max-width: 40px !important;
-	max-height: 40px !important;
-	object-fit: contain !important;
-	flex-shrink: 0 !important;
-}
-
-/* عند فتح القائمة أو تمرير الماوس عليها: الشعار وبجانبه النص في سطر واحد */
-.side-menu:not(.side-menu--collapsed) .branding,
-.side-menu--on-hover .branding {
-	flex-direction: row !important;
-	justify-content: flex-start !important;
-}
-
-.side-menu:not(.side-menu--collapsed) .branding img,
-.side-menu--on-hover .branding img {
-	margin: 0 !important;
-}
-
-/* عند طي/تصغير القائمة الجانبية (Collapsed Sidebar): إخفاء النص وتوسيط الأيقونة فقط */
-.side-menu--collapsed:not(.side-menu--on-hover) .branding {
-	margin: 0 auto !important;
-	width: 100% !important;
-	justify-content: center !important;
-}
-
-.side-menu--collapsed:not(.side-menu--on-hover) .branding img,
-.side-menu--collapsed:not(.side-menu--on-hover) .company-brand-logo {
-	margin: 0 auto !important;
-}
-
-.side-menu--collapsed:not(.side-menu--on-hover) .branding div,
-.side-menu--collapsed:not(.side-menu--on-hover) .branding span {
-	display: none !important;
-}
-
-.side-menu--collapsed:not(.side-menu--on-hover) .toggle-compact-menu,
-.group-\[\.side-menu--collapsed\]:not(.group-\[\.side-menu--collapsed\.side-menu--on-hover\]) .toggle-compact-menu {
-	display: none !important;
-}
-
-/* ترقيم عدد الصفوف في شاشة الجوال يظهر في سطر واحد دون التفاف */
-.list-count,
-.list-row-head .list-count,
-.list-row-head .level-left,
-.list-row-head .level-right,
-.list-row-head .level-item,
-.frappe-list .list-count,
-.frappe-list .result-status,
-.list-paging-area .btn-paging {
-	white-space: nowrap !important;
-	word-break: keep-all !important;
-	flex-wrap: nowrap !important;
-	display: inline-flex !important;
-	align-items: center !important;
-}
-
-/* حل مشكلة أزرار رأس الصفحة والقائمة المنسدلة (3 نقاط) لعدم قصها أو اختفائها */
-.page-head,
-.page-head .page-actions,
-.standard-actions,
-.menu-btn-group,
-.actions-btn-group {
-	overflow: visible !important;
-}
-
-.page-head .page-actions {
-	flex-wrap: wrap !important;
-	gap: 0.35rem !important;
-}
-
-.menu-btn-group .dropdown-menu,
-.actions-btn-group .dropdown-menu,
-.page-actions .dropdown-menu {
-	z-index: 1050 !important;
-}
-
-/* الجوالات الصغيرة (< 480px): تنسيق مضغوط ومرتب */
+/* الجوالات الصغيرة (< 480px): إخفاء زر ملء الشاشة لتوفير مساحة */
 @media (max-width: 479px) {
-	.box .flex.h-full.w-full.items-center {
-		gap: 0.125rem !important;
+	.request-full-screen {
+		display: none !important;
 	}
-
-	.company-switcher-toggle {
-		padding-left: 0.35rem !important;
-		padding-right: 0.35rem !important;
+	header .box {
+		margin-left: 0.75rem !important;
+		margin-right: 0.75rem !important;
 	}
-
-	#user_avatar {
-		width: 30px !important;
-		height: 30px !important;
-	}
-}
-
-/* إخفاء زر إغلاق القائمة الجانبية نهائياً على الجوال والتابلت */
-.close-mobile-menu {
-	display: none !important;
-}
-
-/* تحسين استجابة زر فتح القائمة الجانبية في الجوال */
-.open-mobile-menu {
-	cursor: pointer !important;
-	touch-action: manipulation !important;
-	min-width: 40px !important;
-	min-height: 40px !important;
-	display: inline-flex !important;
-	align-items: center !important;
-	justify-content: center !important;
-	position: relative !important;
-	z-index: 30 !important;
 }
