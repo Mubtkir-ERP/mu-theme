@@ -34,25 +34,26 @@ frappe.ui.form.on("Theme Settings", {
 
 		frm.set_df_property("skin", "options", skin_options);
 
-		// زر تطبيق كافة الكتل الـ 31 على مساحات العمل دفعة واحدة
+		// Button to apply all 31 custom blocks to workspaces at once
 		frm.add_custom_button(
-			__("🚀 تطبيق الكتل على كافة مساحات العمل دفعة واحدة"),
+			__("🚀 Apply All Blocks to Workspaces"),
 			function () {
 				frappe.confirm(
 					__(
-						"هل تريد ربط وتطبيق كافة الكتل الـ 31 تلقائياً على جميع مساحات العمل (Workspaces) المقابلة في النظام دفعة واحدة؟"
+						"Are you sure you want to link and apply all 31 custom blocks automatically to their corresponding workspaces?"
 					),
 					function () {
-						frappe.dom.freeze(__("جاري ربط وتحديث كافة مساحات العمل في النظام..."));
+						frappe.dom.freeze(__("Linking and updating all workspaces in the system..."));
 						frappe.call({
 							method: "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.apply_all_blocks_to_workspaces",
 							callback: function (r) {
 								frappe.dom.unfreeze();
 								if (r && r.message) {
 									frappe.msgprint({
-										title: __("تمت العملية بنجاح"),
+										title: __("Success"),
 										message: __(
-											`تم تطبيق الكتل بنجاح على ${r.message.count} مساحة عمل! <br><br><b>المساحات المحدثة:</b><br>${r.message.updated.join("<br>")}`
+											"Applied custom blocks successfully to {0} workspaces!<br><br><b>Updated Workspaces:</b><br>{1}",
+											[r.message.count, r.message.updated.join("<br>")]
 										),
 										indicator: "green",
 									});
@@ -60,7 +61,7 @@ frappe.ui.form.on("Theme Settings", {
 							},
 							error: function (err) {
 								frappe.dom.unfreeze();
-								frappe.msgprint(__("حدث خطأ أثناء تطبيق الكتل: ") + err.message);
+								frappe.msgprint(__("Error applying blocks: ") + ((err && err.message) ? err.message : ""));
 							},
 						});
 					}

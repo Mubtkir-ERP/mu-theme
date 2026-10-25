@@ -28,21 +28,23 @@ import { unlockBodyScrollIfNoModal } from "./modal_utils";
 		const route = frappe.get_route ? frappe.get_route() : [];
 		if (route[0] === "List" && route[1] === "Custom HTML Block") {
 			if ($(".btn-export-all-blocks").length) return;
-			const $btn = $(`<button class="btn btn-primary btn-sm btn-export-all-blocks mr-2 ml-2" style="font-weight: 500;">📥 تحميل جميع الكتل في ملف واحد</button>`);
+			const $btn = $(`<button class="btn btn-primary btn-sm btn-export-all-blocks mr-2 ml-2" style="font-weight: 500;">${__("📥 Export All Blocks to File")}</button>`);
 			$btn.on("click", async function () {
-				frappe.dom.freeze(__("جاري سحب كافة الكتل الـ 31 بدقة..."));
+				frappe.dom.freeze(__("Fetching all 31 blocks..."));
 				try {
 					const listRes = await frappe.call({
 						method: "frappe.client.get_list",
 						args: { doctype: "Custom HTML Block", limit_page_length: 0 },
 					});
 					const docs = [];
-					for (const item of listRes.message) {
+					for (const item of (listRes.message || [])) {
 						const docRes = await frappe.call({
 							method: "frappe.client.get",
 							args: { doctype: "Custom HTML Block", name: item.name },
 						});
-						docs.push(docRes.message);
+						if (docRes.message) {
+							docs.push(docRes.message);
+						}
 					}
 					frappe.dom.unfreeze();
 					const blob = new Blob([JSON.stringify(docs, null, 2)], { type: "application/json" });
@@ -54,16 +56,16 @@ import { unlockBodyScrollIfNoModal } from "./modal_utils";
 					a.click();
 					a.remove();
 					URL.revokeObjectURL(url);
-					frappe.show_alert({ message: `تم تنزيل ${docs.length} كتلة بنجاح!`, indicator: "green" });
+					frappe.show_alert({ message: __("Successfully downloaded {0} blocks!", [docs.length]), indicator: "green" });
 				} catch (err) {
 					frappe.dom.unfreeze();
-					frappe.msgprint("حدث خطأ أثناء سحب الكتل: " + err.message);
+					frappe.msgprint(__("Error fetching blocks: ") + (err.message || ""));
 				}
 			});
-			const $syncBtn = $(`<button class="btn btn-secondary btn-sm btn-sync-all-blocks mr-2 ml-2" style="font-weight: 500;">🔄 تطبيق التعديلات على كافة الكتل في السايت</button>`);
+			const $syncBtn = $(`<button class="btn btn-secondary btn-sm btn-sync-all-blocks mr-2 ml-2" style="font-weight: 500;">${__("🔄 Sync Changes to All Blocks")}</button>`);
 			$syncBtn.on("click", async function () {
-				frappe.confirm(__("هل تريد تطبيق التعديلات الجديدة (إلغاء الهوفر وتحديث المنتجات) على كافة الكتل في الموقع؟"), async function () {
-					frappe.dom.freeze(__("جاري تطبيق التعديلات على كافة الكتل..."));
+				frappe.confirm(__("Are you sure you want to apply changes to all blocks in the site?"), async function () {
+					frappe.dom.freeze(__("Applying updates to all blocks..."));
 					try {
 						const resp = await fetch("/assets/nxt_theme/blocks/all_blocks.json?v=" + Date.now());
 						const blocks = await resp.json();
@@ -84,15 +86,17 @@ import { unlockBodyScrollIfNoModal } from "./modal_utils";
 							count++;
 						}
 						frappe.dom.unfreeze();
-						frappe.show_alert({ message: `تم تحديث ${count} كتلة بنجاح في الموقع!`, indicator: "green" });
+						frappe.show_alert({ message: __("Successfully updated {0} blocks in the site!", [count]), indicator: "green" });
 						setTimeout(() => location.reload(), 1500);
 					} catch (err) {
 						frappe.dom.unfreeze();
-						frappe.msgprint("حدث خطأ أثناء تطبيق الكتل: " + err.message);
+						frappe.msgprint(__("Error applying blocks: ") + (err.message || ""));
 					}
 				});
 			});
 			$(".page-head .page-actions, .page-actions .standard-actions").first().prepend($syncBtn).prepend($btn);
+		} else {
+			$(".btn-export-all-blocks, .btn-sync-all-blocks").remove();
 		}
 	}
 

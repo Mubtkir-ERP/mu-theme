@@ -105,15 +105,17 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 		if not block_name:
 			continue
 
-		# 1. إنشاء أو تحديث مستند Custom HTML Block
+		# 1. Create or update Custom HTML Block document
 		if has_chb_doctype:
 			try:
 				if not frappe.db.exists("Custom HTML Block", block_name):
-					chb = frappe.new_doc("Custom HTML Block")
-					chb.custom_block_name = block_name
-					chb.html = item.get("html", "")
-					chb.style = item.get("style", "")
-					chb.script = item.get("script", "")
+					chb = frappe.get_doc({
+						"doctype": "Custom HTML Block",
+						"name": block_name,
+						"html": item.get("html", ""),
+						"style": item.get("style", ""),
+						"script": item.get("script", ""),
+					})
 					chb.flags.ignore_permissions = True
 					chb.insert()
 				else:
@@ -127,7 +129,7 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			except Exception as e:
 				frappe.log_error(f"Error creating Custom HTML Block {block_name}: {str(e)}")
 
-		# 2. ربط الكتلة بمساحة العمل المقابلة
+		# 2. Link block to the corresponding workspace
 		candidates = [
 			block_name,
 			block_name.capitalize(),
