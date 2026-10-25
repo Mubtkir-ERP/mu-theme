@@ -105,11 +105,14 @@
   ========================================================= */
   const arabicFallback = {
     // Headers & Labels
-    "Bank Reconciliation": "مطابقة البنك",
-    "Operations & Reports": "العمليات والتقارير",
-    "Settlements & Terminals": "التسويات وأجهزة نقاط البيع",
-    "Bank Reconciliation & Reports": "مطابقة البنك والتقارير",
-    "Settings": "الإعدادات",
+    "Bank Reconciliation": "مطابقة بنك مدى",
+    "Operations & Reports": "العمليات والتسويات البنكية",
+    "Operations & Settlements": "العمليات والتسويات البنكية",
+    "Settings & Reports": "الإعدادات والتقارير",
+    "Settlements & Terminals": "التسويات وأجهزة مدى",
+    "Bank Reconciliation & Reports": "مطابقة بنك مدى",
+    "Settings": "الإعدادات والتكوين",
+    "Reports": "التقارير",
 
     // Links / Items
     "Mada Settlement Entry": "قيد تسوية مدى",
@@ -287,7 +290,7 @@
   ========================================================= */
   const sections = [
     [
-      "Operations & Reports",
+      "Operations & Settlements",
       [
         [
           "Settlements & Terminals",
@@ -298,18 +301,29 @@
           ]
         ],
         [
-          "Bank Reconciliation & Reports",
+          "Bank Reconciliation",
           "🏦",
           [
-            "Mada Bank Reconciliation",
-            "Mada Reconciliation Status"
+            "Mada Bank Reconciliation"
           ]
-        ],
+        ]
+      ]
+    ],
+    [
+      "Settings & Reports",
+      [
         [
           "Settings",
           "⚙️",
           [
             "Mada Reconciliation Settings"
+          ]
+        ],
+        [
+          "Reports",
+          "📊",
+          [
+            "Mada Reconciliation Status"
           ]
         ]
       ]

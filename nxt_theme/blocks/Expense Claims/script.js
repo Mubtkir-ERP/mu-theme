@@ -1410,13 +1410,15 @@
           '<h3 class="erp-modal-title">' + escapeHtml(title) + '</h3>' +
         '</div>' +
         '<p class="erp-modal-summary">' + escapeHtml(summary) + '</p>' +
-        '<button type="button" class="erp-modal-toggle-steps" data-modal-toggle-steps>' +
-          (isArabic ? '📖 عرض الخطوات' : '📖 Show Steps') +
-        '</button>' +
-        '<div class="erp-modal-steps" data-modal-steps>' +
+        '<div class="erp-modal-steps is-shown" data-modal-steps>' +
           '<ol class="erp-modal-steps-list">' +
             steps.map(s => '<li>' + escapeHtml(s) + '</li>').join('') +
           '</ol>' +
+        '</div>' +
+        '<div style="margin-top: 18px;">' +
+          '<button type="button" class="erp-quick-btn" data-modal-launch style="width: 100%; min-height: 42px;">' +
+            '<span class="erp-quick-label">' + (isArabic ? 'فتح الشاشة' : 'Open Screen') + '</span>' +
+          '</button>' +
         '</div>' +
       '</div>';
 
@@ -1431,11 +1433,11 @@
       if (e.target === overlay) overlay.remove();
     });
 
-    const toggleBtn = overlay.querySelector('[data-modal-toggle-steps]');
-    const stepsBox = overlay.querySelector('[data-modal-steps]');
-    if (toggleBtn && stepsBox) {
-      toggleBtn.addEventListener('click', () => {
-        stepsBox.classList.toggle('is-shown');
+    const launchBtn = overlay.querySelector('[data-modal-launch]');
+    if (launchBtn) {
+      launchBtn.addEventListener('click', () => {
+        overlay.remove();
+        openRoute(itemName);
       });
     }
   }

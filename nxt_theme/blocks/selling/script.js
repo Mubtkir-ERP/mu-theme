@@ -1549,7 +1549,7 @@
 
         ? `
           <div
-            class="erp-modal-steps"
+            class="erp-modal-steps is-shown"
             data-modal-steps
           >
 
@@ -1619,13 +1619,7 @@
           hasSteps
 
             ? `
-              <button
-                type="button"
-                class="erp-modal-toggle-steps"
-                data-toggle-steps
-              >
-                ${showText}
-              </button>
+              
             `
 
             : ""
@@ -1634,7 +1628,18 @@
 
         ${stepsHtml}
 
-      </div>
+      
+        <div style="margin-top: 18px;">
+          <button
+            type="button"
+            class="erp-quick-btn"
+            data-modal-launch
+            style="width: 100%; min-height: 42px;"
+          >
+            <span class="erp-quick-label">${isArabic ? "فتح الشاشة" : "Open Screen"}</span>
+          </button>
+        </div>
+</div>
 
     `;
 
@@ -1695,46 +1700,12 @@
     );
 
 
-    const toggleButton =
-      overlay.querySelector(
-        "[data-toggle-steps]"
-      );
-
-
-    const stepsContainer =
-      overlay.querySelector(
-        "[data-modal-steps]"
-      );
-
-
-    if (
-      toggleButton &&
-      stepsContainer
-    ) {
-
-      toggleButton.addEventListener(
-
-        "click",
-
-        () => {
-
-          stepsContainer.classList.toggle(
-            "is-shown"
-          );
-
-
-          toggleButton.textContent =
-            stepsContainer.classList.contains(
-              "is-shown"
-            )
-
-              ? hideText
-              : showText;
-
-        }
-
-      );
-
+    const launchBtn = overlay.querySelector("[data-modal-launch]");
+    if (launchBtn) {
+      launchBtn.addEventListener("click", () => {
+        closeModal();
+        openRoute(data.name || data.labelEn || data.doctype || title);
+      });
     }
 
   }

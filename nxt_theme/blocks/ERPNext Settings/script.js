@@ -254,12 +254,23 @@
     const showT=isArabic?"📖 عرض الخطوات":"📖 Show Steps";
     const hideT=isArabic?"📖 إخفاء الخطوات":"📖 Hide Steps";
 
-    let stepsHtml=hasSteps?`<div class="erp-modal-steps" data-modal-steps><ol class="erp-modal-steps-list">${steps.map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ol></div>`:"";
+    let stepsHtml=hasSteps?`<div class="erp-modal-steps is-shown" data-modal-steps><ol class="erp-modal-steps-list">${steps.map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ol></div>`:"";
 
     const overlay=document.createElement("div");
     overlay.className="erp-modal-overlay";
     overlay.setAttribute("dir",isArabic?"rtl":"ltr");
-    overlay.innerHTML=`<div class="erp-modal-box"><button type="button" class="erp-modal-close" data-modal-close>✕</button><div class="erp-modal-header"><span class="erp-modal-icon">${data.icon}</span><h3 class="erp-modal-title">${escapeHtml(title)}</h3></div><p class="erp-modal-summary">${escapeHtml(summary)}</p>${hasSteps?`<button type="button" class="erp-modal-toggle-steps" data-toggle-steps>${showT}</button>`:""} ${stepsHtml}</div>`;
+    overlay.innerHTML=`<div class="erp-modal-box"><button type="button" class="erp-modal-close" data-modal-close>✕</button><div class="erp-modal-header"><span class="erp-modal-icon">${data.icon}</span><h3 class="erp-modal-title">${escapeHtml(title)}</h3></div><p class="erp-modal-summary">${escapeHtml(summary)}</p> ${stepsHtml}
+        <div style="margin-top: 18px;">
+          <button
+            type="button"
+            class="erp-quick-btn"
+            data-modal-launch
+            style="width: 100%; min-height: 42px;"
+          >
+            <span class="erp-quick-label">${isArabic ? "فتح الشاشة" : "Open Screen"}</span>
+          </button>
+        </div>
+</div>`;
     root.appendChild(overlay);
     requestAnimationFrame(()=>overlay.classList.add("is-visible"));
 
@@ -267,8 +278,13 @@
     overlay.querySelector("[data-modal-close]").addEventListener("click",closeModal);
     overlay.addEventListener("click",e=>{if(e.target===overlay)closeModal();});
 
-    const tb=overlay.querySelector("[data-toggle-steps]"),sc=overlay.querySelector("[data-modal-steps]");
-    if(tb&&sc){tb.addEventListener("click",()=>{sc.classList.toggle("is-shown");tb.textContent=sc.classList.contains("is-shown")?hideT:showT;});}
+    const launchBtn = overlay.querySelector("[data-modal-launch]");
+    if (launchBtn) {
+      launchBtn.addEventListener("click", () => {
+        closeModal();
+        openRoute(data.name || data.labelEn || data.doctype || title);
+      });
+    }
   }
 
   /* ═══════════════════════════════════════════════════

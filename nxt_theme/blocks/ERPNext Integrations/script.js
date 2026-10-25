@@ -374,7 +374,7 @@
     let stepsHtml = "";
     if (hasSteps) {
       stepsHtml = `
-        <div class="erp-modal-steps" data-modal-steps>
+        <div class="erp-modal-steps is-shown" data-modal-steps>
           <ol class="erp-modal-steps-list">
             ${steps
               .map(
@@ -414,18 +414,21 @@
           ${escapeHtml(summary)}
         </p>
 
-        ${
-          hasSteps
-            ? `<button
-                type="button"
-                class="erp-modal-toggle-steps"
-                data-toggle-steps
-              >${showStepsText}</button>`
-            : ""
-        }
+        
 
         ${stepsHtml}
-      </div>
+      
+        <div style="margin-top: 18px;">
+          <button
+            type="button"
+            class="erp-quick-btn"
+            data-modal-launch
+            style="width: 100%; min-height: 42px;"
+          >
+            <span class="erp-quick-label">${isArabic ? "فتح الشاشة" : "Open Screen"}</span>
+          </button>
+        </div>
+</div>
     `;
 
     root.appendChild(overlay);
@@ -451,24 +454,11 @@
       if (e.target === overlay) closeModal();
     });
 
-    const toggleBtn = overlay.querySelector(
-      "[data-toggle-steps]"
-    );
-    const stepsContainer = overlay.querySelector(
-      "[data-modal-steps]"
-    );
-
-    if (toggleBtn && stepsContainer) {
-      toggleBtn.addEventListener("click", () => {
-        const isShowing =
-          stepsContainer.classList.contains("is-shown");
-        if (isShowing) {
-          stepsContainer.classList.remove("is-shown");
-          toggleBtn.textContent = showStepsText;
-        } else {
-          stepsContainer.classList.add("is-shown");
-          toggleBtn.textContent = hideStepsText;
-        }
+    const launchBtn = overlay.querySelector("[data-modal-launch]");
+    if (launchBtn) {
+      launchBtn.addEventListener("click", () => {
+        closeModal();
+        openRoute(data.name || data.labelEn || data.doctype || title);
       });
     }
   }

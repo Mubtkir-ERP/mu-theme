@@ -136,7 +136,9 @@
     "Pos Offer": "عروض نقاط البيع",
     "Pos Coupon": "قسائم نقاط البيع",
     "Voucher Balance": "رصيد القسائم مسبقة الدفع",
-    "Reports & Settings": "التقارير والإعدادات",
+    "Reports & Settings": "الإعدادات والتقارير",
+    "Settings & Reports": "الإعدادات والتقارير",
+    "Operations & POS": "العمليات ونقاط البيع",
     "Point of Sale": "نقاط البيع",
 
     // Card Titles
@@ -145,7 +147,9 @@
     "Shift Management": "إدارة الورديات",
     "Offers & Coupons": "العروض والقسائم الترويجية",
     "Items": "الأصناف والمنتجات",
+    "Items & Products": "الأصناف والمنتجات",
     "Vouchers": "القسائم مسبقة الدفع",
+    "Prepaid Vouchers": "القسائم مسبقة الدفع",
 
     // Links / Items
     "Sales vs Shifts Report": "تقرير المبيعات مقابل الورديات",
@@ -413,27 +417,8 @@
   ========================================================= */
   const sections = [
     [
-      "Reports & Settings",
+      "Operations & POS",
       [
-        [
-          "Reports",
-          "📊",
-          [
-            "Sales vs Shifts Report",
-            "Cashier Performance Report",
-            "Payments and Cash Control Report",
-            "Inventory Impact and Fast Movers Report",
-            "Offline Sync and System Health Report"
-          ]
-        ],
-        [
-          "Configuration",
-          "⚙️",
-          [
-            "POS Settings",
-            "POS Profile"
-          ]
-        ],
         [
           "Shift Management",
           "⏱️",
@@ -443,27 +428,51 @@
           ]
         ],
         [
-          "Offers & Coupons",
-          "🏷️",
+          "Prepaid Vouchers",
+          "💳",
           [
-            "POS Offer",
-            "POS Coupon"
+            "Prepaid Voucher Balance",
+            "Prepaid Voucher Transaction",
+            "Prepaid Voucher Report"
           ]
         ],
         [
-          "Items",
+          "Items & Products",
           "📦",
           [
             "Item"
           ]
         ],
         [
-          "Vouchers",
-          "💳",
+          "Offers & Coupons",
+          "🏷️",
           [
-            "Prepaid Voucher Report",
-            "Prepaid Voucher Balance",
-            "Prepaid Voucher Transaction"
+            "POS Offer",
+            "POS Coupon"
+          ]
+        ]
+      ]
+    ],
+    [
+      "Settings & Reports",
+      [
+        [
+          "Configuration",
+          "⚙️",
+          [
+            "POS Profile",
+            "POS Settings"
+          ]
+        ],
+        [
+          "Reports",
+          "📊",
+          [
+            "Sales vs Shifts Report",
+            "Cashier Performance Report",
+            "Payments and Cash Control Report",
+            "Inventory Impact and Fast Movers Report",
+            "Offline Sync and System Health Report"
           ]
         ]
       ]

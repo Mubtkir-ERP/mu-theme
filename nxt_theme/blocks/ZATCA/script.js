@@ -876,6 +876,17 @@
         <p class="erp-modal-summary">
           ${escapeHtml(summary)}
         </p>
+        <div style="margin-top: 18px;">
+          <button
+            type="button"
+            class="erp-quick-btn"
+            data-modal-launch
+            style="width: 100%; min-height: 42px;"
+          >
+            <span class="erp-quick-label">${isArabic ? "فتح الشاشة" : "Open Screen"}</span>
+          </button>
+        </div>
+
 
       </div>
     `;
@@ -1280,6 +1291,14 @@
               desc.summaryEn
 
           });
+    const launchBtn = overlay.querySelector("[data-modal-launch]");
+    if (launchBtn) {
+      launchBtn.addEventListener("click", () => {
+        closeModal();
+        openRoute(data.name || data.labelEn || title);
+      });
+    }
+
 
         }
 

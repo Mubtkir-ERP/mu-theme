@@ -115,7 +115,8 @@
   const arabicFallback = {
     // Headers & Labels
     "Gas Operations": "إدارة عمليات الغاز",
-    "Operations & Financials": "العمليات والمالية",
+    "Operations & Financials": "العمليات والتشغيل اليومي",
+    "Operations & Daily Logistics": "العمليات والتشغيل اليومي",
     "Branch Delivery & Logistics": "تسليم الفروع واللوجستيات",
     "Daily Operations & Financials": "العمليات اليومية والمالية",
     "GASCO Ingestion & Invoices": "فواتير واستيراد كشف غازكو",
@@ -276,17 +277,8 @@
   ========================================================= */
   const sections = [
     [
-      "Operations & Financials",
+      "Operations & Daily Logistics",
       [
-        [
-          "Branch Delivery & Logistics",
-          "🚚",
-          [
-            "Gas Branch Delivery",
-            "Gas Monthly Billing Tool",
-            "Delivery Note"
-          ]
-        ],
         [
           "Daily Operations & Financials",
           "📋",
@@ -294,6 +286,15 @@
             "Gas Daily Sheet",
             "Sales Invoice",
             "Journal Entry"
+          ]
+        ],
+        [
+          "Branch Delivery & Logistics",
+          "🚚",
+          [
+            "Gas Branch Delivery",
+            "Gas Monthly Billing Tool",
+            "Delivery Note"
           ]
         ],
         [

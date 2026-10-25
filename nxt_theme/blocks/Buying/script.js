@@ -1281,23 +1281,17 @@
 
                     '</p>' +
 
-                    '<button class="erp-modal-toggle-steps" data-buy-show-steps>' +
-
-                        text(
-                            "📖 عرض الخطوات",
-                            "📖 Show Steps"
-                        ) +
-
-                    '</button>' +
-
-                    '<div class="erp-modal-steps" data-buy-steps>' +
+                    '<div class="erp-modal-steps is-shown" data-buy-steps>' +
 
                         '<ol class="erp-modal-steps-list">' +
                             list +
                         '</ol>' +
-
                     '</div>' +
-
+                    '<div style="margin-top: 18px;">' +
+                        '<button type="button" class="erp-quick-btn" data-modal-launch style="width: 100%; min-height: 42px;">' +
+                            '<span class="erp-quick-label">' + text("فتح الشاشة", "Open Screen") + '</span>' +
+                        '</button>' +
+                    '</div>' +
                 '</div>';
 
 
@@ -1334,34 +1328,19 @@
             }
 
 
-            var toggle =
+            var launchBtn =
                 overlay.querySelector(
-                    "[data-buy-show-steps]"
+                    "[data-modal-launch]"
                 );
 
-
-            var box =
-                overlay.querySelector(
-                    "[data-buy-steps]"
-                );
-
-
-            if (
-                toggle &&
-                box
-            ) {
-
-                toggle.addEventListener(
+            if (launchBtn) {
+                launchBtn.addEventListener(
                     "click",
                     function () {
-
-                        box.classList.toggle(
-                            "is-shown"
-                        );
-
+                        overlay.remove();
+                        navigate(name);
                     }
                 );
-
             }
 
         }
