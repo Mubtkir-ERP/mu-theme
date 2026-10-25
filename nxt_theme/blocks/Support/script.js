@@ -779,44 +779,59 @@
      11. INFO MODAL
   ========================================================= */
 
-  function showInfoModal(data) {
+  
+  /* =========================================================
+     DETAILS BUTTON HELPER
+  ========================================================= */
+  function hasDetailsButton(cardTitle, itemName) {
+    if (typeof reportNames !== "undefined" && reportNames && reportNames.has(itemName)) return false;
+    if (typeof singleDocs !== "undefined" && singleDocs && singleDocs.has(itemName)) return false;
+    if (/report|تقارير|تقرير|analytics/i.test(cardTitle) || /report|تقرير/i.test(itemName)) return false;
+    if (/setting|config|إعداد|اعداد|تكوين|تهيئة|setup/i.test(cardTitle) || /setting|إعداد|اعداد|تهيئة/i.test(itemName)) return false;
+    return true;
+  }
 
+
+  function showInfoModal(data) {
     const title =
       isArabic
-        ? data.labelAr
-        : data.labelEn;
+        ? (data.labelAr || translate(data.labelEn || data.name || "") || data.labelEn || data.name || "")
+        : (data.labelEn || data.name || data.labelAr || "");
 
     const summary =
       isArabic
-        ? data.summaryAr
-        : data.summaryEn;
+        ? (data.summaryAr || ("إدارة ومتابعة " + title + " وتنفيذ العمليات المرتبطة بها في النظام."))
+        : (data.summaryEn || ("Manage and track " + title + " and perform related operations."));
 
-    const steps =
+    const rawSteps =
       isArabic
         ? data.stepsAr
         : data.stepsEn;
 
-    const hasSteps =
-      Array.isArray(steps) &&
-      steps.length > 0;
+    const steps = (Array.isArray(rawSteps) && rawSteps.length > 0)
+      ? rawSteps
+      : (
+        isArabic
+          ? [
+              "فتح شاشة " + title,
+              "إدخال وتعبئة البيانات الأساسية المطلوبة",
+              "مراجعة وتدقيق الحقول والتحقق من صحتها",
+              "حفظ السجل واعتماد المستند"
+            ]
+          : [
+              "Open " + (data.labelEn || title),
+              "Fill in the required information and fields",
+              "Review and verify mandatory values",
+              "Save and submit the record"
+            ]
+      );
 
-
-    const overlay =
-      document.createElement("div");
-
-    overlay.className =
-      "erp-modal-overlay";
-
-    overlay.setAttribute(
-      "dir",
-      isArabic ? "rtl" : "ltr"
-    );
-
+    const overlay = document.createElement("div");
+    overlay.className = "erp-modal-overlay";
+    overlay.setAttribute("dir", isArabic ? "rtl" : "ltr");
 
     overlay.innerHTML = `
-
       <div class="erp-modal-box">
-
         <button
           type="button"
           class="erp-modal-close"
@@ -825,55 +840,25 @@
           ✕
         </button>
 
-
         <div class="erp-modal-header">
-
           <span class="erp-modal-icon">
             ${data.icon || "📄"}
           </span>
-
           <h3 class="erp-modal-title">
             ${escapeHtml(title)}
           </h3>
-
         </div>
-
 
         <p class="erp-modal-summary">
           ${escapeHtml(summary)}
         </p>
 
+        <div class="erp-modal-steps is-shown" data-modal-steps>
+          <ol class="erp-modal-steps-list">
+            ${steps.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
+          </ol>
+        </div>
 
-        ${
-          hasSteps
-            ? `
-
-              
-
-
-              <div
-                class="erp-modal-steps is-shown"
-                data-modal-steps
-              >
-
-                <ol class="erp-modal-steps-list">
-
-                  ${steps
-                    .map(
-                      step =>
-                        `<li>${escapeHtml(step)}</li>`
-                    )
-                    .join("")}
-
-                </ol>
-
-              </div>
-
-            `
-            : ""
-        }
-
-      
         <div style="margin-top: 18px;">
           <button
             type="button"
@@ -884,44 +869,34 @@
             <span class="erp-quick-label">${isArabic ? "فتح الشاشة" : "Open Screen"}</span>
           </button>
         </div>
-</div>
-
+      </div>
     `;
-
 
     root.appendChild(overlay);
 
-
     requestAnimationFrame(() => {
-
-      overlay.classList.add(
-        "is-visible"
-      );
-
+      overlay.classList.add("is-visible");
     });
 
+    function closeModal() {
+      overlay.classList.remove("is-visible");
+      overlay.addEventListener(
+        "transitionend",
+        () => overlay.remove(),
+        { once: true }
+      );
+      setTimeout(() => overlay.remove(), 250);
+    }
 
     overlay
       .querySelector("[data-modal-close]")
-      ?.addEventListener(
-        "click",
-        () => overlay.remove()
-      );
+      ?.addEventListener("click", closeModal);
 
-
-    overlay.addEventListener(
-
-      "click",
-
-      event => {
-
-        if (event.target === overlay)
-          overlay.remove();
-
+    overlay.addEventListener("click", event => {
+      if (event.target === overlay) {
+        closeModal();
       }
-
-    );
-
+    });
 
     const launchBtn = overlay.querySelector("[data-modal-launch]");
     if (launchBtn) {
@@ -930,7 +905,6 @@
         openRoute(data.name || data.labelEn || data.doctype || title);
       });
     }
-
   }
 
 
@@ -1366,8 +1340,7 @@
                           item => {
 
 
-                            const description =
-                              itemDescriptions[item];
+                            const showDetails = hasDetailsButton(card[0], item);
 
 
                             return `
@@ -1392,11 +1365,7 @@
                                 </button>
 
 
-                                ${
-                                  description
-
-                                    ? `
-                                      <button
+                                ${showDetails ? `<button
                                         type="button"
                                         class="erp-info-link"
                                         data-info-item="${escapeHtml(item)}"
@@ -1528,6 +1497,59 @@
       '</div>'
     ].join("\n");
   }
+
+
+  
+  /* =========================================================
+     EVENTS
+  ========================================================= */
+  let lastToggleTime = 0;
+  content.addEventListener("click", event => {
+    const infoButton = event.target.closest("[data-info-item]");
+    if (infoButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const itemName = infoButton.dataset.infoItem;
+      const data = itemDescriptions[itemName] || {};
+      showInfoModal({
+        ...data,
+        name: itemName,
+        icon: data.icon || "📄",
+        labelAr: translate(itemName) || itemName,
+        labelEn: itemName,
+        summaryAr: data.summaryAr,
+        summaryEn: data.summaryEn,
+        stepsAr: data.stepsAr,
+        stepsEn: data.stepsEn
+      });
+      return;
+    }
+
+    const routeButton = event.target.closest("[data-route-name]");
+    if (routeButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      openRoute(routeButton.dataset.routeName);
+      return;
+    }
+
+    const cardButton = event.target.closest("[data-card-toggle]");
+    if (!cardButton) return;
+    const now = Date.now();
+    if (now - lastToggleTime < 400) return;
+    lastToggleTime = now;
+    const selectedCard = cardButton.closest("[data-erp-card]");
+    if (!selectedCard) return;
+    const shouldOpen = !selectedCard.classList.contains("is-open");
+    content.querySelectorAll("[data-erp-card]").forEach(card => {
+      if (card !== selectedCard) {
+        card.classList.remove("is-open");
+        card.querySelector("[data-card-toggle]")?.setAttribute("aria-expanded", "false");
+      }
+    });
+    selectedCard.classList.toggle("is-open", shouldOpen);
+    cardButton.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+  });
 
 
   /* =========================================================

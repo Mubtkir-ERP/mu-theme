@@ -469,24 +469,52 @@
      ١٠. مربع التفاصيل (Modal)
   ───────────────────────────────────────── */
 
+  
+  /* =========================================================
+     DETAILS BUTTON HELPER
+  ========================================================= */
+  function hasDetailsButton(cardTitle, itemName) {
+    if (typeof reportNames !== "undefined" && reportNames && reportNames.has(itemName)) return false;
+    if (typeof singleDocs !== "undefined" && singleDocs && singleDocs.has(itemName)) return false;
+    if (/report|تقارير|تقرير|analytics/i.test(cardTitle) || /report|تقرير/i.test(itemName)) return false;
+    if (/setting|config|إعداد|اعداد|تكوين|تهيئة|setup/i.test(cardTitle) || /setting|إعداد|اعداد|تهيئة/i.test(itemName)) return false;
+    return true;
+  }
+
+
   function showInfoModal(data) {
-    const title = isArabic ? data.labelAr : data.labelEn;
-    const summary = isArabic ? data.summaryAr : data.summaryEn;
-    const steps = isArabic ? data.stepsAr : data.stepsEn;
-    const hasSteps = Array.isArray(steps) && steps.length > 0;
+    const title =
+      isArabic
+        ? (data.labelAr || translate(data.labelEn || data.name || "") || data.labelEn || data.name || "")
+        : (data.labelEn || data.name || data.labelAr || "");
 
-    const showStepsText = isArabic ? "📖 عرض الخطوات" : "📖 Show Steps";
-    const hideStepsText = isArabic ? "📖 إخفاء الخطوات" : "📖 Hide Steps";
+    const summary =
+      isArabic
+        ? (data.summaryAr || ("إدارة ومتابعة " + title + " وتنفيذ العمليات المرتبطة بها في النظام."))
+        : (data.summaryEn || ("Manage and track " + title + " and perform related operations."));
 
-    let stepsHtml = "";
-    if (hasSteps) {
-      stepsHtml = `
-        <div class="erp-modal-steps is-shown" data-modal-steps>
-          <ol class="erp-modal-steps-list">
-            ${steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}
-          </ol>
-        </div>`;
-    }
+    const rawSteps =
+      isArabic
+        ? data.stepsAr
+        : data.stepsEn;
+
+    const steps = (Array.isArray(rawSteps) && rawSteps.length > 0)
+      ? rawSteps
+      : (
+        isArabic
+          ? [
+              "فتح شاشة " + title,
+              "إدخال وتعبئة البيانات الأساسية المطلوبة",
+              "مراجعة وتدقيق الحقول والتحقق من صحتها",
+              "حفظ السجل واعتماد المستند"
+            ]
+          : [
+              "Open " + (data.labelEn || title),
+              "Fill in the required information and fields",
+              "Review and verify mandatory values",
+              "Save and submit the record"
+            ]
+      );
 
     const overlay = document.createElement("div");
     overlay.className = "erp-modal-overlay";
@@ -494,15 +522,33 @@
 
     overlay.innerHTML = `
       <div class="erp-modal-box">
-        <button type="button" class="erp-modal-close" data-modal-close aria-label="Close">✕</button>
+        <button
+          type="button"
+          class="erp-modal-close"
+          data-modal-close
+        >
+          ✕
+        </button>
+
         <div class="erp-modal-header">
-          <span class="erp-modal-icon">${data.icon}</span>
-          <h3 class="erp-modal-title">${escapeHtml(title)}</h3>
+          <span class="erp-modal-icon">
+            ${data.icon || "📄"}
+          </span>
+          <h3 class="erp-modal-title">
+            ${escapeHtml(title)}
+          </h3>
         </div>
-        <p class="erp-modal-summary">${escapeHtml(summary)}</p>
-        
-        ${stepsHtml}
-      
+
+        <p class="erp-modal-summary">
+          ${escapeHtml(summary)}
+        </p>
+
+        <div class="erp-modal-steps is-shown" data-modal-steps>
+          <ol class="erp-modal-steps-list">
+            ${steps.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
+          </ol>
+        </div>
+
         <div style="margin-top: 18px;">
           <button
             type="button"
@@ -513,18 +559,34 @@
             <span class="erp-quick-label">${isArabic ? "فتح الشاشة" : "Open Screen"}</span>
           </button>
         </div>
-</div>`;
+      </div>
+    `;
 
     root.appendChild(overlay);
-    requestAnimationFrame(() => overlay.classList.add("is-visible"));
+
+    requestAnimationFrame(() => {
+      overlay.classList.add("is-visible");
+    });
 
     function closeModal() {
       overlay.classList.remove("is-visible");
-      overlay.addEventListener("transitionend", () => overlay.remove(), { once: true });
+      overlay.addEventListener(
+        "transitionend",
+        () => overlay.remove(),
+        { once: true }
+      );
+      setTimeout(() => overlay.remove(), 250);
     }
 
-    overlay.querySelector("[data-modal-close]").addEventListener("click", closeModal);
-    overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
+    overlay
+      .querySelector("[data-modal-close]")
+      ?.addEventListener("click", closeModal);
+
+    overlay.addEventListener("click", event => {
+      if (event.target === overlay) {
+        closeModal();
+      }
+    });
 
     const launchBtn = overlay.querySelector("[data-modal-launch]");
     if (launchBtn) {
@@ -599,10 +661,9 @@
             const items = card[2];
 
             const linksHtml = items.map((itemName) => {
-              const desc = itemDescriptions[itemName];
+              const showDetails = hasDetailsButton(card[0] || (typeof cardTitle !== "undefined" ? cardTitle : ""), itemName);
               const detailsLabel = isArabic ? "تفاصيل" : "Details";
-              const infoBtn = desc
-                ? `<button type="button" class="erp-info-link" data-info-item="${escapeHtml(itemName)}">${detailsLabel}</button>`
+              const infoBtn = showDetails ? `<button type="button" class="erp-info-link" data-info-item="${escapeHtml(itemName)}">${detailsLabel}</button>`
                 : "";
 
               return `
@@ -688,25 +749,33 @@
   let lastToggleTime = 0;
 
   content.addEventListener("click", (event) => {
-    const infoBtn = event.target.closest("[data-info-item]");
-    if (infoBtn) {
-      event.preventDefault();
-      event.stopPropagation();
-      const itemName = infoBtn.dataset.infoItem;
-      const desc = itemDescriptions[itemName];
-      if (desc) {
+    const infoBtn =
+        event.target.closest("[data-info-item]");
+
+      if (infoBtn) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const itemName =
+          infoBtn.dataset.infoItem;
+
+        const data =
+          itemDescriptions[itemName] || {};
+
         showInfoModal({
-          icon: desc.icon || "📄",
-          labelAr: translate(itemName),
+          ...data,
+          name: itemName,
+          icon: data.icon || "📄",
+          labelAr: translate(itemName) || itemName,
           labelEn: itemName,
-          summaryAr: desc.summaryAr,
-          summaryEn: desc.summaryEn,
-          stepsAr: desc.stepsAr,
-          stepsEn: desc.stepsEn
+          summaryAr: data.summaryAr,
+          summaryEn: data.summaryEn,
+          stepsAr: data.stepsAr,
+          stepsEn: data.stepsEn
         });
+
+        return;
       }
-      return;
-    }
 
     const routeButton = event.target.closest("[data-route-name]");
     if (routeButton) {

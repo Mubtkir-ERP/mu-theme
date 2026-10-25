@@ -1117,10 +1117,23 @@
             }
 
 
-            var steps =
-                isArabic
-                    ? data.stepsAr
-                    : data.stepsEn;
+            var rawSteps = data ? (isArabic ? data.stepsAr : data.stepsEn) : null;
+            var steps = (Array.isArray(rawSteps) && rawSteps.length > 0)
+                ? rawSteps
+                : (isArabic
+                    ? [
+                        "فتح شاشة " + text(data ? data.titleAr : name, data ? data.titleEn : name),
+                        "إدخال وتعبئة البيانات الأساسية المطلوبة",
+                        "مراجعة وتدقيق الحقول والتحقق من صحتها",
+                        "حفظ السجل واعتماد المستند"
+                    ]
+                    : [
+                        "Open " + text(data ? data.titleAr : name, data ? data.titleEn : name),
+                        "Fill in the required information and fields",
+                        "Review and verify mandatory values",
+                        "Save and submit the record"
+                    ]
+                );
 
 
             var list = "";

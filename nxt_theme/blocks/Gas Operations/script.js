@@ -515,9 +515,22 @@
     const summary = desc
       ? (isArabic ? desc.summaryAr : desc.summaryEn)
       : (isArabic ? ("إدارة ومتابعة " + title + " وتنفيذ العمليات المرتبطة بها.") : ("Manage and track " + itemName + "."));
-    const steps = desc
-      ? (isArabic ? desc.stepsAr : desc.stepsEn)
-      : (isArabic ? ["فتح شاشة " + title, "إدخال البيانات ومراجعتها", "حفظ السجل"] : ["Open " + itemName, "Enter details", "Save record"]);
+    const rawSteps = desc ? (isArabic ? desc.stepsAr : desc.stepsEn) : null;
+    const steps = (Array.isArray(rawSteps) && rawSteps.length > 0)
+      ? rawSteps
+      : (isArabic
+          ? [
+              "فتح شاشة " + title,
+              "إدخال وتعبئة البيانات الأساسية المطلوبة",
+              "مراجعة وتدقيق الحقول والتحقق من صحتها",
+              "حفظ السجل واعتماد المستند"
+            ]
+          : [
+              "Open " + itemName,
+              "Fill in the required information and fields",
+              "Review and verify mandatory values",
+              "Save and submit the record"
+            ]);
 
     const overlay = document.createElement("div");
     overlay.className = "erp-modal-overlay";
