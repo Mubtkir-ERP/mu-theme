@@ -432,60 +432,86 @@
   ───────────────────────────────────────── */
 
   function showInfoModal(itemName) {
-    const data = itemDescriptions[itemName];
-    if (!data) return;
+    const desc = itemDescriptions[itemName];
+    const title = isArabic ? (translate(itemName) || itemName) : itemName;
+    const summary = desc
+      ? (isArabic ? desc.summaryAr : desc.summaryEn)
+      : (isArabic ? ("إدارة ومتابعة " + title + " وتنفيذ العمليات المرتبطة بها.") : ("Manage and track " + itemName + "."));
+    const rawSteps = desc ? (isArabic ? desc.stepsAr : desc.stepsEn) : null;
+    const steps = (Array.isArray(rawSteps) && rawSteps.length > 0)
+      ? rawSteps
+      : (isArabic
+          ? [
+              "فتح شاشة " + title,
+              "إدخال وتعبئة البيانات الأساسية المطلوبة",
+              "مراجعة وتدقيق الحقول والتحقق من صحتها",
+              "حفظ السجل واعتماد المستند"
+            ]
+          : [
+              "Open " + itemName,
+              "Fill in the required information and fields",
+              "Review and verify mandatory values",
+              "Save and submit the record"
+            ]);
 
-    const modalId = "erp-users-info-modal";
-    let modal = document.getElementById(modalId);
-    if (modal) modal.remove();
+    // إزالة أي نافذة سابقة مفتوحة
+    const existing = root.querySelector(".erp-modal-overlay") || document.querySelector(".erp-modal-overlay");
+    if (existing) existing.remove();
 
-    const title = translate(itemName);
-    const summary = isArabic ? data.summaryAr : data.summaryEn;
-    const steps = isArabic ? data.stepsAr : data.stepsEn;
-    const hasSteps = Array.isArray(steps) && steps.length > 0;
-    const stepsTitle = isArabic ? "خطوات العمل والإعداد:" : "Step-by-step Guide:";
-    const closeText = isArabic ? "إغلاق" : "Close";
+    const overlay = document.createElement("div");
+    overlay.className = "erp-modal-overlay";
+    overlay.setAttribute("dir", isArabic ? "rtl" : "ltr");
 
-    modal = document.createElement("div");
-    modal.id = modalId;
-    modal.className = "erp-modal-overlay";
-    modal.setAttribute("dir", isArabic ? "rtl" : "ltr");
-
-    modal.innerHTML = `
-      <div class="erp-modal-dialog" role="dialog" aria-modal="true">
+    overlay.innerHTML = `
+      <div class="erp-modal-box">
+        <button type="button" class="erp-modal-close" data-modal-close aria-label="${isArabic ? "إغلاق" : "Close"}">✕</button>
         <div class="erp-modal-header">
-          <div class="erp-modal-title-wrap">
-            <span class="erp-modal-icon">${data.icon || "👤"}</span>
-            <h3 class="erp-modal-title">${escapeHtml(title)}</h3>
-          </div>
-          <button type="button" class="erp-modal-close" data-modal-close aria-label="${closeText}">×</button>
+          <span class="erp-modal-icon">${desc?.icon || "📄"}</span>
+          <h3 class="erp-modal-title">${escapeHtml(title)}</h3>
         </div>
-        <div class="erp-modal-body">
-          <p class="erp-modal-summary">${escapeHtml(summary)}</p>
-          ${hasSteps ? `
-            <div class="erp-modal-steps-section">
-              <h4 class="erp-modal-steps-heading">${stepsTitle}</h4>
-              <ol class="erp-modal-steps-list">
-                ${steps.map(step => `<li>${escapeHtml(step)}</li>`).join("")}
-              </ol>
-            </div>
-          ` : ""}
+        <p class="erp-modal-summary">${escapeHtml(summary)}</p>
+
+        <div class="erp-modal-steps is-shown" data-modal-steps>
+          <ol class="erp-modal-steps-list">
+            ${steps.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
+          </ol>
         </div>
-        <div class="erp-modal-footer">
-          <button type="button" class="erp-modal-btn" data-modal-close>${closeText}</button>
+
+        <div style="margin-top: 18px;">
+          <button
+            type="button"
+            class="erp-quick-btn"
+            data-modal-launch
+            style="width: 100%; min-height: 42px;"
+          >
+            <span class="erp-quick-label">${isArabic ? "فتح الشاشة" : "Open Screen"}</span>
+          </button>
         </div>
       </div>
     `;
 
-    document.body.appendChild(modal);
+    root.appendChild(overlay);
+    setTimeout(() => overlay.classList.add("is-visible"), 10);
 
-    const closeModal = () => modal.remove();
-    modal.querySelectorAll("[data-modal-close]").forEach(el => {
-      el.addEventListener("click", closeModal);
+    const closeModal = () => {
+      overlay.classList.remove("is-visible");
+      setTimeout(() => overlay.remove(), 280);
+    };
+
+    const closeBtn = overlay.querySelector("[data-modal-close]");
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+
+    overlay.addEventListener("click", e => {
+      if (e.target === overlay) closeModal();
     });
-    modal.addEventListener("click", e => {
-      if (e.target === modal) closeModal();
-    });
+
+    const launchBtn = overlay.querySelector("[data-modal-launch]");
+    if (launchBtn) {
+      launchBtn.addEventListener("click", () => {
+        closeModal();
+        openRoute(itemName);
+      });
+    }
   }
 
   /* ─────────────────────────────────────────

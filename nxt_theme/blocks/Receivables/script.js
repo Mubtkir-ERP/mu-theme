@@ -419,24 +419,32 @@
      ١٠. مربع التفاصيل (Modal)
   ───────────────────────────────────────── */
 
-  function showInfoModal(data) {
-    const title = isArabic ? data.labelAr : data.labelEn;
-    const summary = isArabic ? data.summaryAr : data.summaryEn;
-    const steps = isArabic ? data.stepsAr : data.stepsEn;
-    const hasSteps = Array.isArray(steps) && steps.length > 0;
+  function showInfoModal(itemName) {
+    const desc = itemDescriptions[itemName];
+    const title = isArabic ? (translate(itemName) || itemName) : itemName;
+    const summary = desc
+      ? (isArabic ? desc.summaryAr : desc.summaryEn)
+      : (isArabic ? ("إدارة ومتابعة " + title + " وتنفيذ العمليات المرتبطة بها.") : ("Manage and track " + itemName + "."));
+    const rawSteps = desc ? (isArabic ? desc.stepsAr : desc.stepsEn) : null;
+    const steps = (Array.isArray(rawSteps) && rawSteps.length > 0)
+      ? rawSteps
+      : (isArabic
+          ? [
+              "فتح شاشة " + title,
+              "إدخال وتعبئة البيانات الأساسية المطلوبة",
+              "مراجعة وتدقيق الحقول والتحقق من صحتها",
+              "حفظ السجل واعتماد المستند"
+            ]
+          : [
+              "Open " + itemName,
+              "Fill in the required information and fields",
+              "Review and verify mandatory values",
+              "Save and submit the record"
+            ]);
 
-    const showStepsText = isArabic ? "📖 عرض الخطوات" : "📖 Show Steps";
-    const hideStepsText = isArabic ? "📖 إخفاء الخطوات" : "📖 Hide Steps";
-
-    let stepsHtml = "";
-    if (hasSteps) {
-      stepsHtml = `
-        <div class="erp-modal-steps" data-modal-steps>
-          <ol class="erp-modal-steps-list">
-            ${steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}
-          </ol>
-        </div>`;
-    }
+    // إزالة أي نافذة سابقة مفتوحة
+    const existing = root.querySelector(".erp-modal-overlay") || document.querySelector(".erp-modal-overlay");
+    if (existing) existing.remove();
 
     const overlay = document.createElement("div");
     overlay.className = "erp-modal-overlay";
@@ -444,34 +452,52 @@
 
     overlay.innerHTML = `
       <div class="erp-modal-box">
-        <button type="button" class="erp-modal-close" data-modal-close aria-label="Close">✕</button>
+        <button type="button" class="erp-modal-close" data-modal-close aria-label="${isArabic ? "إغلاق" : "Close"}">✕</button>
         <div class="erp-modal-header">
-          <span class="erp-modal-icon">${data.icon}</span>
+          <span class="erp-modal-icon">${desc?.icon || "📄"}</span>
           <h3 class="erp-modal-title">${escapeHtml(title)}</h3>
         </div>
         <p class="erp-modal-summary">${escapeHtml(summary)}</p>
-        ${hasSteps ? `<button type="button" class="erp-modal-toggle-steps" data-toggle-steps>${showStepsText}</button>` : ""}
-        ${stepsHtml}
-      </div>`;
+
+        <div class="erp-modal-steps is-shown" data-modal-steps>
+          <ol class="erp-modal-steps-list">
+            ${steps.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
+          </ol>
+        </div>
+
+        <div style="margin-top: 18px;">
+          <button
+            type="button"
+            class="erp-quick-btn"
+            data-modal-launch
+            style="width: 100%; min-height: 42px;"
+          >
+            <span class="erp-quick-label">${isArabic ? "فتح الشاشة" : "Open Screen"}</span>
+          </button>
+        </div>
+      </div>
+    `;
 
     root.appendChild(overlay);
-    requestAnimationFrame(() => overlay.classList.add("is-visible"));
+    setTimeout(() => overlay.classList.add("is-visible"), 10);
 
-    function closeModal() {
+    const closeModal = () => {
       overlay.classList.remove("is-visible");
-      overlay.addEventListener("transitionend", () => overlay.remove(), { once: true });
-    }
+      setTimeout(() => overlay.remove(), 280);
+    };
 
-    overlay.querySelector("[data-modal-close]").addEventListener("click", closeModal);
-    overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
+    const closeBtn = overlay.querySelector("[data-modal-close]");
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
 
-    const toggleBtn = overlay.querySelector("[data-toggle-steps]");
-    const stepsContainer = overlay.querySelector("[data-modal-steps]");
-    if (toggleBtn && stepsContainer) {
-      toggleBtn.addEventListener("click", () => {
-        const isShowing = stepsContainer.classList.contains("is-shown");
-        stepsContainer.classList.toggle("is-shown");
-        toggleBtn.textContent = isShowing ? showStepsText : hideStepsText;
+    overlay.addEventListener("click", e => {
+      if (e.target === overlay) closeModal();
+    });
+
+    const launchBtn = overlay.querySelector("[data-modal-launch]");
+    if (launchBtn) {
+      launchBtn.addEventListener("click", () => {
+        closeModal();
+        openRoute(itemName);
       });
     }
   }
@@ -633,19 +659,7 @@
     if (infoBtn) {
       event.preventDefault();
       event.stopPropagation();
-      const itemName = infoBtn.dataset.infoItem;
-      const desc = itemDescriptions[itemName];
-      if (desc) {
-        showInfoModal({
-          icon: desc.icon || "📄",
-          labelAr: translate(itemName),
-          labelEn: itemName,
-          summaryAr: desc.summaryAr,
-          summaryEn: desc.summaryEn,
-          stepsAr: desc.stepsAr,
-          stepsEn: desc.stepsEn
-        });
-      }
+      showInfoModal(infoBtn.dataset.infoItem);
       return;
     }
 
