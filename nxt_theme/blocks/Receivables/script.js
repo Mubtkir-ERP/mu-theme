@@ -390,56 +390,6 @@
         "Add dunning letter text",
         "Click «Save»"
       ]
-    },
-
-    /* ═══ التقارير (توضيح فقط — بدون خطوات) ═══ */
-
-    "Accounts Receivable": {
-      icon: "📊",
-      summaryAr:
-        "تقرير يعرض جميع المبالغ المستحقة من العملاء مع تفاصيل الفواتير وأعمار الديون وتواريخ الاستحقاق.",
-      summaryEn:
-        "Report showing all amounts owed by customers with invoice details, aging, and due dates."
-    },
-
-    "Accounts Receivable Summary": {
-      icon: "📋",
-      summaryAr:
-        "ملخص إجمالي الذمم المدينة لكل عميل مع تصنيف حسب فترات التقادم (٣٠، ٦٠، ٩٠ يوم).",
-      summaryEn:
-        "Summary of total receivables per customer with aging classification (30, 60, 90 days)."
-    },
-
-    "Sales Register": {
-      icon: "📑",
-      summaryAr:
-        "سجل تفصيلي لجميع فواتير المبيعات المعتمدة مع بيانات العميل والمبالغ والضرائب.",
-      summaryEn:
-        "Detailed register of all submitted sales invoices with customer info, amounts, and taxes."
-    },
-
-    "Item-wise Sales Register": {
-      icon: "📦",
-      summaryAr:
-        "سجل المبيعات مصنّف حسب الصنف — يعرض الكميات والمبالغ لكل صنف لكل عميل.",
-      summaryEn:
-        "Sales register classified by item — shows quantities and amounts per item for each customer."
-    },
-
-    "Sales Order Analysis": {
-      icon: "📈",
-      summaryAr:
-        "تحليل طلبات المبيعات من حيث الحالة (معلقة، مسلّمة، مفوترة) والمبالغ والكميات.",
-      summaryEn:
-        "Analyze sales orders by status (pending, delivered, billed), amounts, and quantities."
-    },
-
-    "Delivered Items To Be Billed": {
-      icon: "📥",
-      summaryAr:
-        "تقرير بالأصناف التي تم تسليمها للعملاء ولكن لم تُصدر لها فواتير مبيعات بعد.",
-      summaryEn:
-        "Report of items delivered to customers but not yet billed with sales invoices."
     }
   };
 

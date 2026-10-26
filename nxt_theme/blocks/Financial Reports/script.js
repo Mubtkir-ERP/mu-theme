@@ -200,12 +200,16 @@
     "Purchase Invoice Trends": "اتجاهات فواتير المشتريات",
 
     "Other Reports": "تقارير أخرى",
-    "Trial Balance for Party": "ميزان المراجعة حسب الطرف",
-    "Payment Period Based On Invoice Date": "فترة السداد حسب تاريخ الفاتورة",
-    "Sales Partners Commission": "عمولة شركاء المبيعات",
-    "Customer Credit Balance": "رصيد العميل الدائن",
-    "Sales Payment Summary": "ملخص مدفوعات المبيعات",
-    "Address And Contacts": "العناوين وجهات الاتصال"
+    "Trial Balance for Party": "تقرير ميزان المراجعة للطرف",
+    "Party Trial Balance": "تقرير ميزان المراجعة للطرف",
+    "Payment Period Based On Invoice Date": "طريقة الدفع بناء على تاريخ الفاتورة",
+    "Payment Terms Based On Invoice Date": "طريقة الدفع بناء على تاريخ الفاتورة",
+    "Sales Partners Commission": "عمولة المناديب",
+    "Sales Partner Commission": "عمولة المناديب",
+    "Customer Credit Balance": "رصيد العميل",
+    "Customer Balance": "رصيد العميل",
+    "Sales Payment Summary": "ملخص دفع المبيعات",
+    "Address And Contacts": "العنوان و جهات الاتصال"
   };
 
 

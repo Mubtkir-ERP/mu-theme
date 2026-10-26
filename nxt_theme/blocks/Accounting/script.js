@@ -1,2908 +1,1495 @@
-(() => {
-
-  /* =========================================================
-     MUBTKIR ERP — ACCOUNTING WORKSPACE
-     لوحة تحكم قسم المحاسبة
-  ========================================================= */
-
-  const root = root_element.querySelector("[data-erp-dashboard]");
-  const accountingCycle = root_element.querySelector("[data-purchase-cycle]");
-  const statsSection = root_element.querySelector("[data-stats-section]");
-  const quickActions = root_element.querySelector("[data-quick-actions]");
-  const content = root_element.querySelector("[data-dashboard-content]");
-  const footerEl = root_element.querySelector("[data-dashboard-footer]");
-
-  if (!root || !content) return;
-
-
-  /* =========================================================
-     1. LANGUAGE
-  ========================================================= */
-
-  const langValue =
-    window.frappe?.boot?.lang ||
-    window.frappe?.boot?.user?.language ||
-    document.documentElement.lang ||
-    "en";
-
-  const isArabic =
-    String(langValue).toLowerCase().startsWith("ar");
-
-  root.setAttribute("dir", isArabic ? "rtl" : "ltr");
-  root.classList.toggle("erp-dashboard-rtl", isArabic);
-
-
-  /* =========================================================
-     2. ACCOUNTING CYCLE
-     دورة المحاسبة
-  ========================================================= */
-
-  const accountingCycleCards = [
-
-    {
-      step: 1,
-
-      action: "tree",
-      doctype: "Account",
-
-      labelEn: "Chart of Accounts",
-      labelAr: "دليل الحسابات",
-
-      descriptionEn:
-        "Create and organize the company's accounting structure.",
-
-      descriptionAr:
-        "إنشاء وتنظيم الحسابات الرئيسية والفرعية للشركة."
-    },
-
-
-    {
-      step: 2,
-
-      action: "new",
-      doctype: "Journal Entry",
-
-      defaults: {
-        voucher_type: "Opening Entry"
-      },
-
-      labelEn: "Opening Entries",
-      labelAr: "القيود الافتتاحية",
-
-      descriptionEn:
-        "Enter opening balances when starting the accounting system.",
-
-      descriptionAr:
-        "إدخال الأرصدة الافتتاحية عند بدء العمل على النظام."
-    },
-
-
-    {
-      step: 3,
-
-      action: "invoice-selector",
-
-      labelEn: "Invoices",
-      labelAr: "الفواتير",
-
-      descriptionEn:
-        "Manage sales and purchase invoices.",
-
-      descriptionAr:
-        "إدارة فواتير المبيعات والمشتريات."
-    },
-
-
-    {
-      step: 4,
-
-      action: "new",
-      doctype: "Payment Entry",
-
-      labelEn: "Receipts & Payments",
-      labelAr: "القبض والدفع",
-
-      descriptionEn:
-        "Record customer receipts and supplier payments.",
-
-      descriptionAr:
-        "تسجيل سندات القبض من العملاء والمدفوعات للموردين."
-    },
-
-
-    {
-      step: 5,
-
-      action: "new",
-      doctype: "Journal Entry",
-
-      labelEn: "Journal Entries",
-      labelAr: "قيود اليومية",
-
-      descriptionEn:
-        "Record manual accounting adjustments and entries.",
-
-      descriptionAr:
-        "تسجيل القيود والتسويات المحاسبية اليدوية."
-    },
-
-
-    {
-      step: 6,
-
-      action: "route",
-      route: ["bank-reconciliation"],
-
-      fallbackDoctype: "Bank Transaction",
-
-      labelEn: "Bank Reconciliation",
-      labelAr: "التسوية البنكية",
-
-      descriptionEn:
-        "Match bank transactions with accounting entries.",
-
-      descriptionAr:
-        "مطابقة حركات البنك مع القيود المحاسبية."
-    }
-
-  ];
-
-
-  /* =========================================================
-     3. GENERAL HELPERS
-  ========================================================= */
-
-  function getDefaultCompany() {
-
-    try {
-
-      return (
-        frappe.defaults?.get_default("company") ||
-        frappe.boot?.defaults?.company ||
-        ""
-      );
-
-    } catch (e) {
-
-      return "";
-
-    }
-
-  }
-
-
-  function getToday() {
-
-    if (
-      window.frappe?.datetime?.get_today
-    ) {
-
-      return frappe.datetime.get_today();
-
-    }
-
-    return new Date()
-      .toISOString()
-      .slice(0, 10);
-
-  }
-
-
-  function runReport(reportName, filters = {}) {
-
-    return new Promise(resolve => {
-
-      frappe.call({
-
-        method:
-          "frappe.desk.query_report.run",
-
-        args: {
-
-          report_name:
-            reportName,
-
-          filters:
-            filters,
-
-          ignore_prepared_report:
-            true
-
-        },
-
-        callback: response => {
-
-          resolve(
-            response?.message?.result || []
-          );
-
-        },
-
-        error: () => {
-
-          resolve([]);
-
-        }
-
-      });
-
-    });
-
-  }
-
-
-  function getReceivableTotal() {
-
-    return new Promise(resolve => {
-
-      const company =
-        getDefaultCompany();
-
-      const filters = {};
-
-      if (company)
-        filters.company = company;
-
-
-      runReport(
-        "Accounts Receivable",
-        filters
-      ).then(rows => {
-
-        let total = 0;
-
-        rows.forEach(row => {
-
-          if (!row)
-            return;
-
-          const value =
-            Number(
-              row.outstanding_amount ??
-              row.outstanding ??
-              0
-            );
-
-          if (
-            Number.isFinite(value) &&
-            value > 0
-          ) {
-
-            total += value;
-
-          }
-
-        });
-
-        resolve(total);
-
-      });
-
-    });
-
-  }
-
-
-  function getPayableTotal() {
-
-    return new Promise(resolve => {
-
-      const company =
-        getDefaultCompany();
-
-      const filters = {};
-
-      if (company)
-        filters.company = company;
-
-
-      runReport(
-        "Accounts Payable",
-        filters
-      ).then(rows => {
-
-        let total = 0;
-
-        rows.forEach(row => {
-
-          if (!row)
-            return;
-
-          const value =
-            Number(
-              row.outstanding_amount ??
-              row.outstanding ??
-              0
-            );
-
-          if (
-            Number.isFinite(value) &&
-            value > 0
-          ) {
-
-            total += value;
-
-          }
-
-        });
-
-        resolve(total);
-
-      });
-
-    });
-
-  }
-
-
-  /* =========================================================
-     4. OVERVIEW
-     نظرة عامة
-  ========================================================= */
-
-  const statsCards = [
-
-    /* الذمم المدينة */
-    {
-      id: "accounts-receivable",
-
-      short: "AR",
-
-      labelEn:
-        "Accounts Receivable",
-
-      labelAr:
-        "الذمم المدينة",
-
-      isCurrency: true,
-
-      fetch:
-        getReceivableTotal
-    },
-
-
-    /* الذمم الدائنة */
-    {
-      id: "accounts-payable",
-
-      short: "AP",
-
-      labelEn:
-        "Accounts Payable",
-
-      labelAr:
-        "الذمم الدائنة",
-
-      isCurrency: true,
-
-      fetch:
-        getPayableTotal
-    },
-
-
-    /* الفواتير المتأخرة */
-    {
-      id: "overdue-invoices",
-
-      short: "OD",
-
-      labelEn:
-        "Overdue Invoices",
-
-      labelAr:
-        "الفواتير المتأخرة",
-
-      fetch: () =>
-        new Promise(resolve => {
-
-          const today =
-            getToday();
-
-          let salesCount = 0;
-          let purchaseCount = 0;
-          let finished = 0;
-
-
-          function done() {
-
-            finished++;
-
-            if (finished === 2) {
-
-              resolve(
-                salesCount +
-                purchaseCount
-              );
-
-            }
-
-          }
-
-
-          frappe.call({
-
-            method:
-              "frappe.client.get_count",
-
-            args: {
-
-              doctype:
-                "Sales Invoice",
-
-              filters: {
-
-                docstatus: 1,
-
-                outstanding_amount:
-                  [">", 0],
-
-                due_date:
-                  ["<", today]
-
-              }
-
-            },
-
-            callback: data => {
-
-              salesCount =
-                data?.message || 0;
-
-              done();
-
-            },
-
-            error: done
-
-          });
-
-
-          frappe.call({
-
-            method:
-              "frappe.client.get_count",
-
-            args: {
-
-              doctype:
-                "Purchase Invoice",
-
-              filters: {
-
-                docstatus: 1,
-
-                outstanding_amount:
-                  [">", 0],
-
-                due_date:
-                  ["<", today]
-
-              }
-
-            },
-
-            callback: data => {
-
-              purchaseCount =
-                data?.message || 0;
-
-              done();
-
-            },
-
-            error: done
-
-          });
-
-        })
-    },
-
-
-    /* القيود المسودة */
-    {
-      id: "draft-journal-entries",
-
-      short: "JE",
-
-      labelEn:
-        "Draft Journal Entries",
-
-      labelAr:
-        "القيود المسودة",
-
-      fetch: () =>
-        new Promise(resolve => {
-
-          frappe.call({
-
-            method:
-              "frappe.client.get_count",
-
-            args: {
-
-              doctype:
-                "Journal Entry",
-
-              filters: {
-                docstatus: 0
-              }
-
-            },
-
-            callback: data =>
-              resolve(
-                data?.message || 0
-              ),
-
-            error: () =>
-              resolve(0)
-
-          });
-
-        })
-    }
-
-  ];
-
-
-  /* =========================================================
-     5. QUICK ACTIONS
-  ========================================================= */
-
-  const quickActionButtons = [
-
-    {
-      doctype:
-        "Journal Entry",
-
-      labelEn:
-        "New Journal Entry",
-
-      labelAr:
-        "قيد يومية جديد"
-    },
-
-
-    {
-      doctype:
-        "Payment Entry",
-
-      labelEn:
-        "New Payment Entry",
-
-      labelAr:
-        "سند قبض / دفع جديد"
-    },
-
-
-    {
-      doctype:
-        "Sales Invoice",
-
-      labelEn:
-        "New Sales Invoice",
-
-      labelAr:
-        "فاتورة مبيعات جديدة"
-    },
-
-
-    {
-      doctype:
-        "Purchase Invoice",
-
-      labelEn:
-        "New Purchase Invoice",
-
-      labelAr:
-        "فاتورة مشتريات جديدة"
-    }
-
-  ];
-
-
-  /* =========================================================
-     6. FOOTER
-  ========================================================= */
-
-  const footerInfo = {
-
-    phone:
-      "0115110455",
-
-    email:
-      "sales@mubtkir.com",
-
-    website:
-      "www.mubtkir.com",
-
-    labels: {
-
-      phoneEn:
-        "Phone",
-
-      phoneAr:
-        "الهاتف الموحد",
-
-      emailEn:
-        "Email",
-
-      emailAr:
-        "البريد الإلكتروني",
-
-      websiteEn:
-        "Website",
-
-      websiteAr:
-        "الموقع"
-
-    }
-
-  };
-
-
-  /* =========================================================
-     7. DASHBOARD SECTIONS
-  ========================================================= */
-
-  const sections = [
-
-    [
-      "Reports & Masters",
-
-      [
-
-        /* الحسابات */
-        [
-          "Accounts",
-          "📚",
-          [
-            "Account",
-            "Cost Center",
-            "Accounting Dimension",
-            "Finance Book"
-          ]
-        ],
-
-
-        /* المعاملات */
-        [
-          "Accounting Transactions",
-          "🧾",
-          [
-            "Journal Entry",
-            "Payment Entry",
-            "Sales Invoice",
-            "Purchase Invoice"
-          ]
-        ],
-
-
-        /* الذمم المدينة */
-        [
-          "Receivables",
-          "💰",
-          [
-            "Customer",
-            "Sales Invoice",
-            "Payment Entry",
-            "Accounts Receivable"
-          ]
-        ],
-
-
-        /* الذمم الدائنة */
-        [
-          "Payables",
-          "💳",
-          [
-            "Supplier",
-            "Purchase Invoice",
-            "Payment Entry",
-            "Accounts Payable"
-          ]
-        ],
-
-
-        /* البنوك */
-        [
-          "Banking",
-          "🏦",
-          [
-            "Bank",
-            "Bank Account",
-            "Bank Transaction",
-            "Bank Reconciliation Statement"
-          ]
-        ],
-
-
-        /* الضرائب */
-        [
-          "Taxes",
-          "🧮",
-          [
-            "Sales Taxes and Charges Template",
-            "Purchase Taxes and Charges Template",
-            "Tax Category",
-            "Tax Rule"
-          ]
-        ],
-
-
-        /* الإعدادات */
-        [
-          "Settings",
-          "⚙️",
-          [
-            "Accounts Settings",
-            "Company",
-            "Fiscal Year",
-            "Currency",
-            "Payment Term",
-            "Payment Terms Template"
-          ]
-        ],
-
-
-        /* التقارير المالية */
-        [
-          "Financial Reports",
-          "📊",
-          [
-            "General Ledger",
-            "Trial Balance",
-            "Profit and Loss Statement",
-            "Balance Sheet",
-            "Cash Flow"
-          ]
-        ],
-
-
-        /* تقارير الذمم */
-        [
-          "Receivable & Payable Reports",
-          "📋",
-          [
-            "Accounts Receivable",
-            "Accounts Payable",
-            "Customer Ledger Summary",
-            "Supplier Ledger Summary"
-          ]
-        ]
-
-      ]
-
-    ]
-
-  ];
-
-
-  /* =========================================================
-     8. ARABIC TRANSLATIONS
-  ========================================================= */
-
-  const arabicFallback = {
-
-    "Reports & Masters":
-      "البيانات الرئيسية والتقارير",
-
-
-    "Accounts":
-      "الحسابات",
-
-    "Accounting Transactions":
-      "المعاملات المحاسبية",
-
-    "Receivables":
-      "الذمم المدينة",
-
-    "Payables":
-      "الذمم الدائنة",
-
-    "Banking":
-      "البنوك",
-
-    "Taxes":
-      "الضرائب",
-
-    "Settings":
-      "الإعدادات",
-
-    "Financial Reports":
-      "التقارير المالية",
-
-    "Receivable & Payable Reports":
-      "تقارير الذمم",
-
-
-    "Account":
-      "دليل الحسابات",
-
-    "Cost Center":
-      "مركز التكلفة",
-
-    "Accounting Dimension":
-      "البُعد المحاسبي",
-
-    "Finance Book":
-      "الدفتر المالي",
-
-
-    "Journal Entry":
-      "قيد يومية",
-
-    "Payment Entry":
-      "سند قبض / دفع",
-
-    "Sales Invoice":
-      "فاتورة مبيعات",
-
-    "Purchase Invoice":
-      "فاتورة مشتريات",
-
-
-    "Customer":
-      "العميل",
-
-    "Supplier":
-      "المورد",
-
-
-    "Accounts Receivable":
-      "الذمم المدينة",
-
-    "Accounts Payable":
-      "الذمم الدائنة",
-
-
-    "Bank":
-      "البنك",
-
-    "Bank Account":
-      "الحساب البنكي",
-
-    "Bank Transaction":
-      "حركة بنكية",
-
-    "Bank Reconciliation Statement":
-      "كشف التسوية البنكية",
-
-
-    "Sales Taxes and Charges Template":
-      "قالب ضرائب ورسوم المبيعات",
-
-    "Purchase Taxes and Charges Template":
-      "قالب ضرائب ورسوم المشتريات",
-
-    "Tax Category":
-      "فئة الضريبة",
-
-    "Tax Rule":
-      "قاعدة الضريبة",
-
-
-    "Accounts Settings":
-      "إعدادات الحسابات",
-
-    "Company":
-      "الشركة",
-
-    "Fiscal Year":
-      "السنة المالية",
-
-    "Currency":
-      "العملة",
-
-    "Payment Term":
-      "شرط الدفع",
-
-    "Payment Terms Template":
-      "قالب شروط الدفع",
-
-
-    "General Ledger":
-      "دفتر الأستاذ العام",
-
-    "Trial Balance":
-      "ميزان المراجعة",
-
-    "Profit and Loss Statement":
-      "قائمة الدخل",
-
-    "Balance Sheet":
-      "الميزانية العمومية",
-
-    "Cash Flow":
-      "التدفقات النقدية",
-
-
-    "Customer Ledger Summary":
-      "ملخص حسابات العملاء",
-
-    "Supplier Ledger Summary":
-      "ملخص حسابات الموردين"
-
-  };
-
-
-  /* =========================================================
-     9. ROUTE TYPES
-  ========================================================= */
-
-  const singleDocs =
-    new Set([
-      "Accounts Settings"
-    ]);
-
-
-  const treeDocs =
-    new Set([
-      "Account",
-      "Cost Center"
-    ]);
-
-
-  const reportNames =
-    new Set([
-
-      "General Ledger",
-
-      "Trial Balance",
-
-      "Profit and Loss Statement",
-
-      "Balance Sheet",
-
-      "Cash Flow",
-
-      "Accounts Receivable",
-
-      "Accounts Payable",
-
-      "Customer Ledger Summary",
-
-      "Supplier Ledger Summary",
-
-      "Bank Reconciliation Statement"
-
-    ]);
-
-
-  /* =========================================================
-     10. ITEM DESCRIPTIONS
-  ========================================================= */
-
-  const itemDescriptions = {
-
-    /* =========================
-       دليل الحسابات
-    ========================= */
-
-    "Account": {
-
-      icon:
-        "📚",
-
-      summaryAr:
-        "إنشاء وتنظيم دليل الحسابات الرئيسي والفرعي للشركة.",
-
-      summaryEn:
-        "Create and organize the company's chart of accounts.",
-
-      stepsAr: [
-
-        "افتح «دليل الحسابات»",
-
-        "اختر الشركة",
-
-        "حدد الحساب الأب",
-
-        "اضغط «إضافة حساب فرعي»",
-
-        "أدخل رقم الحساب واسم الحساب",
-
-        "حدد نوع الحساب",
-
-        "حدد هل الحساب تجميعي أم حساب حركة",
-
-        "اضغط «إنشاء»"
-
-      ],
-
-      stepsEn: [
-
-        "Open «Chart of Accounts»",
-
-        "Select company",
-
-        "Select parent account",
-
-        "Click «Add Child»",
-
-        "Enter account number and name",
-
-        "Select account type",
-
-        "Specify group or ledger account",
-
-        "Click «Create»"
-
-      ]
-
-    },
-
-
-    /* =========================
-       قيد اليومية
-    ========================= */
-
-    "Journal Entry": {
-
-      icon:
-        "📝",
-
-      summaryAr:
-        "تسجيل القيود المحاسبية اليدوية والتسويات والتحويلات والأرصدة الافتتاحية.",
-
-      summaryEn:
-        "Record manual accounting entries, adjustments, transfers, and opening balances.",
-
-      stepsAr: [
-
-        "اضغط «قيد يومية جديد»",
-
-        "حدد نوع القيد",
-
-        "حدد تاريخ القيد",
-
-        "أضف الحساب المدين",
-
-        "أدخل مبلغ المدين",
-
-        "أضف الحساب الدائن",
-
-        "أدخل مبلغ الدائن",
-
-        "أضف المرجع والشرح",
-
-        "اضغط «حفظ» ثم «تسجيل»"
-
-      ],
-
-      stepsEn: [
-
-        "Click «New Journal Entry»",
-
-        "Select voucher type",
-
-        "Set posting date",
-
-        "Add debit account",
-
-        "Enter debit amount",
-
-        "Add credit account",
-
-        "Enter credit amount",
-
-        "Add reference and remarks",
-
-        "Click «Save» then «Submit»"
-
-      ]
-
-    },
-
-
-    /* =========================
-       سند القبض والدفع
-    ========================= */
-
-    "Payment Entry": {
-
-      icon:
-        "💵",
-
-      summaryAr:
-        "تسجيل المقبوضات من العملاء والمدفوعات للموردين والتحويلات بين الحسابات.",
-
-      summaryEn:
-        "Record customer receipts, supplier payments, and account transfers.",
-
-      stepsAr: [
-
-        "اضغط «سند قبض / دفع جديد»",
-
-        "اختر نوع العملية",
-
-        "حدد العميل أو المورد",
-
-        "حدد الحساب البنكي أو الصندوق",
-
-        "أدخل المبلغ",
-
-        "اربط المستند بالفواتير إن وجدت",
-
-        "راجع المبلغ المخصص",
-
-        "اضغط «حفظ» ثم «تسجيل»"
-
-      ],
-
-      stepsEn: [
-
-        "Click «New Payment Entry»",
-
-        "Select payment type",
-
-        "Select customer or supplier",
-
-        "Set bank or cash account",
-
-        "Enter amount",
-
-        "Allocate against invoices if applicable",
-
-        "Review allocated amount",
-
-        "Click «Save» then «Submit»"
-
-      ]
-
-    },
-
-
-    /* =========================
-       فاتورة المبيعات
-    ========================= */
-
-    "Sales Invoice": {
-
-      icon:
-        "🧾",
-
-      summaryAr:
-        "إصدار فاتورة مبيعات وتسجيل المبلغ المستحق على العميل.",
-
-      summaryEn:
-        "Issue a sales invoice and record the customer receivable.",
-
-      stepsAr: [
-
-        "اضغط «فاتورة مبيعات جديدة»",
-
-        "اختر العميل",
-
-        "أضف الأصناف والخدمات",
-
-        "راجع الأسعار والكميات",
-
-        "أضف الضرائب",
-
-        "حدد تاريخ الاستحقاق",
-
-        "راجع شروط الدفع",
-
-        "اضغط «حفظ» ثم «تسجيل»"
-
-      ],
-
-      stepsEn: [
-
-        "Click «New Sales Invoice»",
-
-        "Select customer",
-
-        "Add items and services",
-
-        "Review prices and quantities",
-
-        "Add taxes",
-
-        "Set due date",
-
-        "Review payment terms",
-
-        "Click «Save» then «Submit»"
-
-      ]
-
-    },
-
-
-    /* =========================
-       فاتورة المشتريات
-    ========================= */
-
-    "Purchase Invoice": {
-
-      icon:
-        "📄",
-
-      summaryAr:
-        "تسجيل فاتورة المورد والمبلغ المستحق عليه.",
-
-      summaryEn:
-        "Record supplier invoice and accounts payable.",
-
-      stepsAr: [
-
-        "اضغط «فاتورة مشتريات جديدة»",
-
-        "اختر المورد",
-
-        "أضف الأصناف أو المصروفات",
-
-        "راجع الأسعار والكميات",
-
-        "أضف الضرائب",
-
-        "حدد تاريخ الاستحقاق",
-
-        "حدد حسابات المصروف",
-
-        "اضغط «حفظ» ثم «تسجيل»"
-
-      ],
-
-      stepsEn: [
-
-        "Click «New Purchase Invoice»",
-
-        "Select supplier",
-
-        "Add items or expenses",
-
-        "Review prices and quantities",
-
-        "Add taxes",
-
-        "Set due date",
-
-        "Set expense accounts",
-
-        "Click «Save» then «Submit»"
-
-      ]
-
-    },
-
-
-    /* =========================
-       مركز التكلفة
-    ========================= */
-
-    "Cost Center": {
-
-      icon:
-        "🎯",
-
-      summaryAr:
-        "توزيع الإيرادات والمصروفات على الإدارات أو الفروع أو المشاريع.",
-
-      summaryEn:
-        "Allocate income and expenses across departments, branches, or projects.",
-
-      stepsAr: [
-
-        "افتح «مراكز التكلفة»",
-
-        "اختر مركز التكلفة الأب",
-
-        "أضف مركز تكلفة جديد",
-
-        "حدد الشركة",
-
-        "أدخل اسم المركز",
-
-        "اضغط «إنشاء»"
-
-      ],
-
-      stepsEn: [
-
-        "Open «Cost Centers»",
-
-        "Select parent cost center",
-
-        "Add a new cost center",
-
-        "Select company",
-
-        "Enter cost center name",
-
-        "Click «Create»"
-
-      ]
-
-    },
-
-
-    /* =========================
-       الحساب البنكي
-    ========================= */
-
-    "Bank Account": {
-
-      icon:
-        "🏦",
-
-      summaryAr:
-        "تعريف الحسابات البنكية وربطها بحسابات الأستاذ العام.",
-
-      summaryEn:
-        "Define bank accounts and link them to general ledger accounts.",
-
-      stepsAr: [
-
-        "اضغط «حساب بنكي جديد»",
-
-        "اختر البنك",
-
-        "أدخل رقم الحساب",
-
-        "حدد الشركة",
-
-        "اربط حساب الأستاذ",
-
-        "أدخل رقم الآيبان عند الحاجة",
-
-        "اضغط «حفظ»"
-
-      ],
-
-      stepsEn: [
-
-        "Click «New Bank Account»",
-
-        "Select bank",
-
-        "Enter account number",
-
-        "Select company",
-
-        "Link ledger account",
-
-        "Enter IBAN if applicable",
-
-        "Click «Save»"
-
-      ]
-
-    },
-
-
-    /* =========================
-       السنة المالية
-    ========================= */
-
-    "Fiscal Year": {
-
-      icon:
-        "📅",
-
-      summaryAr:
-        "تعريف السنة المالية وتحديد تاريخ البداية والنهاية.",
-
-      summaryEn:
-        "Define fiscal year start and end dates.",
-
-      stepsAr: [
-
-        "اضغط «سنة مالية جديدة»",
-
-        "أدخل اسم السنة",
-
-        "حدد تاريخ البداية",
-
-        "حدد تاريخ النهاية",
-
-        "حدد الشركات",
-
-        "اضغط «حفظ»"
-
-      ],
-
-      stepsEn: [
-
-        "Click «New Fiscal Year»",
-
-        "Enter fiscal year name",
-
-        "Set start date",
-
-        "Set end date",
-
-        "Select companies",
-
-        "Click «Save»"
-
-      ]
-
-    }
-
-  };
-
-
-  /* =========================================================
-     11. TRANSLATION
-  ========================================================= */
-
-  function translate(name) {
-
-    if (!isArabic)
-      return name;
-
-    return (
-      arabicFallback[name] ||
-      (
-        typeof window.__ === "function"
-          ? window.__(name)
-          : name
-      )
-    );
-
-  }
-
-
-  function escapeHtml(value) {
-
-    return String(value ?? "")
-
-      .replaceAll("&", "&amp;")
-
-      .replaceAll("<", "&lt;")
-
-      .replaceAll(">", "&gt;")
-
-      .replaceAll('"', "&quot;")
-
-      .replaceAll("'", "&#039;");
-
-  }
-
-
-  function formatNumber(number) {
-
-    return (
-      parseFloat(number) || 0
-    ).toLocaleString("en-US");
-
-  }
-
-
-  function formatCurrency(number) {
-
-    return (
-      parseFloat(number) || 0
-    ).toLocaleString(
-
-      isArabic
-        ? "ar-SA"
-        : "en-US",
-
-      {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }
-
-    );
-
-  }
-
-
-  /* =========================================================
-     12. MODAL
-  ========================================================= */
-
-  function showInfoModal(data) {
-
-    const title =
-      isArabic
-        ? data.labelAr
-        : data.labelEn;
-
-
-    const summary =
-      isArabic
-        ? data.summaryAr
-        : data.summaryEn;
-
-
-    const steps =
-      isArabic
-        ? data.stepsAr
-        : data.stepsEn;
-
-
-    const hasSteps =
-      Array.isArray(steps) &&
-      steps.length > 0;
-
-
-    const showText =
-      isArabic
-        ? "📖 عرض الخطوات"
-        : "📖 Show Steps";
-
-
-    const hideText =
-      isArabic
-        ? "📖 إخفاء الخطوات"
-        : "📖 Hide Steps";
-
-
-    const overlay =
-      document.createElement("div");
-
-
-    overlay.className =
-      "erp-modal-overlay";
-
-
-    overlay.setAttribute(
-      "dir",
-      isArabic ? "rtl" : "ltr"
-    );
-
-
-    overlay.innerHTML = `
-
-      <div class="erp-modal-box">
-
-        <button
-          type="button"
-          class="erp-modal-close"
-          data-modal-close
-        >
-          ✕
-        </button>
-
-
-        <div class="erp-modal-header">
-
-          <span class="erp-modal-icon">
-            ${data.icon || "📄"}
-          </span>
-
-
-          <h3 class="erp-modal-title">
-            ${escapeHtml(title)}
-          </h3>
-
-        </div>
-
-
-        <p class="erp-modal-summary">
-          ${escapeHtml(summary)}
-        </p>
-
-
-        ${
-          hasSteps
-            ? `
-
-              <button
-                type="button"
-                class="erp-modal-toggle-steps"
-                data-toggle-steps
-              >
-                ${showText}
-              </button>
-
-
-              <div
-                class="erp-modal-steps"
-                data-modal-steps
-              >
-
-                <ol class="erp-modal-steps-list">
-
-                  ${steps
-
-                    .map(
-                      step =>
-                        `<li>${escapeHtml(step)}</li>`
-                    )
-
-                    .join("")}
-
-                </ol>
-
-              </div>
-
-            `
-            : ""
-        }
-
-      </div>
-
-    `;
-
-
-    root.appendChild(overlay);
-
-
-    requestAnimationFrame(() => {
-
-      overlay.classList.add(
-        "is-visible"
-      );
-
-    });
-
-
-    function closeModal() {
-
-      overlay.remove();
-
-    }
-
-
-    overlay
-      .querySelector(
-        "[data-modal-close]"
-      )
-      ?.addEventListener(
-        "click",
-        closeModal
-      );
-
-
-    overlay.addEventListener(
-
-      "click",
-
-      event => {
-
-        if (
-          event.target === overlay
-        ) {
-
-          closeModal();
-
-        }
-
-      }
-
-    );
-
-
-    const toggleButton =
-      overlay.querySelector(
-        "[data-toggle-steps]"
-      );
-
-
-    const stepsContainer =
-      overlay.querySelector(
-        "[data-modal-steps]"
-      );
-
-
-    if (
-      toggleButton &&
-      stepsContainer
-    ) {
-
-      toggleButton.addEventListener(
-
-        "click",
-
-        () => {
-
-          stepsContainer
-            .classList
-            .toggle(
-              "is-shown"
-            );
-
-
-          toggleButton.textContent =
-            stepsContainer
-              .classList
-              .contains(
-                "is-shown"
-              )
-
-              ? hideText
-              : showText;
-
-        }
-
-      );
-
-    }
-
-  }
-
-
-  /* =========================================================
-     13. INVOICE SELECTOR
-  ========================================================= */
-
-  function showInvoiceSelector() {
-
-    const overlay =
-      document.createElement("div");
-
-
-    overlay.className =
-      "erp-modal-overlay";
-
-
-    overlay.setAttribute(
-      "dir",
-      isArabic ? "rtl" : "ltr"
-    );
-
-
-    overlay.innerHTML = `
-
-      <div class="erp-modal-box">
-
-        <button
-          type="button"
-          class="erp-modal-close"
-          data-modal-close
-        >
-          ✕
-        </button>
-
-
-        <div class="erp-modal-header">
-
-          <span class="erp-modal-icon">
-            🧾
-          </span>
-
-          <h3 class="erp-modal-title">
-
-            ${
-              isArabic
-                ? "اختر نوع الفاتورة"
-                : "Select Invoice Type"
-            }
-
-          </h3>
-
-        </div>
-
-
-        <div
-          class="erp-quick-grid"
-          style="
-            margin-top: 20px;
-            grid-template-columns:
-            repeat(2, minmax(0,1fr)) !important;
-          "
-        >
-
-          <button
-            type="button"
-            class="erp-quick-btn"
-            data-invoice-type="Sales Invoice"
-          >
-
-            ${
-              isArabic
-                ? "فاتورة مبيعات"
-                : "Sales Invoice"
-            }
-
-          </button>
-
-
-          <button
-            type="button"
-            class="erp-quick-btn"
-            data-invoice-type="Purchase Invoice"
-          >
-
-            ${
-              isArabic
-                ? "فاتورة مشتريات"
-                : "Purchase Invoice"
-            }
-
-          </button>
-
-        </div>
-
-      </div>
-
-    `;
-
-
-    root.appendChild(overlay);
-
-
-    requestAnimationFrame(() => {
-
-      overlay.classList.add(
-        "is-visible"
-      );
-
-    });
-
-
-    overlay
-      .querySelector(
-        "[data-modal-close]"
-      )
-      ?.addEventListener(
-
-        "click",
-
-        () => overlay.remove()
-
-      );
-
-
-    overlay.addEventListener(
-
-      "click",
-
-      event => {
-
-        if (
-          event.target === overlay
-        ) {
-
-          overlay.remove();
-
-        }
-
-      }
-
-    );
-
-
-    overlay
-      .querySelectorAll(
-        "[data-invoice-type]"
-      )
-      .forEach(button => {
-
-        button.addEventListener(
-
-          "click",
-
-          () => {
-
-            const doctype =
-              button.dataset.invoiceType;
-
-            overlay.remove();
-
-            frappe.set_route(
-              "List",
-              doctype
-            );
-
-          }
-
-        );
-
-      });
-
-  }
-
-
-  /* =========================================================
-     14. ROUTING
-  ========================================================= */
-
-  function openRoute(name) {
-
-    if (
-      !window.frappe ||
-      typeof frappe.set_route !==
-        "function"
-    )
-      return;
-
-
-    if (
-      reportNames.has(name)
-    ) {
-
-      frappe.set_route(
-        "query-report",
-        name
-      );
-
-      return;
-
-    }
-
-
-    if (
-      singleDocs.has(name)
-    ) {
-
-      frappe.set_route(
-        "Form",
-        name
-      );
-
-      return;
-
-    }
-
-
-    if (
-      treeDocs.has(name)
-    ) {
-
-      frappe.set_route(
-        "Tree",
-        name
-      );
-
-      return;
-
-    }
-
-
-    frappe.set_route(
-      "List",
-      name
-    );
-
-  }
-
-
-  /* =========================================================
-     15. RENDER ACCOUNTING CYCLE
-  ========================================================= */
-
-  function renderAccountingCycle() {
-
-    if (!accountingCycle)
-      return;
-
-
-    const title =
-      isArabic
-        ? "دورة المحاسبة"
-        : "Accounting Cycle";
-
-
-    accountingCycle.innerHTML = `
-
-      <section class="erp-cycle-container">
-
-        <h2
-          class="
-            erp-section-title
-            erp-cycle-title
-          "
-        >
-          ${escapeHtml(title)}
-        </h2>
-
-
-        <div
-          class="erp-cycle-grid"
-          style="
-            grid-template-columns:
-            repeat(
-              ${accountingCycleCards.length},
-              minmax(0, 1fr)
-            );
-          "
-        >
-
-          ${accountingCycleCards
-
-            .map(
-              (card, index) => {
-
-                const cardTitle =
-                  isArabic
-                    ? card.labelAr
-                    : card.labelEn;
-
-
-                const description =
-                  isArabic
-                    ? card.descriptionAr
-                    : card.descriptionEn;
-
-
-                const arrow =
-                  index <
-                  accountingCycleCards.length - 1
-
-                    ? `
-
-                      <span
-                        class="erp-cycle-arrow"
-                        aria-hidden="true"
-                      >
-                        ${
-                          isArabic
-                            ? "←"
-                            : "→"
-                        }
-                      </span>
-
-                    `
-
-                    : "";
-
-
-                return `
-
-                  <div class="erp-cycle-item">
-
-                    <button
-                      type="button"
-                      class="
-                        erp-cycle-card
-                        cycle-tone-${(index % 4) + 1}
-                      "
-                      data-cycle-index="${index}"
-                    >
-
-                      <span
-                        class="erp-cycle-number"
-                      >
-                        ${card.step}
-                      </span>
-
-
-                      <span
-                        class="erp-cycle-card-title"
-                      >
-                        ${escapeHtml(cardTitle)}
-                      </span>
-
-
-                      <span
-                        class="erp-cycle-description"
-                      >
-                        ${escapeHtml(description)}
-                      </span>
-
-                    </button>
-
-
-                    ${arrow}
-
-                  </div>
-
-                `;
-
-              }
-            )
-
-            .join("")}
-
-        </div>
-
-      </section>
-
-    `;
-
-
-    accountingCycle.addEventListener(
-
-      "click",
-
-      event => {
-
-        const element =
-          event.target.closest(
-            "[data-cycle-index]"
-          );
-
-
-        if (!element)
-          return;
-
-
-        const card =
-          accountingCycleCards[
-            Number(
-              element.dataset.cycleIndex
-            )
-          ];
-
-
-        if (!card)
-          return;
-
-
-        /* دليل الحسابات */
-
-        if (
-          card.action === "tree"
-        ) {
-
-          frappe.set_route(
-            "Tree",
-            card.doctype
-          );
-
-          return;
-
-        }
-
-
-        /* مستند جديد */
-
-        if (
-          card.action === "new"
-        ) {
-
-          frappe.new_doc(
-            card.doctype,
-            card.defaults || {}
-          );
-
-          return;
-
-        }
-
-
-        /* اختيار فاتورة */
-
-        if (
-          card.action ===
-          "invoice-selector"
-        ) {
-
-          showInvoiceSelector();
-
-          return;
-
-        }
-
-
-        /* Route مباشر */
-
-        if (
-          card.action === "route"
-        ) {
-
-          try {
-
-            frappe.set_route(
-              ...card.route
-            );
-
-          }
-
-          catch (e) {
-
-            if (
-              card.fallbackDoctype
-            ) {
-
-              openRoute(
-                card.fallbackDoctype
-              );
-
-            }
-
-          }
-
-        }
-
-      }
-
-    );
-
-  }
-
-
-  /* =========================================================
-     16. RENDER STATS
-  ========================================================= */
-
-  function renderStats() {
-
-    if (!statsSection)
-      return;
-
-
-    statsSection.innerHTML = `
-
-      <section
-        class="erp-overview-container"
-      >
-
-        <h2 class="erp-section-title">
-
-          ${
-            isArabic
-              ? "نظرة عامة"
-              : "Overview"
-          }
-
-        </h2>
-
-
-        <div class="erp-stats-grid">
-
-          ${statsCards
-
-            .map(
-              (card, index) => `
-
-                <div
-                  class="
-                    erp-stat-card
-                    overview-tone-${index + 1}
-                  "
-                >
-
-                  <div class="erp-stat-icon">
-                    ${escapeHtml(card.short)}
-                  </div>
-
-
-                  <div class="erp-stat-info">
-
-                    <span
-                      class="erp-stat-value"
-                      data-stat-id="${card.id}"
-                    >
-                      ...
-                    </span>
-
-
-                    <span
-                      class="erp-stat-label"
-                    >
-
-                      ${escapeHtml(
-                        isArabic
-                          ? card.labelAr
-                          : card.labelEn
-                      )}
-
-                    </span>
-
-                  </div>
-
-                </div>
-
-              `
-            )
-
-            .join("")}
-
-        </div>
-
-      </section>
-
-    `;
-
-
-    statsCards.forEach(card => {
-
-      card
-        .fetch()
-        .then(value => {
-
-          const element =
-            statsSection.querySelector(
-              `[data-stat-id="${card.id}"]`
-            );
-
-
-          if (!element)
-            return;
-
-
-          if (card.isCurrency) {
-
-            element.textContent =
-              `${formatCurrency(value)} ${
-                isArabic
-                  ? "ر.س"
-                  : "SAR"
-              }`;
-
-          }
-
-          else {
-
-            element.textContent =
-              formatNumber(value);
-
-          }
-
-        });
-
-    });
-
-  }
-
-
-  /* =========================================================
-     17. QUICK ACTIONS
-  ========================================================= */
-
-  function renderQuickActions() {
-
-    if (!quickActions)
-      return;
-
-
-    quickActions.innerHTML = `
-
-      <h2 class="erp-section-title">
-
-        ${
-          isArabic
-            ? "اختصارات سريعة"
-            : "Quick Actions"
-        }
-
-      </h2>
-
-
-      <div class="erp-quick-grid">
-
-        ${quickActionButtons
-
-          .map(
-            (button, index) => `
-
-              <button
-                type="button"
-                class="erp-quick-btn"
-                data-quick-index="${index}"
-              >
-
-                <span
-                  class="erp-quick-label"
-                >
-
-                  ${escapeHtml(
-                    isArabic
-                      ? button.labelAr
-                      : button.labelEn
-                  )}
-
-                </span>
-
-              </button>
-
-            `
-          )
-
-          .join("")}
-
-      </div>
-
-    `;
-
-
-    quickActions.addEventListener(
-
-      "click",
-
-      event => {
-
-        const element =
-          event.target.closest(
-            "[data-quick-index]"
-          );
-
-
-        if (!element)
-          return;
-
-
-        const button =
-          quickActionButtons[
-            Number(
-              element.dataset.quickIndex
-            )
-          ];
-
-
-        if (!button)
-          return;
-
-
-        frappe.new_doc(
-          button.doctype
-        );
-
-      }
-
-    );
-
-  }
-
-
-  /* =========================================================
-     18. RENDER SECTIONS
-  ========================================================= */
-
-  function renderSections() {
-
-    content.innerHTML =
-      sections
-
-        .map(
-          (section, sectionIndex) => {
-
-
-            const cards =
-              section[1]
-
-                .map(
-                  (card, cardIndex) => {
-
-
-                    const links =
-                      card[2]
-
-                        .map(
-                          item => {
-
-
-                            const description =
-                              itemDescriptions[item];
-
-
-                            return `
-
-                              <div
-                                class="erp-link-row"
-                              >
-
-                                <button
-                                  type="button"
-                                  class="erp-link"
-                                  data-route-name="${escapeHtml(item)}"
-                                >
-
-                                  <span
-                                    class="erp-link-text"
-                                  >
-                                    ${escapeHtml(translate(item))}
-                                  </span>
-
-
-                                  <span
-                                    class="erp-link-arrow"
-                                  >
-                                    ${
-                                      isArabic
-                                        ? "←"
-                                        : "→"
-                                    }
-                                  </span>
-
-                                </button>
-
-
-                                ${
-                                  description
-
-                                    ? `
-
-                                      <button
-                                        type="button"
-                                        class="erp-info-link"
-                                        data-info-item="${escapeHtml(item)}"
-                                      >
-                                        ${
-                                          isArabic
-                                            ? "تفاصيل"
-                                            : "Details"
-                                        }
-                                      </button>
-
-                                    `
-
-                                    : ""
-                                }
-
-                              </div>
-
-                            `;
-
-                          }
-                        )
-
-                        .join("");
-
-
-                    return `
-
-                      <article
-                        class="
-                          erp-card
-                          tone-${(sectionIndex + cardIndex) % 5}
-                        "
-                        data-erp-card
-                      >
-
-                        <button
-                          type="button"
-                          class="erp-card-heading"
-                          data-card-toggle
-                          aria-expanded="false"
-                        >
-
-                          <span class="erp-icon">
-                            ${card[1]}
-                          </span>
-
-
-                          <span
-                            class="erp-card-title"
-                          >
-                            ${escapeHtml(translate(card[0]))}
-                          </span>
-
-
-                          <span
-                            class="erp-card-chevron"
-                          >
-                            ⌄
-                          </span>
-
-                        </button>
-
-
-                        <div class="erp-card-links">
-                          ${links}
-                        </div>
-
-                      </article>
-
-                    `;
-
-                  }
-                )
-
-                .join("");
-
-
-            return `
-
-              <section
-                class="erp-module-section"
-              >
-
-                <h2
-                  class="erp-section-title"
-                >
-                  ${escapeHtml(translate(section[0]))}
-                </h2>
-
-
-                <div
-                  class="erp-dashboard-grid"
-                >
-                  ${cards}
-                </div>
-
-              </section>
-
-            `;
-
-          }
-        )
-
-        .join("");
-
-  }
-
-
-  /* =========================================================
-     19. FOOTER
-  ========================================================= */
-
-  function renderFooter() {
-
-    if (!footerEl)
-      return;
-
-
-    footerEl.innerHTML = `
-
-      <div class="erp-footer-inner">
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ☎
-          </span>
-
-          <span class="erp-footer-label">
-
-            ${
-              isArabic
-                ? footerInfo.labels.phoneAr
-                : footerInfo.labels.phoneEn
-            }:
-
-          </span>
-
-          <a
-            href="tel:${footerInfo.phone}"
-            class="erp-footer-link"
-            dir="ltr"
-          >
-            ${footerInfo.phone}
-          </a>
-
-        </div>
-
-
-        <span class="erp-footer-sep">
-          |
-        </span>
-
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ✉
-          </span>
-
-          <span class="erp-footer-label">
-
-            ${
-              isArabic
-                ? footerInfo.labels.emailAr
-                : footerInfo.labels.emailEn
-            }:
-
-          </span>
-
-          <a
-            href="mailto:${footerInfo.email}"
-            class="erp-footer-link"
-          >
-            ${footerInfo.email}
-          </a>
-
-        </div>
-
-
-        <span class="erp-footer-sep">
-          |
-        </span>
-
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ◎
-          </span>
-
-          <span class="erp-footer-label">
-
-            ${
-              isArabic
-                ? footerInfo.labels.websiteAr
-                : footerInfo.labels.websiteEn
-            }:
-
-          </span>
-
-          <a
-            href="https://${footerInfo.website}"
-            class="erp-footer-link"
-            target="_blank"
-            rel="noopener"
-          >
-            ${footerInfo.website}
-          </a>
-
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     20. EVENTS
-  ========================================================= */
-
-  let lastToggleTime = 0;
-
-
-  content.addEventListener(
-
-    "click",
-
-    event => {
-
-
-      /* التفاصيل */
-
-      const infoButton =
-        event.target.closest(
-          "[data-info-item]"
-        );
-
-
-      if (infoButton) {
-
-        event.preventDefault();
-        event.stopPropagation();
-
-
-        const itemName =
-          infoButton.dataset.infoItem;
-
-
-        const data =
-          itemDescriptions[itemName];
-
-
-        if (data) {
-
-          showInfoModal({
-
-            ...data,
-
-            labelAr:
-              translate(itemName),
-
-            labelEn:
-              itemName
-
-          });
-
-        }
-
-
-        return;
-
-      }
-
-
-      /* فتح مستند أو تقرير */
-
-      const routeButton =
-        event.target.closest(
-          "[data-route-name]"
-        );
-
-
-      if (routeButton) {
-
-        event.preventDefault();
-        event.stopPropagation();
-
-
-        openRoute(
-          routeButton.dataset.routeName
-        );
-
-
-        return;
-
-      }
-
-
-      /* فتح البطاقة */
-
-      const cardButton =
-        event.target.closest(
-          "[data-card-toggle]"
-        );
-
-
-      if (!cardButton)
-        return;
-
-
-      const now =
-        Date.now();
-
-
-      if (
-        now - lastToggleTime <
-        400
-      )
-        return;
-
-
-      lastToggleTime =
-        now;
-
-
-      const selectedCard =
-        cardButton.closest(
-          "[data-erp-card]"
-        );
-
-
-      if (!selectedCard)
-        return;
-
-
-      const shouldOpen =
-        !selectedCard
-          .classList
-          .contains(
-            "is-open"
-          );
-
-
-      content
-        .querySelectorAll(
-          "[data-erp-card]"
-        )
-        .forEach(card => {
-
-          if (
-            card !== selectedCard
-          ) {
-
-            card
-              .classList
-              .remove(
-                "is-open"
-              );
-
-
-            card
-              .querySelector(
-                "[data-card-toggle]"
-              )
-              ?.setAttribute(
-                "aria-expanded",
-                "false"
-              );
-
-          }
-
-        });
-
-
-      selectedCard
-        .classList
-        .toggle(
-          "is-open",
-          shouldOpen
-        );
-
-
-      cardButton
-        .setAttribute(
-          "aria-expanded",
-          shouldOpen
-            ? "true"
-            : "false"
-        );
-
-    }
-
-  );
-
-
-  /* =========================================================
-     21. INIT
-  ========================================================= */
-
-  renderAccountingCycle();
-
-  renderStats();
-
-  renderQuickActions();
-
-  renderSections();
-
-  renderFooter();
-
+(() => {
+  /*
+   * ══════════════════════════════════════════
+   *  لوحة تحكم المحاسبة المالية — ERPNext Accounting
+   * ══════════════════════════════════════════
+   */
+
+  const root = root_element.querySelector("[data-erp-dashboard]");
+  const content = root_element.querySelector("[data-dashboard-content]");
+  const statsSection = root_element.querySelector("[data-stats-section]");
+  const quickActions = root_element.querySelector("[data-quick-actions]");
+  const footerEl = root_element.querySelector("[data-dashboard-footer]");
+
+  if (!root || !content) return;
+
+  const langValue =
+    window.frappe?.boot?.lang ||
+    window.frappe?.boot?.user?.language ||
+    document.documentElement.lang || "en";
+
+  const isArabic = String(langValue).toLowerCase().startsWith("ar");
+
+  /* ─────────────────────────────────────────
+     ١. إحصائيات المحاسبة
+  ───────────────────────────────────────── */
+
+  const statsCards = [
+    {
+      id: "total-income",
+      short: "INC",
+      labelEn: "Total Income",
+      labelAr: "إجمالي الإيرادات",
+      isCurrency: true,
+      fetch: () =>
+        new Promise(resolve => {
+          frappe.call({
+            method: "frappe.client.get_list",
+            args: {
+              doctype: "Sales Invoice",
+              filters: { docstatus: 1 },
+              fields: ["sum(grand_total) as total"],
+              limit_page_length: 0
+            },
+            callback: data => {
+              const value = data?.message?.[0]?.total || 0;
+              resolve(Number(value).toFixed(2));
+            },
+            error: () => resolve("0.00")
+          });
+        })
+    },
+    {
+      id: "total-expenses",
+      short: "EXP",
+      labelEn: "Total Expenses",
+      labelAr: "إجمالي المصروفات",
+      isCurrency: true,
+      fetch: () =>
+        new Promise(resolve => {
+          frappe.call({
+            method: "frappe.client.get_list",
+            args: {
+              doctype: "Purchase Invoice",
+              filters: { docstatus: 1 },
+              fields: ["sum(grand_total) as total"],
+              limit_page_length: 0
+            },
+            callback: data => {
+              const value = data?.message?.[0]?.total || 0;
+              resolve(Number(value).toFixed(2));
+            },
+            error: () => resolve("0.00")
+          });
+        })
+    },
+    {
+      id: "receivables",
+      short: "REC",
+      labelEn: "Accounts Receivable",
+      labelAr: "الذمم المدينة",
+      isCurrency: true,
+      fetch: () =>
+        new Promise(resolve => {
+          frappe.call({
+            method: "frappe.client.get_list",
+            args: {
+              doctype: "Sales Invoice",
+              filters: { docstatus: 1, outstanding_amount: [">", 0] },
+              fields: ["sum(outstanding_amount) as total"],
+              limit_page_length: 0
+            },
+            callback: data => {
+              const value = data?.message?.[0]?.total || 0;
+              resolve(Number(value).toFixed(2));
+            },
+            error: () => resolve("0.00")
+          });
+        })
+    },
+    {
+      id: "payables",
+      short: "PAY",
+      labelEn: "Accounts Payable",
+      labelAr: "الذمم الدائنة",
+      isCurrency: true,
+      fetch: () =>
+        new Promise(resolve => {
+          frappe.call({
+            method: "frappe.client.get_list",
+            args: {
+              doctype: "Purchase Invoice",
+              filters: { docstatus: 1, outstanding_amount: [">", 0] },
+              fields: ["sum(outstanding_amount) as total"],
+              limit_page_length: 0
+            },
+            callback: data => {
+              const value = data?.message?.[0]?.total || 0;
+              resolve(Number(value).toFixed(2));
+            },
+            error: () => resolve("0.00")
+          });
+        })
+    }
+  ];
+
+  /* ─────────────────────────────────────────
+     ٢. أزرار الاختصارات السريعة (تبقى كما هي)
+  ───────────────────────────────────────── */
+
+  const quickActionButtons = [
+    {
+      doctype: "Journal Entry",
+      labelEn: "New Journal Entry",
+      labelAr: "قيد يومية جديد"
+    },
+    {
+      doctype: "Payment Entry",
+      labelEn: "New Payment Entry",
+      labelAr: "سند قبض / دفع جديد"
+    },
+    {
+      doctype: "Sales Invoice",
+      labelEn: "New Sales Invoice",
+      labelAr: "فاتورة مبيعات جديدة"
+    },
+    {
+      doctype: "Purchase Invoice",
+      labelEn: "New Purchase Invoice",
+      labelAr: "فاتورة مشتريات جديدة"
+    }
+  ];
+
+  /* ─────────────────────────────────────────
+     ٣. إعدادات الفوتر
+  ───────────────────────────────────────── */
+
+  const footerInfo = {
+    phone: "0115110455",
+    email: "sales@mubtkir.com",
+    website: "www.mubtkir.com",
+    labels: {
+      phoneEn: "Phone", phoneAr: "الهاتف الموحد",
+      emailEn: "Email", emailAr: "البريد الإلكتروني",
+      websiteEn: "Website", websiteAr: "الموقع"
+    }
+  };
+
+  /* ─────────────────────────────────────────
+     ٤. بطاقات المحاسبة — مطابقة تماماً للصورة الأصلية (٩ مربعات)
+  ───────────────────────────────────────── */
+
+  const sections = [
+    [
+      "Reports & Masters",
+      [
+        // الصف الأول
+        [
+          "Accounting Masters",
+          "🏛️",
+          [
+            "Company",
+            "Chart of Accounts",
+            "Accounts Settings",
+            "Fiscal Year",
+            "Accounting Dimension",
+            "Finance Book",
+            "Accounting Period",
+            "Payment Term"
+          ]
+        ],
+        [
+          "Payments",
+          "💳",
+          [
+            "Payment Entry",
+            "Journal Entry",
+            "Journal Entry Template",
+            "Terms and Conditions",
+            "Mode of Payment"
+          ]
+        ],
+        [
+          "Tax Masters",
+          "🧾",
+          [
+            "Sales Taxes and Charges Template",
+            "Purchase Taxes and Charges Template",
+            "Item Tax Template",
+            "Tax Category",
+            "Tax Rule",
+            "Tax Withholding Category"
+          ]
+        ],
+
+        // الصف الثاني
+        [
+          "Cost Center and Budgeting",
+          "📊",
+          [
+            "Chart of Cost Centers",
+            "Budget",
+            "Accounting Dimension",
+            "Cost Center Allocation",
+            "Budget Variance Report",
+            "Monthly Distribution"
+          ]
+        ],
+        [
+          "Multi Currency",
+          "💱",
+          [
+            "Currency",
+            "Currency Exchange",
+            "Exchange Rate Revaluation"
+          ]
+        ],
+        [
+          "Banking",
+          "🏦",
+          [
+            "Bank",
+            "Bank Account",
+            "Bank Clearance",
+            "Bank Reconciliation Tool",
+            "Bank Reconciliation Statement",
+            "Plaid Settings"
+          ]
+        ],
+
+        // الصف الثالث
+        [
+          "Opening and Closing",
+          "🔐",
+          [
+            "Opening Invoice Creation Tool",
+            "Chart of Accounts Importer",
+            "Period Closing Voucher"
+          ]
+        ],
+        [
+          "Subscription Management",
+          "🔄",
+          [
+            "Subscription Plan",
+            "Subscription",
+            "Subscription Settings"
+          ]
+        ],
+        [
+          "Share Management",
+          "📈",
+          [
+            "Shareholder",
+            "Share Transfer",
+            "Share Ledger",
+            "Share Balance"
+          ]
+        ]
+      ]
+    ]
+  ];
+
+  /* ─────────────────────────────────────────
+     ٥. الترجمات العربية المعتمدة
+  ───────────────────────────────────────── */
+
+  const arabicFallback = {
+    "Reports & Masters": "التقارير والبيانات الرئيسية",
+
+    // المربع ١: البيانات الرئيسية للمحاسبة
+    "Accounting Masters": "البيانات الرئيسية للمحاسبة",
+    "Company": "الشركة",
+    "Chart of Accounts": "دليل الحسابات",
+    "Accounts Settings": "إعدادات الحسابات",
+    "Fiscal Year": "السنة المالية",
+    "Accounting Dimension": "البُعد المحاسبي",
+    "Finance Book": "الدفتر المالي",
+    "Accounting Period": "الفترة المحاسبية",
+    "Payment Term": "شرط الدفع",
+
+    // المربع ٢: المدفوعات (عربي في الصورة الأصلية)
+    "Payments": "المدفوعات",
+    "Payment Entry": "سندات الصرف والقبض",
+    "Journal Entry": "القيود اليومية",
+    "Journal Entry Template": "قالب إدخال قيد اليومية",
+    "Terms and Conditions": "الشروط والأحكام",
+    "Mode of Payment": "طريقة الدفع",
+
+    // المربع ٣: البيانات الرئيسية للضرائب
+    "Tax Masters": "البيانات الرئيسية للضرائب",
+    "Sales Taxes and Charges Template": "قالب ضرائب ورسوم المبيعات",
+    "Purchase Taxes and Charges Template": "قالب ضرائب ورسوم المشتريات",
+    "Item Tax Template": "قالب ضريبة الصنف",
+    "Tax Category": "الفئة الضريبية",
+    "Tax Rule": "القاعدة الضريبية",
+    "Tax Withholding Category": "فئة ضريبة الاستقطاع",
+
+    // المربع ٤: مراكز التكلفة والميزانيات
+    "Cost Center and Budgeting": "مراكز التكلفة والميزانيات",
+    "Chart of Cost Centers": "دليل مراكز التكلفة",
+    "Budget": "الميزانية التقديرية",
+    "Cost Center Allocation": "توزيع مركز التكلفة",
+    "Budget Variance Report": "تقرير انحراف الميزانية",
+    "Monthly Distribution": "التوزيع الشهري",
+
+    // المربع ٥: العملات المتعددة
+    "Multi Currency": "العملات المتعددة",
+    "Currency": "العملة",
+    "Currency Exchange": "سعر صرف العملة",
+    "Exchange Rate Revaluation": "إعادة تقييم سعر الصرف",
+
+    // المربع ٦: العمليات البنكية
+    "Banking": "العمليات البنكية",
+    "Bank": "البنك",
+    "Bank Account": "الحساب البنكي",
+    "Bank Clearance": "المقاصة البنكية",
+    "Bank Reconciliation Tool": "أداة مطابقة البنك",
+    "Bank Reconciliation Statement": "كشف تسوية البنك",
+    "Plaid Settings": "إعدادات Plaid",
+
+    // المربع ٧: الافتتاح والإقفال
+    "Opening and Closing": "الافتتاح والإقفال",
+    "Opening Invoice Creation Tool": "أداة إنشاء فواتير الأرصدة الافتتاحية",
+    "Chart of Accounts Importer": "مستورد دليل الحسابات",
+    "Period Closing Voucher": "سند إقفال الفترة",
+
+    // المربع ٨: إدارة الاشتراكات
+    "Subscription Management": "إدارة الاشتراكات",
+    "Subscription Plan": "خطة الاشتراك",
+    "Subscription": "الاشتراك",
+    "Subscription Settings": "إعدادات الاشتراكات",
+
+    // المربع ٩: إدارة الأسهم
+    "Share Management": "إدارة الأسهم",
+    "Shareholder": "المساهم",
+    "Share Transfer": "تحويل الأسهم",
+    "Share Ledger": "دفتر أستاذ الأسهم",
+    "Share Balance": "رصيد الأسهم",
+
+    // الاختصارات
+    "Sales Invoice": "فاتورة مبيعات",
+    "Purchase Invoice": "فاتورة مشتريات"
+  };
+
+  /* ─────────────────────────────────────────
+     ٦. أنواع المسارات
+  ───────────────────────────────────────── */
+
+  const reportNames = new Set([
+    "Budget Variance Report",
+    "Bank Reconciliation Statement",
+    "Share Ledger",
+    "Share Balance"
+  ]);
+
+  const treeDocs = new Set([
+    "Account",
+    "Cost Center"
+  ]);
+
+  const singleDocs = new Set([
+    "Accounts Settings",
+    "Plaid Settings",
+    "Subscription Settings"
+  ]);
+
+  /* ─────────────────────────────────────────
+     ٧. تفاصيل الشاشات والإعدادات (ما عدا التقارير)
+  ───────────────────────────────────────── */
+
+  const itemDescriptions = {
+    // ═══ المربع ١: البيانات الرئيسية للمحاسبة ═══
+    "Company": {
+      icon: "🏢",
+      summaryAr: "إنشاء وإدارة بيانات الشركة القانونية والمالية، والعملة الرسمية، وبداية ونهاية السنة المالية، وبيانات الضرائب والسجل التجاري.",
+      summaryEn: "Create and manage company legal and financial data, official currency, fiscal year dates, tax information, and commercial registration.",
+      stepsAr: [
+        "اضغط «شركة جديدة»",
+        "أدخل اسم الشركة الرسمي واسم النطاق والعملة الأساسية",
+        "حدد الدولة وتاريخ بداية السنة المالية",
+        "أدخل الرقم الضريبي والسجل التجاري",
+        "حدد حسابات الدخل والمصروفات وحسابات البنك الافتراضية",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Company»",
+        "Enter company legal name, domain, and default currency",
+        "Select country and fiscal year start date",
+        "Enter Tax ID and Commercial Registration number",
+        "Set default income, expense, and bank accounts",
+        "Click «Save»"
+      ]
+    },
+
+    "Chart of Accounts": {
+      icon: "📚",
+      summaryAr: "استعراض وإدارة دليل الحسابات الشجري (الأصول، الخصوم، حقوق الملكية، الإيرادات، المصروفات) وإضافة الحسابات وتصنيفها.",
+      summaryEn: "View and manage the hierarchical Chart of Accounts (Assets, Liabilities, Equity, Income, Expenses) and organize accounts.",
+      stepsAr: [
+        "افتح «دليل الحسابات»",
+        "اختر الشركة لاستعراض شجرة الحسابات الخاصة بها",
+        "اضغط على أي حساب رئيسي لإضافة حساب فرعي تحته",
+        "حدد اسم الحساب ورقمه ونوع الحساب والعملة",
+        "اضغط «إضافة حساب»"
+      ],
+      stepsEn: [
+        "Open «Chart of Accounts»",
+        "Select company to view its hierarchical tree",
+        "Click on any parent account to add a child account under it",
+        "Set account name, number, account type, and currency",
+        "Click «Add Account»"
+      ]
+    },
+
+    "Accounts Settings": {
+      icon: "⚙️",
+      summaryAr: "شاشة الإعدادات العامة للمحاسبة لضبط سياسات النظام المالية، وتحديد الحسابات الافتراضية، وإدارة شروط وحدود الائتمان وسقوف الديون للعملاء، وضبط معالجة فروقات أسعار الصرف، والتحكم في إقفال وتجميد الحسابات السابقة.",
+      summaryEn: "General accounting configuration to set financial policies, default accounts, credit limits and thresholds for customers, foreign exchange variance handling, and account freeze control.",
+      stepsAr: [
+        "تجميد الحسابات القديمة لتفادي التعديل على الفترات المالية المغلقة",
+        "تحديد حسابات الأرباح والخسائر الافتراضية وحسابات الفروقات الدائرية",
+        "ضبط سياسات تدقيق ومطابقة أوامر الشراء وإيصالات الاستلام مع الفواتير",
+        "تحديد حدود الائتمان وفترات السماح للعملاء والتنبيه التلقائي عند تجاوزها",
+        "تحديد الحسابات الافتراضية للعمولات والمصروفات البنكية"
+      ],
+      stepsEn: [
+        "Freeze old accounting entries to prevent unauthorized past period modifications",
+        "Set default gain/loss accounts and round-off variance accounts",
+        "Configure invoice over-billing thresholds and 3-way matching rules",
+        "Define customer credit limits, grace periods, and overdue warnings",
+        "Set default bank charge and commission ledger accounts"
+      ]
+    },
+
+    "Fiscal Year": {
+      icon: "📅",
+      summaryAr: "تعريف الفترات والسنوات المالية للمنشأة وتحديد تواريخ البدء والانتهاء وإغلاق السنوات المالية السابقة.",
+      summaryEn: "Define fiscal years and accounting periods, specifying start/end dates and closing past financial years.",
+      stepsAr: [
+        "اضغط «سنة مالية جديدة»",
+        "أدخل اسم السنة المالية (مثل: 2026)",
+        "حدد تاريخ البداية وتاريخ النهاية",
+        "اختر الشركات التابعة لهذه السنة المالية",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Fiscal Year»",
+        "Enter fiscal year name (e.g. 2026)",
+        "Set start date and end date",
+        "Select applicable companies",
+        "Click «Save»"
+      ]
+    },
+
+    "Accounting Dimension": {
+      icon: "📐",
+      summaryAr: "إضافة أبعاد محاسبية إضافية وتخصيصها (مثل: الفروع، المشاريع، مندوبي المبيعات) لتمكين التحليل المالي التفصيلي للمعاملات.",
+      summaryEn: "Add custom accounting dimensions (e.g., branches, projects, sales agents) for detailed financial analysis across transactions.",
+      stepsAr: [
+        "اضغط «بُعد محاسبي جديد»",
+        "اختر نوع المستند المرجعي للبُعد (مثل: الفرع أو المشروع)",
+        "حدد اسم البُعد المحاسبي",
+        "حدد المستندات التي سيظهر فيها هذا البُعد تلقائياً",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Accounting Dimension»",
+        "Select reference DocType for dimension (e.g. Branch or Project)",
+        "Enter dimension name",
+        "Select target doctypes where this dimension should be tracked",
+        "Click «Save»"
+      ]
+    },
+
+    "Finance Book": {
+      icon: "📖",
+      summaryAr: "إنشاء دفاتر مالية موازية لتطبيق معايير محاسبية متعددة (مثل: المعايير المحلية IFRS أو المعايير الضريبية) بشكل مستقل.",
+      summaryEn: "Create parallel finance books to apply multiple accounting standards (such as IFRS or tax accounting) independently.",
+      stepsAr: [
+        "اضغط «دفتر مالي جديد»",
+        "أدخل اسم الدفتر المالي والغرض منه",
+        "اربط الدفتر بالقيود اليومية أو فئات الأصول الخاصة به",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Finance Book»",
+        "Enter finance book name and purpose",
+        "Link book to journal entries or asset categories as needed",
+        "Click «Save»"
+      ]
+    },
+
+    "Accounting Period": {
+      icon: "🗓️",
+      summaryAr: "تقسيم السنة المالية إلى فترات محاسبية دورية (أشهر أو أرباع سنوية) وإغلاقها تدريجياً لضبط القيود.",
+      summaryEn: "Divide fiscal year into periodic accounting periods (monthly or quarterly) and freeze them progressively.",
+      stepsAr: [
+        "اضغط «فترة محاسبية جديدة»",
+        "اختر السنة المالية والشركة",
+        "حدد تاريخ بداية ونهاية الفترة",
+        "حدد ما إذا كانت الفترة مغلقة لتجميد الترحيل إليها",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Accounting Period»",
+        "Select fiscal year and company",
+        "Set start date and end date",
+        "Mark period closed when completed to prevent posting",
+        "Click «Save»"
+      ]
+    },
+
+    "Payment Term": {
+      icon: "⏳",
+      summaryAr: "تعريف شروط وأقساط السداد المستحقة على الفواتير (مثل: سداد فوري، سداد بعد ٣٠ يوماً، أو دفعات مجدولة).",
+      summaryEn: "Define payment terms and installments for invoices (e.g., immediate, Net 30, or scheduled milestone payments).",
+      stepsAr: [
+        "اضغط «شرط دفع جديد»",
+        "أدخل اسم الشرط (مثل: بعد 30 يوم)",
+        "حدد عدد الأيام المستحقة أو اليوم من الشهر",
+        "حدد نسبة الدفعة من إجمالي الفاتورة",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Payment Term»",
+        "Enter term name (e.g. Net 30)",
+        "Set credit days or specific day of month",
+        "Set payment percentage of invoice amount",
+        "Click «Save»"
+      ]
+    },
+
+    // ═══ المربع ٢: المدفوعات ═══
+    "Payment Entry": {
+      icon: "💳",
+      summaryAr: "تسجيل سندات القبض والصرف للموردين والعملاء والمصروفات والتحويلات البنكية وإقفال الفواتير المستحقة.",
+      summaryEn: "Record payment and receipt vouchers for suppliers, customers, expenses, internal transfers, and invoice reconciliation.",
+      stepsAr: [
+        "اضغط «سند دفع/قبض جديد»",
+        "حدد نوع السند (استلام، دفع، تحويل داخلي)",
+        "اختر الطرف (عميل، مورد، موظف)",
+        "أدخل المبلغ المدفوع وحدد حساب البنك/الصندوق",
+        "طابق السند مع الفواتير المفتوحة",
+        "اضغط «حفظ» ثم «تسجيل»"
+      ],
+      stepsEn: [
+        "Click «New Payment Entry»",
+        "Select entry type (Receive, Pay, Internal Transfer)",
+        "Select party (Customer, Supplier, Employee)",
+        "Enter amount and select bank/cash account",
+        "Allocate payment against outstanding invoices",
+        "Click «Save» then «Submit»"
+      ]
+    },
+
+    "Journal Entry": {
+      icon: "📒",
+      summaryAr: "إنشاء قيود يومية يدوية لتسجيل التسويات والمصروفات والافتتاحيات والإهلاك والتحويلات المحاسبية.",
+      summaryEn: "Create manual journal entries for adjustments, expenses, opening balances, depreciation, and account transfers.",
+      stepsAr: [
+        "اضغط «قيد يومية جديد»",
+        "حدد نوع القيد (قيد يومية، تسوية بنكية، افتتاحي)",
+        "أضف أسطر الحسابات مع مبالغ المدين والدائن متطابقة",
+        "أدخل مركز التكلفة والبيان التوضيحي لكل سطر",
+        "اضغط «حفظ» ثم «تسجيل»"
+      ],
+      stepsEn: [
+        "Click «New Journal Entry»",
+        "Select entry type (Journal Entry, Bank Entry, Opening Entry)",
+        "Add account lines with balanced Debit and Credit amounts",
+        "Set cost center and user remarks per row",
+        "Click «Save» then «Submit»"
+      ]
+    },
+
+    "Journal Entry Template": {
+      icon: "📋",
+      summaryAr: "إنشاء قوالب جاهزة للقيود المتكررة (مثل قيود الرواتب أو الإيجارات) لتسريع الإدخال وتفادي الأخطاء.",
+      summaryEn: "Create reusable templates for recurring journal entries (e.g. payroll, rent) to speed up entry and prevent mistakes.",
+      stepsAr: [
+        "اضغط «قالب قيد يومية جديد»",
+        "أدخل اسم القالب (مثل: قيد الإيجار الشهري)",
+        "أضف الحسابات المدينة والدائنة الافتراضية والنسب",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Journal Entry Template»",
+        "Enter template name (e.g. Monthly Rent Template)",
+        "Add default debit and credit accounts and ratios",
+        "Click «Save»"
+      ]
+    },
+
+    "Terms and Conditions": {
+      icon: "📜",
+      summaryAr: "إعداد قوالب الشروط والأحكام القياسية لإرفاقها بالفواتير وعروض الأسعار وأوامر البيع والشراء.",
+      summaryEn: "Set up standard terms and conditions templates to attach to invoices, quotations, and purchase/sales orders.",
+      stepsAr: [
+        "اضغط «شروط وأحكام جديدة»",
+        "أدخل عنوان القالب",
+        "اكتب نصوص الشروط وسياسات الدفع والاسترجاع",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Terms and Conditions»",
+        "Enter template title",
+        "Enter terms, payment, and refund policies text",
+        "Click «Save»"
+      ]
+    },
+
+    "Mode of Payment": {
+      icon: "💵",
+      summaryAr: "تعريف طرق الدفع المختلفة (نقدي، مدى، فيزا، تحويل بنكي) وربط كل طريقة بحساب البنك أو الصندوق الخاص بها.",
+      summaryEn: "Define payment methods (Cash, Mada, Credit Card, Bank Transfer) and link each method to its designated ledger account.",
+      stepsAr: [
+        "اضغط «طريقة دفع جديدة»",
+        "أدخل اسم الطريقة (مثل: مدى، تحويل بنكي، كاش)",
+        "اختر نوع طريقة الدفع",
+        "أضف الشركة وحساب الحسابات الافتراضي المقابل",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Mode of Payment»",
+        "Enter payment mode name (e.g. Mada, Wire Transfer, Cash)",
+        "Select payment mode type",
+        "Add company and default account mapping",
+        "Click «Save»"
+      ]
+    },
+
+    // ═══ المربع ٣: البيانات الرئيسية للضرائب ═══
+    "Sales Taxes and Charges Template": {
+      icon: "🧾",
+      summaryAr: "إعداد قوالب الضرائب والرسوم على المبيعات (مثل ضريبة القيمة المضافة 15%) وتحديد حساب الضريبة المستحقة.",
+      summaryEn: "Configure sales tax templates (e.g., 15% VAT) and define the output tax payable ledger account.",
+      stepsAr: [
+        "اضغط «قالب ضرائب مبيعات جديد»",
+        "أدخل عنوان القالب (مثل: ضريبة القيمة المضافة 15%)",
+        "اختر حساب الضريبة المحاسبي",
+        "حدد نسبة الضريبة (15%) وطريقة احتسابها على الإجمالي",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Sales Taxes and Charges Template»",
+        "Enter template title (e.g. 15% VAT)",
+        "Select tax accounting ledger",
+        "Set tax rate (15%) and calculation formula on net total",
+        "Click «Save»"
+      ]
+    },
+
+    "Purchase Taxes and Charges Template": {
+      icon: "📥",
+      summaryAr: "إعداد قوالب الضرائب والرسوم على المشتريات لتسجيل ضريبة المدخلات القابلة للاسترداد تلقائياً في فواتير الشراء.",
+      summaryEn: "Configure purchase tax templates to automatically record recoverable input VAT on purchase invoices.",
+      stepsAr: [
+        "اضغط «قالب ضرائب مشتريات جديد»",
+        "أدخل عنوان القالب",
+        "اختر حساب ضريبة القيمة المضافة المدخلات",
+        "حدد نسبة الضريبة (15%)",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Purchase Taxes and Charges Template»",
+        "Enter template title",
+        "Select input VAT tax account",
+        "Set tax rate (15%)",
+        "Click «Save»"
+      ]
+    },
+
+    "Item Tax Template": {
+      icon: "🏷️",
+      summaryAr: "تخصيص نسب ضرائب خاصة لأصناف محددة (مثل الأصناف المعفاة أو الخاضعة لنسبة صفرية).",
+      summaryEn: "Define specific tax rates for certain items (such as exempt, zero-rated, or specialized products).",
+      stepsAr: [
+        "اضغط «قالب ضريبة صنف جديد»",
+        "أدخل اسم القالب (مثل: معفى من الضريبة، نسبة صفرية)",
+        "حدد نوع الضريبة ونسبتها المطبقة على الصنف",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Item Tax Template»",
+        "Enter template title (e.g. Zero Rated, Tax Exempt)",
+        "Specify tax type and applicable rate for item",
+        "Click «Save»"
+      ]
+    },
+
+    "Tax Category": {
+      icon: "📑",
+      summaryAr: "تصنيف العملاء والموردين ضريبياً (مثل: محلي، تصدير، معفى) لتطبيق قالب الضرائب الملائم آلياً.",
+      summaryEn: "Classify customers and suppliers into tax categories (e.g., domestic, export, exempt) for auto-tax mapping.",
+      stepsAr: [
+        "اضغط «فئة ضريبية جديدة»",
+        "أدخل اسم الفئة الضريبية",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Tax Category»",
+        "Enter tax category title",
+        "Click «Save»"
+      ]
+    },
+
+    "Tax Rule": {
+      icon: "⚖️",
+      summaryAr: "إنشاء قواعد شرطية لتحديد قالب الضرائب الواجب تطبيقه تلقائياً بناءً على المنطقة أو العميل أو التاريخ.",
+      summaryEn: "Create conditional rules to automatically apply tax templates based on region, customer, or transaction date.",
+      stepsAr: [
+        "اضغط «قاعدة ضريبية جديدة»",
+        "حدد نوع القاعدة (مبيعات أو مشتريات)",
+        "اختر قالب الضرائب المطلوب تطبيقه",
+        "حدد الشروط (العميل، الدولة، الفئة، التواريخ)",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Tax Rule»",
+        "Select rule type (Sales or Purchase)",
+        "Choose tax template to apply",
+        "Specify conditions (Customer, Country, Category, Dates)",
+        "Click «Save»"
+      ]
+    },
+
+    "Tax Withholding Category": {
+      icon: "🛡️",
+      summaryAr: "إدارة ضريبة الاستقطاع المخصومة عند الدفع لموردين أو جهات خارجية وتوريدها للجهات الحكومية.",
+      summaryEn: "Manage withholding tax deducted from payments to suppliers or foreign entities for regulatory compliance.",
+      stepsAr: [
+        "اضغط «فئة ضريبة استقطاع جديدة»",
+        "أدخل اسم الفئة ونسب الاستقطاع بحسب الشريحة",
+        "حدد الحساب المحاسبي للضريبة المستقطعة",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Tax Withholding Category»",
+        "Enter category name and withholding tax rates",
+        "Select withholding tax payable ledger account",
+        "Click «Save»"
+      ]
+    },
+
+    // ═══ المربع ٤: مراكز التكلفة والميزانيات ═══
+    "Chart of Cost Centers": {
+      icon: "🏢",
+      summaryAr: "إدارة الهيكل الشجري لمراكز التكلفة لتوزيع وتحليل الإيرادات والمصروفات حسب الأقسام والفروع والمشاريع.",
+      summaryEn: "Manage hierarchical Cost Center tree to allocate and analyze income and expenses by department, branch, or project.",
+      stepsAr: [
+        "افتح «دليل مراكز التكلفة»",
+        "اختر الشركة لاستعراض الشجرة",
+        "اضغط على أي مركز رئيسي لإضافة مركز تكلفة فرعي تحته",
+        "حدد اسم المركز وحدد ما إذا كان مركزاً فرعياً أو تجميعياً",
+        "اضغط «إضافة مركز تكلفة»"
+      ],
+      stepsEn: [
+        "Open «Chart of Cost Centers»",
+        "Select company to view tree",
+        "Click on any parent to add child cost center",
+        "Enter cost center name and mark if group or leaf",
+        "Click «Add Cost Center»"
+      ]
+    },
+
+    "Budget": {
+      icon: "💰",
+      summaryAr: "إعداد ومراقبة الميزانيات التقديرية لمراكز التكلفة والمشاريع وتفعيل التنبيهات أو الحظر عند تجاوز الميزانية.",
+      summaryEn: "Set and monitor budgets for cost centers and projects with automated warnings or blocking on overrun.",
+      stepsAr: [
+        "اضغط «ميزانية جديدة»",
+        "حدد الميزانية على مركز تكلفة أو مشروع",
+        "اختر السنة المالية والشركة",
+        "أضف بنود المصروفات والمبالغ التقديرية المعتمدة لكل حساب",
+        "اضبط إجراء التجاوز (تنبيه أو إيقاف المعاملة)",
+        "اضغط «حفظ» ثم «تسجيل»"
+      ],
+      stepsEn: [
+        "Click «New Budget»",
+        "Select budget target (Cost Center or Project)",
+        "Select fiscal year and company",
+        "Add expense accounts and approved budget amounts",
+        "Configure overrun action (Warning or Stop)",
+        "Click «Save» then «Submit»"
+      ]
+    },
+
+    "Cost Center Allocation": {
+      icon: "🔄",
+      summaryAr: "توزيع نسب التكاليف والمصروفات المشتركة بين مراكز تكلفة متعددة تلقائياً بناءً على نسب محددة مسبقاً.",
+      summaryEn: "Automatically distribute shared costs and overheads across multiple cost centers based on defined percentages.",
+      stepsAr: [
+        "اضغط «توزيع مركز تكلفة جديد»",
+        "اختر مركز التكلفة الرئيسي المراد توزيعه",
+        "أضف مراكز التكلفة المستلمة ونسبة التوزيع لكل منها (بمجموع 100%)",
+        "اضغط «حفظ» ثم «تسجيل»"
+      ],
+      stepsEn: [
+        "Click «New Cost Center Allocation»",
+        "Select main source cost center to distribute",
+        "Add target cost centers and percentage share (total 100%)",
+        "Click «Save» then «Submit»"
+      ]
+    },
+
+    "Monthly Distribution": {
+      icon: "📅",
+      summaryAr: "توزيع نسب الميزانيات السنوية أو الأهداف على أشهر السنة (مثل مواسم الذروة والمواسم الهادئة).",
+      summaryEn: "Distribute annual budgets or targets across months with custom seasonal weightings.",
+      stepsAr: [
+        "اضغط «توزيع شهري جديد»",
+        "أدخل اسم التوزيع (مثل: توزيع موسمي)",
+        "حدد نسبة كل شهر من إجمالي الـ 100%",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Monthly Distribution»",
+        "Enter distribution name",
+        "Set percentage weight for each month (total 100%)",
+        "Click «Save»"
+      ]
+    },
+
+    // ═══ المربع ٥: العملات المتعددة ═══
+    "Currency": {
+      icon: "💱",
+      summaryAr: "إدارة العملات المدعومة في النظام وتحديد رموزها وعدد الخانات العشرية والتنسيق الرسمي.",
+      summaryEn: "Manage system currencies, symbols, fraction units, and precision.",
+      stepsAr: [
+        "اضغط «عملة جديدة» أو اختر عملة موجودة",
+        "أدخل اسم العملة ورمزها واسم الوحدة والكسور",
+        "حدد الخانات العشرية",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Currency» or select existing",
+        "Enter currency name, symbol, and fraction unit",
+        "Set decimal precision",
+        "Click «Save»"
+      ]
+    },
+
+    "Currency Exchange": {
+      icon: "💹",
+      summaryAr: "تسجيل أسعار صرف العملات الأجنبية مقابل العملة الأساسية بتاريخ محدد لتقييم المعاملات آلياً.",
+      summaryEn: "Record foreign currency exchange rates against base currency for a specific date to value transactions.",
+      stepsAr: [
+        "اضغط «سعر صرف عملة جديد»",
+        "اختر العملة الأصلية والعملة المحول إليها",
+        "حدد تاريخ سريان السعر ومعدل الصرف",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Currency Exchange»",
+        "Select source and target currencies",
+        "Set effective date and exchange rate",
+        "Click «Save»"
+      ]
+    },
+
+    "Exchange Rate Revaluation": {
+      icon: "📊",
+      summaryAr: "إعادة تقييم أرصدة الحسابات بالعملات الأجنبية في نهاية الفترة المالية وتسجيل أرباح أو خسائر فروقات الصرف غير المحققة.",
+      summaryEn: "Revalue foreign currency account balances at period end and post unrealized exchange gain/loss journal entries.",
+      stepsAr: [
+        "اضغط «إعادة تقييم سعر الصرف جديد»",
+        "اختر الشركة وتاريخ التقييم",
+        "اضغط «جلب الحسابات» لاستيراد الحسابات الأجنبية وأسعارها الحالية",
+        "حدد سعر الصرف الجديد لكل عملة",
+        "اضغط «حفظ» ثم «تسجيل» لإنشاء قيد التسوية آلياً"
+      ],
+      stepsEn: [
+        "Click «New Exchange Rate Revaluation»",
+        "Select company and posting date",
+        "Click «Get Accounts» to pull foreign currency ledgers",
+        "Enter current revaluation exchange rates",
+        "Click «Save» then «Submit» to generate adjustment journal entry"
+      ]
+    },
+
+    // ═══ المربع ٦: العمليات البنكية ═══
+    "Bank": {
+      icon: "🏦",
+      summaryAr: "تعريف البنوك والمصارف التي تتعامل معها المنشأة وبياناتها الرسمية وأرقام التحويل السريع.",
+      summaryEn: "Define banks and financial institutions the company deals with, SWIFT codes, and details.",
+      stepsAr: [
+        "اضغط «بنك جديد»",
+        "أدخل اسم البنك والرمز التعريفي SWIFT",
+        "أضف موقع الفرع ورقم الهاتف",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Bank»",
+        "Enter bank name and SWIFT code",
+        "Add branch location and contact numbers",
+        "Click «Save»"
+      ]
+    },
+
+    "Bank Account": {
+      icon: "🏧",
+      summaryAr: "إنشاء وإدارة الحسابات البنكية للمنشأة وربطها برقم الآيبان IBAN وحساب الأستاذ العام المقابل في المحاسبة.",
+      summaryEn: "Create and manage bank accounts, linking IBAN, account numbers, and the corresponding ledger account.",
+      stepsAr: [
+        "اضغط «حساب بنكي جديد»",
+        "أدخل اسم الحساب والبنك التابع له",
+        "أدخل رقم الحساب ورقم الآيبان IBAN",
+        "اختر حساب دفتر الأستاذ المقابل للبنك",
+        "حدد العملة ونوع الحساب",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Bank Account»",
+        "Enter account name and bank",
+        "Enter account number and IBAN",
+        "Link to corresponding ledger account in Chart of Accounts",
+        "Set currency and account type",
+        "Click «Save»"
+      ]
+    },
+
+    "Bank Clearance": {
+      icon: "📑",
+      summaryAr: "تحديث تواريخ المقاصة والصرف الفعلي للشيكات والحوالات البنكية لتطابق كشف حساب البنك.",
+      summaryEn: "Update clearance dates for checks and bank transfers to align with actual bank statement clearing.",
+      stepsAr: [
+        "افتح «المقاصة البنكية»",
+        "اختر الحساب البنكي وحدد نطاق التواريخ",
+        "أدخل تاريخ المقاصة الفعلي لكل حركة بنكية",
+        "اضغط «تحديث تاريخ المقاصة»"
+      ],
+      stepsEn: [
+        "Open «Bank Clearance»",
+        "Select bank account and date range",
+        "Enter actual clearance date for each entry",
+        "Click «Update Clearance Date»"
+      ]
+    },
+
+    "Bank Reconciliation Tool": {
+      icon: "🔄",
+      summaryAr: "أداة مطابقة كشف الحساب البنكي المستورد مع المعاملات المسجلة في النظام لتحديد الفروقات وتسويتها آلياً.",
+      summaryEn: "Tool to reconcile imported bank statements against system transactions, resolving variances automatically.",
+      stepsAr: [
+        "افتح «أداة مطابقة البنك»",
+        "اختر الحساب البنكي واستعرض الحركات غير المطابقة",
+        "طابق كل حركة كشف حساب مع السند المقابل في النظام",
+        "إذا كانت الحركة غير مسجلة، أنشئ سند دفع أو قيد مباشرة من الأداة",
+        "اضغط «تسوية» لتأكيد المطابقة"
+      ],
+      stepsEn: [
+        "Open «Bank Reconciliation Tool»",
+        "Select bank account to view unreconciled transactions",
+        "Match statement rows with existing system payment vouchers",
+        "Create missing entries directly if needed",
+        "Click «Reconcile» to finalize"
+      ]
+    },
+
+    "Plaid Settings": {
+      icon: "🔌",
+      summaryAr: "إعداد وتفعيل الربط المصرفي مع شبكة Plaid البنكية لجلب المعاملات البنكية وكشوف الحساب آلياً ومزامنتها مباشرة دون الحاجة لرفع ملفات يدوية.",
+      summaryEn: "Configure and enable banking integration with Plaid to automatically sync bank transactions and statements without manual file uploads.",
+      stepsAr: [
+        "إدخال مفاتيح الربط (Client ID و Secret) المقدمة من خدمة Plaid",
+        "تحديد بيئة العمل (تجريبية Sandbox أو حية Production)",
+        "ربط الحسابات البنكية المعرفة بالنظام مع الحسابات المستوردة",
+        "تفعيل المزامنة التلقائية لعمليات السحب والإيداع"
+      ],
+      stepsEn: [
+        "Enter Plaid API credentials (Client ID and Secret)",
+        "Select environment mode (Sandbox or Production)",
+        "Map system bank accounts to imported Plaid accounts",
+        "Enable automated synchronization of banking transactions"
+      ]
+    },
+
+    // ═══ المربع ٧: الافتتاح والإقفال ═══
+    "Opening Invoice Creation Tool": {
+      icon: "📄",
+      summaryAr: "أداة إنشاء فواتير الأرصدة الافتتاحية للمبيعات والمشتريات عند بدء تشغيل النظام لترحيل المستحقات السابقة.",
+      summaryEn: "Tool to create opening sales and purchase invoices during system implementation to migrate past receivables and payables.",
+      stepsAr: [
+        "افتح «أداة إنشاء فواتير الأرصدة الافتتاحية»",
+        "اختر نوع الفاتورة (مبيعات أو مشتريات) والشركة",
+        "أضف العملاء أو الموردين مع المبالغ المستحقة السابقة وتواريخ الاستحقاق",
+        "اضغط «إنشاء الفواتير» لتوليدها وترحيلها دفعة واحدة"
+      ],
+      stepsEn: [
+        "Open «Opening Invoice Creation Tool»",
+        "Select invoice type (Sales or Purchase) and company",
+        "Add customers or suppliers with outstanding balances and due dates",
+        "Click «Create Invoices» to generate and post opening invoices in bulk"
+      ]
+    },
+
+    "Chart of Accounts Importer": {
+      icon: "📥",
+      summaryAr: "استيراد وتصدير دليل الحسابات المالي عبر ملفات Excel أو CSV لبناء الهيكل المحاسبي بسهولة.",
+      summaryEn: "Import and export financial Chart of Accounts via Excel or CSV spreadsheets to construct ledger trees easily.",
+      stepsAr: [
+        "افتح «مستورد شجرة الحسابات»",
+        "اختر الشركة ثم حمل النموذج الفارغ Excel",
+        "املأ الحسابات وأنواعها وأرقامها في الملف",
+        "ارفع الملف المعبأ واضغط «بدء الاستيراد»",
+        "راجع شجرة الحسابات بعد اكتمال الاستيراد"
+      ],
+      stepsEn: [
+        "Open «Chart of Accounts Importer»",
+        "Select company and download sample Excel template",
+        "Fill accounts, types, and numbers in the sheet",
+        "Upload completed file and click «Start Import»",
+        "Verify accounts tree after import completes"
+      ]
+    },
+
+    "Period Closing Voucher": {
+      icon: "🔒",
+      summaryAr: "سند إقفال الفترة المالية لترحيل أرصدة حسابات الإيرادات والمصروفات إلى حساب الأرباح المبقاة وتصفيرها للسنة الجديدة.",
+      summaryEn: "Period closing voucher to transfer revenue and expense balances to retained earnings and reset them for new year.",
+      stepsAr: [
+        "اضغط «سند إقفال فترة جديد»",
+        "اختر الشركة وتاريخ نهاية الفترة المالية",
+        "اختر حساب الأرباح المبقاة (Retained Earnings)",
+        "أدخل ملاحظات الإقفال السنوي",
+        "اضغط «حفظ» ثم «تسجيل» لإنشاء قيد الإقفال السنوي رسمياً"
+      ],
+      stepsEn: [
+        "Click «New Period Closing Voucher»",
+        "Select company and fiscal period closing date",
+        "Select Retained Earnings equity account",
+        "Add closing remarks",
+        "Click «Save» then «Submit» to formally post closing entries"
+      ]
+    },
+
+    // ═══ المربع ٨: إدارة الاشتراكات ═══
+    "Subscription Plan": {
+      icon: "📋",
+      summaryAr: "تعريف خطط وباقات الاشتراكات الدورية (مثل: شهري، سنوي) والأسعار والأصناف المرتبطة بكل باقة.",
+      summaryEn: "Define recurring subscription plans and tiers (e.g., monthly, annual) with pricing and linked items.",
+      stepsAr: [
+        "اضغط «خطة اشتراك جديدة»",
+        "أدخل اسم الخطة وحدد فترة الفوترة (شهرية، سنوية)",
+        "اختر الصنف المرتبط بالاشتراك وسعر الاشتراك",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Subscription Plan»",
+        "Enter plan name and billing interval (Monthly, Annual)",
+        "Select linked subscription item and plan price",
+        "Click «Save»"
+      ]
+    },
+
+    "Subscription": {
+      icon: "🔁",
+      summaryAr: "إنشاء وإدارة اشتراكات العملاء وتتبع حالة الاشتراك (نشط، ملغي، معلق) وتوليد الفواتير الدورية.",
+      summaryEn: "Create and manage customer subscriptions, tracking status (Active, Cancelled, Trialling) and recurring invoicing.",
+      stepsAr: [
+        "اضغط «اشتراك جديد»",
+        "اختر العميل وتاريخ بدء الاشتراك",
+        "أضف خطط الاشتراك المطلوبة والكميات",
+        "حدد تاريخ انتهاء الاشتراك أو اتركه مستمراً",
+        "اضغط «حفظ» ثم «تسجيل» لتفعيل الاشتراك"
+      ],
+      stepsEn: [
+        "Click «New Subscription»",
+        "Select customer and start date",
+        "Add desired subscription plans and quantities",
+        "Specify end date or leave recurring indefinitely",
+        "Click «Save» then «Submit» to activate"
+      ]
+    },
+
+    "Subscription Settings": {
+      icon: "⚙️",
+      summaryAr: "ضبط قواعد الفوترة الدورية وتوليد فواتير الاشتراكات المتكررة تلقائياً، وإدارة فترات الإشعار وفترات السماح والإلغاء عند عدم السداد.",
+      summaryEn: "Configure recurring billing rules, automated invoice generation for subscriptions, grace periods, and dunning cancellation policies.",
+      stepsAr: [
+        "تفعيل الجدولة التلقائية لتوليد فواتير الاشتراكات في مواعيدها",
+        "تحديد عدد أيام فترة السماح قبل تعليق الاشتراك",
+        "ضبط إعدادات إرسال إشعارات التجديد والدفع آلياً للعملاء",
+        "تحديد السياسة المتبعة في حال فشل تحصيل الدفعة الدورية"
+      ],
+      stepsEn: [
+        "Enable automated scheduler to generate recurring subscription invoices",
+        "Define grace period days before suspending overdue subscriptions",
+        "Configure automated renewal and payment reminder notifications to customers",
+        "Set retry and cancellation policy for failed recurring payments"
+      ]
+    },
+
+    // ═══ المربع ٩: إدارة الأسهم ═══
+    "Shareholder": {
+      icon: "👤",
+      summaryAr: "تسجيل بيانات المساهمين والشركاء في الشركة وتتبع حصص الملكية وأرقام شهادات الأسهم.",
+      summaryEn: "Register company shareholders, equity partners, ownership stakes, and share certificate numbers.",
+      stepsAr: [
+        "اضغط «مساهم جديد»",
+        "أدخل اسم المساهم وبيانات الاتصال والهوية",
+        "حدد عنوان المساهم",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Shareholder»",
+        "Enter shareholder name, ID, and contact details",
+        "Add shareholder address",
+        "Click «Save»"
+      ]
+    },
+
+    "Share Transfer": {
+      icon: "🤝",
+      summaryAr: "توثيق عمليات إصدار وتحويل وشراء أو استرداد الأسهم بين الشركة والمساهمين أو بين الشركاء.",
+      summaryEn: "Document share issuance, transfers, buybacks, or redemption between company and shareholders.",
+      stepsAr: [
+        "اضغط «تحويل أسهم جديد»",
+        "اختر نوع المعاملة (إصدار جديد، تحويل، استرداد)",
+        "حدد المساهم المحول والمساهم المستلم",
+        "أدخل عدد الأسهم والقيمة الاسمية وفئة الأسهم",
+        "حدد حسابات الدفع الناتجة عن العملية",
+        "اضغط «حفظ» ثم «تسجيل»"
+      ],
+      stepsEn: [
+        "Click «New Share Transfer»",
+        "Select transfer type (Issue, Transfer, Purchase)",
+        "Select source shareholder and target shareholder",
+        "Enter number of shares, face value, and share type",
+        "Set payment and equity accounts",
+        "Click «Save» then «Submit»"
+      ]
+    }
+  };
+
+  /* ─────────────────────────────────────────
+     ٨. دوال مساعدة
+  ───────────────────────────────────────── */
+
+  function translate(name) {
+    if (!isArabic) return name;
+    if (arabicFallback[name]) return arabicFallback[name];
+    if (typeof window.__ === "function") return window.__(name);
+    return name;
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function formatNumber(num) {
+    const n = parseFloat(num) || 0;
+    if (n % 1 !== 0) {
+      return n.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+    return n.toLocaleString("en-US");
+  }
+
+  /* ─────────────────────────────────────────
+     ٩. نافذة التفاصيل المنبثقة
+  ───────────────────────────────────────── */
+
+  function showInfoModal(itemName) {
+    const data = itemDescriptions[itemName];
+    if (!data) return;
+
+    const modalId = "erp-accounting-info-modal";
+    let modal = document.getElementById(modalId);
+    if (modal) modal.remove();
+
+    const title = translate(itemName);
+    const summary = isArabic ? data.summaryAr : data.summaryEn;
+    const steps = isArabic ? data.stepsAr : data.stepsEn;
+    const hasSteps = Array.isArray(steps) && steps.length > 0;
+    const stepsTitle = isArabic ? "خطوات العمل والإعداد:" : "Step-by-step Guide:";
+    const closeText = isArabic ? "إغلاق" : "Close";
+
+    modal = document.createElement("div");
+    modal.id = modalId;
+    modal.className = "erp-modal-overlay";
+    modal.setAttribute("dir", isArabic ? "rtl" : "ltr");
+
+    modal.innerHTML = `
+      <div class="erp-modal-dialog" role="dialog" aria-modal="true">
+        <div class="erp-modal-header">
+          <div class="erp-modal-title-wrap">
+            <span class="erp-modal-icon">${data.icon || "📄"}</span>
+            <h3 class="erp-modal-title">${escapeHtml(title)}</h3>
+          </div>
+          <button type="button" class="erp-modal-close" data-modal-close aria-label="${closeText}">×</button>
+        </div>
+        <div class="erp-modal-body">
+          <p class="erp-modal-summary">${escapeHtml(summary)}</p>
+          ${hasSteps ? `
+            <div class="erp-modal-steps-section">
+              <h4 class="erp-modal-steps-heading">${stepsTitle}</h4>
+              <ol class="erp-modal-steps-list">
+                ${steps.map(step => `<li>${escapeHtml(step)}</li>`).join("")}
+              </ol>
+            </div>
+          ` : ""}
+        </div>
+        <div class="erp-modal-footer">
+          <button type="button" class="erp-modal-btn" data-modal-close>${closeText}</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const closeModal = () => modal.remove();
+    modal.querySelectorAll("[data-modal-close]").forEach(el => {
+      el.addEventListener("click", closeModal);
+    });
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     ١٠. إنشاء بطاقات الإحصائيات
+  ───────────────────────────────────────── */
+
+  function renderStats() {
+    if (!statsSection) return;
+
+    statsSection.innerHTML = `
+      <div class="erp-stats-grid">
+        ${statsCards.map(c => `
+          <div class="erp-stat-card" data-stat-id="${escapeHtml(c.id)}">
+            <div class="erp-stat-badge">${escapeHtml(c.short)}</div>
+            <div class="erp-stat-info">
+              <span class="erp-stat-label">${escapeHtml(isArabic ? c.labelAr : c.labelEn)}</span>
+              <span class="erp-stat-value" data-stat-value>—</span>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+
+    statsCards.forEach(c => {
+      c.fetch().then(val => {
+        const el = statsSection.querySelector(`[data-stat-id="${c.id}"] [data-stat-value]`);
+        if (el) {
+          el.textContent = c.isCurrency ? `${formatNumber(val)} SAR` : formatNumber(val);
+        }
+      });
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     ١١. إنشاء أزرار الاختصارات السريعة
+  ───────────────────────────────────────── */
+
+  function renderQuickActions() {
+    if (!quickActions) return;
+
+    const title = isArabic ? "اختصارات سريعة" : "Quick Actions";
+
+    quickActions.innerHTML = `
+      <h2 class="erp-section-title">${escapeHtml(title)}</h2>
+      <div class="erp-quick-grid">
+        ${quickActionButtons.map(btn => {
+          const label = isArabic ? btn.labelAr : btn.labelEn;
+          return `
+            <button type="button" class="erp-quick-btn" data-new-doc="${escapeHtml(btn.doctype)}">
+              <span class="erp-quick-icon" aria-hidden="true">+</span>
+              <span class="erp-quick-label">${escapeHtml(label)}</span>
+            </button>`;
+        }).join("")}
+      </div>
+    `;
+
+    quickActions.addEventListener("click", event => {
+      const btn = event.target.closest("[data-new-doc]");
+      if (!btn) return;
+      const doctype = btn.dataset.newDoc;
+      if (window.frappe && typeof frappe.new_doc === "function") {
+        frappe.new_doc(doctype);
+      }
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     ١٢. إنشاء بطاقات الوحدات والمربعات
+  ───────────────────────────────────────── */
+
+  function renderSections() {
+    root.setAttribute("dir", isArabic ? "rtl" : "ltr");
+    root.classList.toggle("erp-dashboard-rtl", isArabic);
+
+    content.innerHTML = sections
+      .map((section, sectionIndex) => {
+        const sectionName = section[0];
+        const sectionCards = section[1];
+
+        const cardsHtml = sectionCards
+          .map((card, cardIndex) => {
+            const cardName = card[0];
+            const icon = card[1];
+            const items = card[2];
+
+            const linksHtml = items.map(itemName => {
+              const desc = itemDescriptions[itemName];
+              const detailsLabel = isArabic ? "تفاصيل" : "Details";
+              const infoBtn = desc
+                ? `<button type="button" class="erp-info-link" data-info-item="${escapeHtml(itemName)}">${detailsLabel}</button>`
+                : "";
+
+              return `
+                <div class="erp-link-row">
+                  <button type="button" class="erp-link" data-route-name="${escapeHtml(itemName)}">
+                    <span class="erp-link-text">${escapeHtml(translate(itemName))}</span>
+                    <span class="erp-link-arrow" aria-hidden="true">${isArabic ? "←" : "→"}</span>
+                  </button>
+                  ${infoBtn}
+                </div>`;
+            }).join("");
+
+            return `
+              <article class="erp-card tone-${(sectionIndex + cardIndex) % 5}" data-erp-card>
+                <button type="button" class="erp-card-heading" data-card-toggle aria-expanded="false">
+                  <span class="erp-icon" aria-hidden="true">${icon}</span>
+                  <span class="erp-card-title">${escapeHtml(translate(cardName))}</span>
+                  <span class="erp-card-chevron" aria-hidden="true">⌄</span>
+                </button>
+                <div class="erp-card-links">${linksHtml}</div>
+              </article>`;
+          }).join("");
+
+        return `
+          <section class="erp-module-section">
+            <h2 class="erp-section-title">${escapeHtml(translate(sectionName))}</h2>
+            <div class="erp-dashboard-grid">${cardsHtml}</div>
+          </section>`;
+      }).join("");
+  }
+
+  /* ─────────────────────────────────────────
+     ١٣. إنشاء الفوتر
+  ───────────────────────────────────────── */
+
+  function renderFooter() {
+    if (!footerEl) return;
+    const labels = footerInfo.labels;
+    const phoneLabel = isArabic ? labels.phoneAr : labels.phoneEn;
+    const emailLabel = isArabic ? labels.emailAr : labels.emailEn;
+    const websiteLabel = isArabic ? labels.websiteAr : labels.websiteEn;
+
+    footerEl.innerHTML = `
+      <div class="erp-footer-inner">
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">📞</span>
+          <span class="erp-footer-label">${escapeHtml(phoneLabel)}:</span>
+          <a href="tel:${footerInfo.phone}" class="erp-footer-link" dir="ltr">${escapeHtml(footerInfo.phone)}</a>
+        </div>
+        <span class="erp-footer-sep">|</span>
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">✉️</span>
+          <span class="erp-footer-label">${escapeHtml(emailLabel)}:</span>
+          <a href="mailto:${footerInfo.email}" class="erp-footer-link">${escapeHtml(footerInfo.email)}</a>
+        </div>
+        <span class="erp-footer-sep">|</span>
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">🌐</span>
+          <span class="erp-footer-label">${escapeHtml(websiteLabel)}:</span>
+          <a href="https://${footerInfo.website}" class="erp-footer-link" target="_blank" rel="noopener">${escapeHtml(footerInfo.website)}</a>
+        </div>
+      </div>`;
+  }
+
+  /* ─────────────────────────────────────────
+     ١٤. التوجيه وفتح الشاشات داخل النظام
+  ───────────────────────────────────────── */
+
+  function openRoute(name) {
+    if (!window.frappe || typeof frappe.set_route !== "function") return;
+
+    if (reportNames.has(name)) {
+      frappe.set_route("query-report", name);
+      return;
+    }
+
+    if (name === "Chart of Accounts") {
+      frappe.set_route("Tree", "Account");
+      return;
+    }
+
+    if (name === "Chart of Cost Centers") {
+      frappe.set_route("Tree", "Cost Center");
+      return;
+    }
+
+    if (name === "Bank Reconciliation Tool") {
+      frappe.set_route("bank-reconciliation-tool");
+      return;
+    }
+
+    if (name === "Opening Invoice Creation Tool") {
+      frappe.set_route("Form", "Opening Invoice Creation Tool");
+      return;
+    }
+
+    if (name === "Chart of Accounts Importer") {
+      frappe.set_route("Form", "Chart of Accounts Importer");
+      return;
+    }
+
+    if (singleDocs.has(name)) {
+      frappe.set_route("Form", name);
+      return;
+    }
+
+    if (treeDocs.has(name)) {
+      frappe.set_route("Tree", name);
+      return;
+    }
+
+    frappe.set_route("List", name);
+  }
+
+  /* ─────────────────────────────────────────
+     ١٥. معالجة الأحداث والضغط
+  ───────────────────────────────────────── */
+
+  let lastToggleTime = 0;
+
+  content.addEventListener("click", event => {
+    const infoBtn = event.target.closest("[data-info-item]");
+    if (infoBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      showInfoModal(infoBtn.dataset.infoItem);
+      return;
+    }
+
+    const link = event.target.closest("[data-route-name]");
+    if (link) {
+      event.preventDefault();
+      openRoute(link.dataset.routeName);
+      return;
+    }
+
+    const toggle = event.target.closest("[data-card-toggle]");
+    if (toggle) {
+      const now = Date.now();
+      if (now - lastToggleTime < 300) return;
+      lastToggleTime = now;
+
+      const card = toggle.closest("[data-erp-card]");
+      const expanded = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", String(!expanded));
+      if (card) {
+        card.classList.toggle("is-collapsed", expanded);
+      }
+    }
+  });
+
+  /* ─────────────────────────────────────────
+     ١٦. التهيئة الأولية
+  ───────────────────────────────────────── */
+
+  renderStats();
+  renderQuickActions();
+  renderSections();
+  renderFooter();
 })();

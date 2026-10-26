@@ -297,64 +297,6 @@
         "Match each payment with the appropriate invoice",
         "Click «Reconcile» to apply the matching"
       ]
-    },
-
-    /* ═══ التقارير (توضيح فقط — بدون خطوات) ═══ */
-
-    "Accounts Payable": {
-      icon: "📊",
-      summaryAr:
-        "تقرير يعرض جميع المبالغ المستحقة للموردين مع تفاصيل الفواتير وأعمار الديون وتواريخ الاستحقاق.",
-      summaryEn:
-        "Report showing all amounts owed to suppliers with invoice details, aging, and due dates."
-    },
-
-    "Accounts Payable Summary": {
-      icon: "📋",
-      summaryAr:
-        "ملخص إجمالي الذمم الدائنة لكل مورد مع تصنيف حسب فترات التقادم (٣٠، ٦٠، ٩٠ يوم).",
-      summaryEn:
-        "Summary of total payables per supplier with aging classification (30, 60, 90 days)."
-    },
-
-    "Purchase Register": {
-      icon: "📑",
-      summaryAr:
-        "سجل تفصيلي لجميع فواتير المشتريات المعتمدة مع بيانات المورد والمبالغ والضرائب.",
-      summaryEn:
-        "Detailed register of all submitted purchase invoices with supplier info, amounts, and taxes."
-    },
-
-    "Item-wise Purchase Register": {
-      icon: "📦",
-      summaryAr:
-        "سجل المشتريات مصنّف حسب الصنف — يعرض الكميات والمبالغ لكل صنف من كل مورد.",
-      summaryEn:
-        "Purchase register classified by item — shows quantities and amounts per item from each supplier."
-    },
-
-    "Purchase Order Analysis": {
-      icon: "📈",
-      summaryAr:
-        "تحليل أوامر الشراء من حيث الحالة (معلقة، مستلمة، مفوترة) والمبالغ والكميات.",
-      summaryEn:
-        "Analyze purchase orders by status (pending, received, billed), amounts, and quantities."
-    },
-
-    "Received Items To Be Billed": {
-      icon: "📥",
-      summaryAr:
-        "تقرير بالأصناف التي تم استلامها من الموردين ولكن لم تُصدر لها فواتير مشتريات بعد.",
-      summaryEn:
-        "Report of items received from suppliers but not yet billed with purchase invoices."
-    },
-
-    "Supplier Ledger Summary": {
-      icon: "📒",
-      summaryAr:
-        "ملخص حركات دفتر أستاذ كل مورد — الأرصدة الافتتاحية والمشتريات والمدفوعات والأرصدة الختامية.",
-      summaryEn:
-        "Summary of each supplier's ledger — opening balances, purchases, payments, and closing balances."
     }
   };
 
