@@ -1,2030 +1,1109 @@
-(function () {
-
-    /* =====================================================
-       MUBTKIR ERP — BUYING / PURCHASES
-    ===================================================== */
-
-    var attempts = 0;
-    var maxAttempts = 20;
-
-
-    function startDashboard() {
-
-        attempts++;
-
-        var scope;
-
-        if (
-            typeof root_element !== "undefined" &&
-            root_element
-        ) {
-            scope = root_element;
-        } else {
-            scope = document;
-        }
-
-
-        var root =
-            scope.querySelector("[data-erp-dashboard]");
-
-        var cycleSection =
-            scope.querySelector("[data-purchase-cycle]");
-
-        var statsSection =
-            scope.querySelector("[data-stats-section]");
-
-        var quickActions =
-            scope.querySelector("[data-quick-actions]");
-
-        var content =
-            scope.querySelector("[data-dashboard-content]");
-
-        var footerEl =
-            scope.querySelector("[data-dashboard-footer]");
-
-
-        if (
-            !root ||
-            !cycleSection ||
-            !statsSection ||
-            !quickActions ||
-            !content
-        ) {
-
-            if (attempts < maxAttempts) {
-
-                setTimeout(
-                    startDashboard,
-                    250
-                );
-
-            } else {
-
-                console.error(
-                    "Buying Dashboard HTML not found"
-                );
-
-            }
-
-            return;
-        }
-
-
-        if (
-            root.getAttribute(
-                "data-buying-loaded"
-            ) === "1"
-        ) {
-            return;
-        }
-
-
-        root.setAttribute(
-            "data-buying-loaded",
-            "1"
-        );
-
-
-        /* =================================================
-           LANGUAGE
-        ================================================= */
-
-        var lang = "en";
-
-        try {
-
-            if (
-                window.frappe &&
-                frappe.boot &&
-                frappe.boot.lang
-            ) {
-
-                lang = frappe.boot.lang;
-
-            }
-
-        } catch (e) {}
-
-
-        var isArabic =
-            String(lang)
-                .toLowerCase()
-                .indexOf("ar") === 0;
-
-
-        root.setAttribute(
-            "dir",
-            isArabic ? "rtl" : "ltr"
-        );
-
-
-        /* =================================================
-           HELPERS
-        ================================================= */
-
-        function text(ar, en) {
-
-            return isArabic
-                ? ar
-                : en;
-
-        }
-
-
-        function escapeHtml(value) {
-
-            return String(value || "")
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-
-        }
-
-
-        function formatNumber(value) {
-
-            var number =
-                parseFloat(value) || 0;
-
-            return number.toLocaleString(
-                "en-US"
-            );
-
-        }
-
-
-        function openList(doctype) {
-
-            try {
-
-                frappe.set_route(
-                    "List",
-                    doctype
-                );
-
-            } catch (e) {
-
-                console.error(
-                    "Buying Route Error:",
-                    doctype,
-                    e
-                );
-
-            }
-
-        }
-
-
-        function openTree(doctype) {
-
-            try {
-
-                frappe.set_route(
-                    "Tree",
-                    doctype
-                );
-
-            } catch (e) {
-
-                console.error(
-                    "Buying Tree Error:",
-                    doctype,
-                    e
-                );
-
-            }
-
-        }
-
-
-        function openReport(report) {
-
-            try {
-
-                frappe.set_route(
-                    "query-report",
-                    report
-                );
-
-            } catch (e) {
-
-                console.error(
-                    "Buying Report Error:",
-                    report,
-                    e
-                );
-
-            }
-
-        }
-
-
-        function newDoc(doctype) {
-
-            try {
-
-                frappe.new_doc(
-                    doctype
-                );
-
-            } catch (e) {
-
-                console.error(
-                    "Buying New Doc Error:",
-                    doctype,
-                    e
-                );
-
-            }
-
-        }
-
-
-        function getCount(
-            doctype,
-            filters,
-            callback
-        ) {
-
-            try {
-
-                frappe.call({
-
-                    method:
-                        "frappe.client.get_count",
-
-                    args: {
-
-                        doctype:
-                            doctype,
-
-                        filters:
-                            filters || {}
-
-                    },
-
-                    callback:
-                        function (r) {
-
-                            var value = 0;
-
-                            if (
-                                r &&
-                                r.message !== undefined
-                            ) {
-                                value = r.message;
-                            }
-
-                            callback(value);
-
-                        },
-
-                    error:
-                        function () {
-                            callback(0);
-                        }
-
-                });
-
-            } catch (e) {
-
-                callback(0);
-
-            }
-
-        }
-
-
-        /* =================================================
-           1. PURCHASE CYCLE
-        ================================================= */
-
-        var cycle = [
-
-            {
-                ar:
-                    "طلب مواد",
-
-                en:
-                    "Material Request",
-
-                descAr:
-                    "إنشاء طلب بالمواد أو المنتجات المطلوب شراؤها.",
-
-                descEn:
-                    "Create a request for materials or items to purchase.",
-
-                action:
-                    "new",
-
-                target:
-                    "Material Request"
-            },
-
-
-            {
-                ar:
-                    "طلب عرض سعر",
-
-                en:
-                    "Request for Quotation",
-
-                descAr:
-                    "إرسال طلب عرض سعر للموردين للحصول على أفضل عرض.",
-
-                descEn:
-                    "Request quotations from suppliers.",
-
-                action:
-                    "new",
-
-                target:
-                    "Request for Quotation"
-            },
-
-
-            {
-                ar:
-                    "عرض سعر المورد",
-
-                en:
-                    "Supplier Quotation",
-
-                descAr:
-                    "تسجيل ومقارنة عروض الأسعار المستلمة من الموردين.",
-
-                descEn:
-                    "Record and compare supplier quotations.",
-
-                action:
-                    "new",
-
-                target:
-                    "Supplier Quotation"
-            },
-
-
-            {
-                ar:
-                    "أمر الشراء",
-
-                en:
-                    "Purchase Order",
-
-                descAr:
-                    "اعتماد المورد وإصدار أمر الشراء.",
-
-                descEn:
-                    "Select supplier and issue the purchase order.",
-
-                action:
-                    "new",
-
-                target:
-                    "Purchase Order"
-            },
-
-
-            {
-                ar:
-                    "استلام المشتريات",
-
-                en:
-                    "Purchase Receipt",
-
-                descAr:
-                    "تسجيل استلام الأصناف من المورد وإدخالها للمخزون.",
-
-                descEn:
-                    "Receive purchased items into stock.",
-
-                action:
-                    "new",
-
-                target:
-                    "Purchase Receipt"
-            },
-
-
-            {
-                ar:
-                    "فاتورة المشتريات",
-
-                en:
-                    "Purchase Invoice",
-
-                descAr:
-                    "تسجيل فاتورة المورد وربطها بالمشتريات.",
-
-                descEn:
-                    "Record the supplier purchase invoice.",
-
-                action:
-                    "new",
-
-                target:
-                    "Purchase Invoice"
-            },
-
-
-            {
-                ar:
-                    "الدفع للمورد",
-
-                en:
-                    "Supplier Payment",
-
-                descAr:
-                    "تسجيل سداد المستحقات المالية للمورد.",
-
-                descEn:
-                    "Record payment of supplier outstanding amounts.",
-
-                action:
-                    "new",
-
-                target:
-                    "Payment Entry"
-            }
-
-        ];
-
-
-        var cycleHtml = "";
-
-
-        for (
-            var i = 0;
-            i < cycle.length;
-            i++
-        ) {
-
-            cycleHtml +=
-
-                '<div class="erp-cycle-item">' +
-
-                    '<button ' +
-                    'type="button" ' +
-                    'class="erp-cycle-card cycle-tone-' +
-                    ((i % 4) + 1) +
-                    '" data-buy-cycle="' +
-                    i +
-                    '">' +
-
-                        '<span class="erp-cycle-number">' +
-                            (i + 1) +
-                        '</span>' +
-
-                        '<span class="erp-cycle-card-title">' +
-
-                            escapeHtml(
-                                text(
-                                    cycle[i].ar,
-                                    cycle[i].en
-                                )
-                            ) +
-
-                        '</span>' +
-
-                        '<span class="erp-cycle-description">' +
-
-                            escapeHtml(
-                                text(
-                                    cycle[i].descAr,
-                                    cycle[i].descEn
-                                )
-                            ) +
-
-                        '</span>' +
-
-                    '</button>' +
-
-                    (
-                        i < cycle.length - 1
-
-                        ? '<span class="erp-cycle-arrow">' +
-                            (
-                                isArabic
-                                    ? "←"
-                                    : "→"
-                            ) +
-                          '</span>'
-
-                        : ""
-                    ) +
-
-                '</div>';
-
-        }
-
-
-        cycleSection.innerHTML =
-
-            '<section class="erp-cycle-container">' +
-
-                '<h2 class="erp-section-title erp-cycle-title">' +
-
-                    text(
-                        "دورة المشتريات",
-                        "Purchase Cycle"
-                    ) +
-
-                '</h2>' +
-
-                '<div class="erp-cycle-grid" ' +
-                'style="grid-template-columns:repeat(' +
-                cycle.length +
-                ',minmax(0,1fr));">' +
-
-                    cycleHtml +
-
-                '</div>' +
-
-            '</section>';
-
-
-        cycleSection.addEventListener(
-            "click",
-            function (event) {
-
-                var button =
-                    event.target.closest(
-                        "[data-buy-cycle]"
-                    );
-
-
-                if (!button) {
-                    return;
-                }
-
-
-                var index =
-                    parseInt(
-                        button.getAttribute(
-                            "data-buy-cycle"
-                        ),
-                        10
-                    );
-
-
-                var item =
-                    cycle[index];
-
-
-                if (!item) {
-                    return;
-                }
-
-
-                newDoc(
-                    item.target
-                );
-
-            }
-        );
-
-
-        /* =================================================
-           2. OVERVIEW
-        ================================================= */
-
-        statsSection.innerHTML =
-
-            '<section class="erp-overview-container">' +
-
-                '<h2 class="erp-section-title">' +
-
-                    text(
-                        "نظرة عامة",
-                        "Overview"
-                    ) +
-
-                '</h2>' +
-
-
-                '<div class="erp-stats-grid">' +
-
-
-                    '<div class="erp-stat-card overview-tone-1">' +
-
-                        '<div class="erp-stat-icon">PO</div>' +
-
-                        '<div class="erp-stat-info">' +
-
-                            '<span class="erp-stat-value" data-buy-po>0</span>' +
-
-                            '<span class="erp-stat-label">' +
-
-                                text(
-                                    "أوامر الشراء المفتوحة",
-                                    "Open Purchase Orders"
-                                ) +
-
-                            '</span>' +
-
-                        '</div>' +
-
-                    '</div>' +
-
-
-                    '<div class="erp-stat-card overview-tone-2">' +
-
-                        '<div class="erp-stat-icon">INV</div>' +
-
-                        '<div class="erp-stat-info">' +
-
-                            '<span class="erp-stat-value" data-buy-unpaid>0</span>' +
-
-                            '<span class="erp-stat-label">' +
-
-                                text(
-                                    "فواتير المشتريات غير المدفوعة",
-                                    "Unpaid Purchase Invoices"
-                                ) +
-
-                            '</span>' +
-
-                        '</div>' +
-
-                    '</div>' +
-
-
-                    '<div class="erp-stat-card overview-tone-3">' +
-
-                        '<div class="erp-stat-icon">MR</div>' +
-
-                        '<div class="erp-stat-info">' +
-
-                            '<span class="erp-stat-value" data-buy-mr>0</span>' +
-
-                            '<span class="erp-stat-label">' +
-
-                                text(
-                                    "طلبات المواد المعلقة",
-                                    "Pending Material Requests"
-                                ) +
-
-                            '</span>' +
-
-                        '</div>' +
-
-                    '</div>' +
-
-
-                    '<div class="erp-stat-card overview-tone-4">' +
-
-                        '<div class="erp-stat-icon">SUP</div>' +
-
-                        '<div class="erp-stat-info">' +
-
-                            '<span class="erp-stat-value" data-buy-suppliers>0</span>' +
-
-                            '<span class="erp-stat-label">' +
-
-                                text(
-                                    "الموردون",
-                                    "Suppliers"
-                                ) +
-
-                            '</span>' +
-
-                        '</div>' +
-
-                    '</div>' +
-
-
-                '</div>' +
-
-            '</section>';
-
-
-        getCount(
-            "Purchase Order",
-            {
-                docstatus: 1,
-                status: [
-                    "not in",
-                    [
-                        "Completed",
-                        "Closed",
-                        "Cancelled"
-                    ]
-                ]
-            },
-            function (value) {
-
-                var el =
-                    statsSection.querySelector(
-                        "[data-buy-po]"
-                    );
-
-                if (el) {
-                    el.textContent =
-                        formatNumber(value);
-                }
-
-            }
-        );
-
-
-        getCount(
-            "Purchase Invoice",
-            {
-                docstatus: 1,
-                outstanding_amount: [
-                    ">",
-                    0
-                ]
-            },
-            function (value) {
-
-                var el =
-                    statsSection.querySelector(
-                        "[data-buy-unpaid]"
-                    );
-
-                if (el) {
-                    el.textContent =
-                        formatNumber(value);
-                }
-
-            }
-        );
-
-
-        getCount(
-            "Material Request",
-            {
-                docstatus: 1,
-                status: [
-                    "not in",
-                    [
-                        "Stopped",
-                        "Cancelled"
-                    ]
-                ],
-                per_ordered: [
-                    "<",
-                    100
-                ]
-            },
-            function (value) {
-
-                var el =
-                    statsSection.querySelector(
-                        "[data-buy-mr]"
-                    );
-
-                if (el) {
-                    el.textContent =
-                        formatNumber(value);
-                }
-
-            }
-        );
-
-
-        getCount(
-            "Supplier",
-            {
-                disabled: 0
-            },
-            function (value) {
-
-                var el =
-                    statsSection.querySelector(
-                        "[data-buy-suppliers]"
-                    );
-
-                if (el) {
-                    el.textContent =
-                        formatNumber(value);
-                }
-
-            }
-        );
-
-
-        /* =================================================
-           3. QUICK ACTIONS
-        ================================================= */
-
-        quickActions.innerHTML =
-
-            '<h2 class="erp-section-title">' +
-
-                text(
-                    "اختصارات سريعة",
-                    "Quick Actions"
-                ) +
-
-            '</h2>' +
-
-
-            '<div class="erp-quick-grid">' +
-
-                '<button class="erp-quick-btn" data-buy-new-po>' +
-                    '<span class="erp-quick-label">' +
-                        text(
-                            "أمر شراء جديد",
-                            "New Purchase Order"
-                        ) +
-                    '</span>' +
-                '</button>' +
-
-
-                '<button class="erp-quick-btn" data-buy-new-invoice>' +
-                    '<span class="erp-quick-label">' +
-                        text(
-                            "فاتورة مشتريات جديدة",
-                            "New Purchase Invoice"
-                        ) +
-                    '</span>' +
-                '</button>' +
-
-
-                '<button class="erp-quick-btn" data-buy-new-supplier>' +
-                    '<span class="erp-quick-label">' +
-                        text(
-                            "مورد جديد",
-                            "New Supplier"
-                        ) +
-                    '</span>' +
-                '</button>' +
-
-
-                '<button class="erp-quick-btn" data-buy-new-item>' +
-                    '<span class="erp-quick-label">' +
-                        text(
-                            "صنف جديد",
-                            "New Item"
-                        ) +
-                    '</span>' +
-                '</button>' +
-
-            '</div>';
-
-
-        quickActions
-            .querySelector(
-                "[data-buy-new-po]"
-            )
-            .addEventListener(
-                "click",
-                function () {
-                    newDoc(
-                        "Purchase Order"
-                    );
-                }
-            );
-
-
-        quickActions
-            .querySelector(
-                "[data-buy-new-invoice]"
-            )
-            .addEventListener(
-                "click",
-                function () {
-                    newDoc(
-                        "Purchase Invoice"
-                    );
-                }
-            );
-
-
-        quickActions
-            .querySelector(
-                "[data-buy-new-supplier]"
-            )
-            .addEventListener(
-                "click",
-                function () {
-                    newDoc(
-                        "Supplier"
-                    );
-                }
-            );
-
-
-        quickActions
-            .querySelector(
-                "[data-buy-new-item]"
-            )
-            .addEventListener(
-                "click",
-                function () {
-                    newDoc(
-                        "Item"
-                    );
-                }
-            );
-
-
-        /* =================================================
-           4. DESCRIPTIONS
-        ================================================= */
-
-        var descriptions = {
-
-            "Supplier": {
-
-                titleAr:
-                    "المورد",
-
-                titleEn:
-                    "Supplier",
-
-                summaryAr:
-                    "تعريف الموردين وبيانات التواصل والحسابات المرتبطة بهم.",
-
-                summaryEn:
-                    "Manage suppliers, contact information and linked accounting details.",
-
-                stepsAr: [
-                    "إنشاء مورد جديد",
-                    "إدخال اسم المورد",
-                    "تحديد مجموعة المورد",
-                    "إضافة بيانات التواصل",
-                    "إضافة الرقم الضريبي عند الحاجة",
-                    "مراجعة الحسابات الافتراضية",
-                    "حفظ المورد"
-                ],
-
-                stepsEn: [
-                    "Create supplier",
-                    "Enter supplier name",
-                    "Select supplier group",
-                    "Add contact information",
-                    "Add tax information",
-                    "Review default accounts",
-                    "Save"
-                ]
-
-            },
-
-
-            "Material Request": {
-
-                titleAr:
-                    "طلب المواد",
-
-                titleEn:
-                    "Material Request",
-
-                summaryAr:
-                    "تسجيل الاحتياج للأصناف قبل بدء عملية الشراء.",
-
-                summaryEn:
-                    "Record item requirements before starting the purchasing process.",
-
-                stepsAr: [
-                    "إنشاء طلب مواد",
-                    "اختيار نوع الطلب شراء",
-                    "إضافة الأصناف",
-                    "تحديد الكميات",
-                    "تحديد تاريخ الحاجة",
-                    "مراجعة الطلب",
-                    "حفظ واعتماد الطلب"
-                ],
-
-                stepsEn: [
-                    "Create Material Request",
-                    "Select Purchase purpose",
-                    "Add items",
-                    "Enter quantities",
-                    "Set required date",
-                    "Review request",
-                    "Save and submit"
-                ]
-
-            },
-
-
-            "Request for Quotation": {
-
-                titleAr:
-                    "طلب عرض سعر",
-
-                titleEn:
-                    "Request for Quotation",
-
-                summaryAr:
-                    "إرسال طلب أسعار للموردين للأصناف المطلوب شراؤها.",
-
-                summaryEn:
-                    "Request pricing from suppliers for required items.",
-
-                stepsAr: [
-                    "إنشاء طلب عرض سعر",
-                    "إضافة الموردين",
-                    "إضافة الأصناف",
-                    "تحديد الكميات",
-                    "تحديد موعد استلام العرض",
-                    "حفظ الطلب",
-                    "إرساله للموردين"
-                ],
-
-                stepsEn: [
-                    "Create RFQ",
-                    "Add suppliers",
-                    "Add items",
-                    "Enter quantities",
-                    "Set quotation deadline",
-                    "Save",
-                    "Send to suppliers"
-                ]
-
-            },
-
-
-            "Supplier Quotation": {
-
-                titleAr:
-                    "عرض سعر المورد",
-
-                titleEn:
-                    "Supplier Quotation",
-
-                summaryAr:
-                    "تسجيل عرض السعر المستلم من المورد ومقارنته بالعروض الأخرى.",
-
-                summaryEn:
-                    "Record supplier pricing and compare competing quotations.",
-
-                stepsAr: [
-                    "إنشاء عرض سعر مورد",
-                    "اختيار المورد",
-                    "إضافة الأصناف",
-                    "إدخال الأسعار",
-                    "مراجعة الضرائب والخصومات",
-                    "مراجعة شروط التوريد",
-                    "حفظ واعتماد العرض"
-                ],
-
-                stepsEn: [
-                    "Create Supplier Quotation",
-                    "Select supplier",
-                    "Add items",
-                    "Enter rates",
-                    "Review taxes and discounts",
-                    "Review terms",
-                    "Save and submit"
-                ]
-
-            },
-
-
-            "Purchase Order": {
-
-                titleAr:
-                    "أمر الشراء",
-
-                titleEn:
-                    "Purchase Order",
-
-                summaryAr:
-                    "إصدار أمر شراء رسمي للمورد بعد اعتماد الأسعار والكميات.",
-
-                summaryEn:
-                    "Issue a formal purchase order after approving prices and quantities.",
-
-                stepsAr: [
-                    "إنشاء أمر شراء",
-                    "اختيار المورد",
-                    "إضافة الأصناف",
-                    "تحديد الكميات والأسعار",
-                    "تحديد موعد التسليم",
-                    "مراجعة الضرائب",
-                    "حفظ واعتماد الأمر"
-                ],
-
-                stepsEn: [
-                    "Create Purchase Order",
-                    "Select supplier",
-                    "Add items",
-                    "Enter quantities and rates",
-                    "Set delivery date",
-                    "Review taxes",
-                    "Save and submit"
-                ]
-
-            },
-
-
-            "Purchase Receipt": {
-
-                titleAr:
-                    "استلام المشتريات",
-
-                titleEn:
-                    "Purchase Receipt",
-
-                summaryAr:
-                    "تسجيل وصول الأصناف من المورد وإضافتها إلى المخزون.",
-
-                summaryEn:
-                    "Record receipt of purchased items into inventory.",
-
-                stepsAr: [
-                    "إنشاء استلام مشتريات",
-                    "اختيار المورد",
-                    "جلب أمر الشراء",
-                    "مراجعة الأصناف",
-                    "تسجيل الكميات المستلمة",
-                    "تحديد المستودع",
-                    "حفظ واعتماد الاستلام"
-                ],
-
-                stepsEn: [
-                    "Create Purchase Receipt",
-                    "Select supplier",
-                    "Fetch Purchase Order",
-                    "Review items",
-                    "Enter received quantities",
-                    "Select warehouse",
-                    "Save and submit"
-                ]
-
-            },
-
-
-            "Purchase Invoice": {
-
-                titleAr:
-                    "فاتورة المشتريات",
-
-                titleEn:
-                    "Purchase Invoice",
-
-                summaryAr:
-                    "تسجيل فاتورة المورد والمبالغ المستحقة والضرائب.",
-
-                summaryEn:
-                    "Record supplier invoice, outstanding amount and taxes.",
-
-                stepsAr: [
-                    "إنشاء فاتورة مشتريات",
-                    "اختيار المورد",
-                    "جلب أمر الشراء أو الاستلام",
-                    "مراجعة الأصناف والأسعار",
-                    "مراجعة الضرائب",
-                    "تحديد تاريخ الاستحقاق",
-                    "حفظ واعتماد الفاتورة"
-                ],
-
-                stepsEn: [
-                    "Create Purchase Invoice",
-                    "Select supplier",
-                    "Fetch Purchase Order or Receipt",
-                    "Review items and rates",
-                    "Review taxes",
-                    "Set due date",
-                    "Save and submit"
-                ]
-
-            }
-
-        };
-
-
-        /* =================================================
-           DETAILS MODAL
-        ================================================= */
-
-        function showDetails(name) {
-
-            var data =
-                descriptions[name];
-
-
-            if (!data) {
-                return;
-            }
-
-
-            var steps =
-                isArabic
-                    ? data.stepsAr
-                    : data.stepsEn;
-
-
-            var list = "";
-
-
-            for (
-                var i = 0;
-                i < steps.length;
-                i++
-            ) {
-
-                list +=
-
-                    "<li>" +
-                    escapeHtml(
-                        steps[i]
-                    ) +
-                    "</li>";
-
-            }
-
-
-            var overlay =
-                document.createElement(
-                    "div"
-                );
-
-
-            overlay.className =
-                "erp-modal-overlay";
-
-
-            overlay.setAttribute(
-                "dir",
-                isArabic ? "rtl" : "ltr"
-            );
-
-
-            overlay.innerHTML =
-
-                '<div class="erp-modal-box">' +
-
-                    '<button class="erp-modal-close" data-buy-modal-close>✕</button>' +
-
-                    '<div class="erp-modal-header">' +
-
-                        '<span class="erp-modal-icon">📄</span>' +
-
-                        '<h3 class="erp-modal-title">' +
-
-                            escapeHtml(
-                                text(
-                                    data.titleAr,
-                                    data.titleEn
-                                )
-                            ) +
-
-                        '</h3>' +
-
-                    '</div>' +
-
-                    '<p class="erp-modal-summary">' +
-
-                        escapeHtml(
-                            text(
-                                data.summaryAr,
-                                data.summaryEn
-                            )
-                        ) +
-
-                    '</p>' +
-
-                    '<button class="erp-modal-toggle-steps" data-buy-show-steps>' +
-
-                        text(
-                            "📖 عرض الخطوات",
-                            "📖 Show Steps"
-                        ) +
-
-                    '</button>' +
-
-                    '<div class="erp-modal-steps" data-buy-steps>' +
-
-                        '<ol class="erp-modal-steps-list">' +
-                            list +
-                        '</ol>' +
-
-                    '</div>' +
-
-                '</div>';
-
-
-            root.appendChild(
-                overlay
-            );
-
-
-            setTimeout(
-                function () {
-                    overlay.classList.add(
-                        "is-visible"
-                    );
-                },
-                10
-            );
-
-
-            var close =
-                overlay.querySelector(
-                    "[data-buy-modal-close]"
-                );
-
-
-            if (close) {
-
-                close.addEventListener(
-                    "click",
-                    function () {
-                        overlay.remove();
-                    }
-                );
-
-            }
-
-
-            var toggle =
-                overlay.querySelector(
-                    "[data-buy-show-steps]"
-                );
-
-
-            var box =
-                overlay.querySelector(
-                    "[data-buy-steps]"
-                );
-
-
-            if (
-                toggle &&
-                box
-            ) {
-
-                toggle.addEventListener(
-                    "click",
-                    function () {
-
-                        box.classList.toggle(
-                            "is-shown"
-                        );
-
-                    }
-                );
-
-            }
-
-        }
-
-
-        /* =================================================
-           5. LOWER CARDS
-        ================================================= */
-
-        var cards = [
-
-            {
-                titleAr:
-                    "الموردون",
-
-                titleEn:
-                    "Suppliers",
-
-                icon:
-                    "👥",
-
-                links: [
-                    "Supplier",
-                    "Supplier Group"
-                ]
-            },
-
-
-            {
-                titleAr:
-                    "طلبات الشراء",
-
-                titleEn:
-                    "Purchase Requests",
-
-                icon:
-                    "📋",
-
-                links: [
-                    "Material Request",
-                    "Request for Quotation",
-                    "Supplier Quotation"
-                ]
-            },
-
-
-            {
-                titleAr:
-                    "أوامر الشراء",
-
-                titleEn:
-                    "Purchase Orders",
-
-                icon:
-                    "🛒",
-
-                links: [
-                    "Purchase Order"
-                ]
-            },
-
-
-            {
-                titleAr:
-                    "الاستلام",
-
-                titleEn:
-                    "Receiving",
-
-                icon:
-                    "📦",
-
-                links: [
-                    "Purchase Receipt"
-                ]
-            },
-
-
-            {
-                titleAr:
-                    "فواتير المشتريات",
-
-                titleEn:
-                    "Purchase Invoices",
-
-                icon:
-                    "🧾",
-
-                links: [
-                    "Purchase Invoice"
-                ]
-            },
-
-
-            {
-                titleAr:
-                    "الأصناف والأسعار",
-
-                titleEn:
-                    "Items & Pricing",
-
-                icon:
-                    "🏷️",
-
-                links: [
-                    "Item",
-                    "Item Price",
-                    "Price List"
-                ]
-            },
-
-
-            {
-                titleAr:
-                    "الإعدادات",
-
-                titleEn:
-                    "Settings",
-
-                icon:
-                    "⚙",
-
-                links: [
-                    "Buying Settings"
-                ]
-            },
-
-
-            {
-                titleAr:
-                    "التقارير",
-
-                titleEn:
-                    "Reports",
-
-                icon:
-                    "📊",
-
-                links: [
-                    "Purchase Order Analysis",
-                    "Purchase Analytics",
-                    "Purchase Invoice Trends"
-                ]
-            }
-
-        ];
-
-
-        var translations = {
-
-            "Supplier":
-                "المورد",
-
-            "Supplier Group":
-                "مجموعة الموردين",
-
-            "Material Request":
-                "طلب المواد",
-
-            "Request for Quotation":
-                "طلب عرض سعر",
-
-            "Supplier Quotation":
-                "عرض سعر المورد",
-
-            "Purchase Order":
-                "أمر الشراء",
-
-            "Purchase Receipt":
-                "استلام المشتريات",
-
-            "Purchase Invoice":
-                "فاتورة المشتريات",
-
-            "Item":
-                "الصنف",
-
-            "Item Price":
-                "سعر الصنف",
-
-            "Price List":
-                "قائمة الأسعار",
-
-            "Buying Settings":
-                "إعدادات المشتريات",
-
-            "Purchase Order Analysis":
-                "تحليل أوامر الشراء",
-
-            "Purchase Analytics":
-                "تحليلات المشتريات",
-
-            "Purchase Invoice Trends":
-                "اتجاهات فواتير المشتريات"
-
-        };
-
-
-        var reports = {
-
-            "Purchase Order Analysis":
-                true,
-
-            "Purchase Analytics":
-                true,
-
-            "Purchase Invoice Trends":
-                true
-
-        };
-
-
-        var trees = {
-
-            "Supplier Group":
-                true
-
-        };
-
-
-        function translate(name) {
-
-            if (!isArabic) {
-                return name;
-            }
-
-            return (
-                translations[name] ||
-                name
-            );
-
-        }
-
-
-        function navigate(name) {
-
-            if (
-                reports[name]
-            ) {
-
-                openReport(
-                    name
-                );
-
-                return;
-
-            }
-
-
-            if (
-                trees[name]
-            ) {
-
-                openTree(
-                    name
-                );
-
-                return;
-
-            }
-
-
-            openList(
-                name
-            );
-
-        }
-
-
-        var cardsHtml = "";
-
-
-        for (
-            var c = 0;
-            c < cards.length;
-            c++
-        ) {
-
-            var card =
-                cards[c];
-
-
-            var linksHtml = "";
-
-
-            for (
-                var j = 0;
-                j < card.links.length;
-                j++
-            ) {
-
-                var name =
-                    card.links[j];
-
-
-                var details = "";
-
-
-                /*
-                 * بدون شرح للتقارير والإعدادات
-                 */
-
-                if (
-                    !reports[name] &&
-                    name !== "Buying Settings" &&
-                    descriptions[name]
-                ) {
-
-                    details =
-
-                        '<button ' +
-                        'type="button" ' +
-                        'class="erp-info-link" ' +
-                        'data-buy-info="' +
-                        escapeHtml(name) +
-                        '">' +
-
-                            text(
-                                "تفاصيل",
-                                "Details"
-                            ) +
-
-                        '</button>';
-
-                }
-
-
-                linksHtml +=
-
-                    '<div class="erp-link-row">' +
-
-                        '<button ' +
-                        'type="button" ' +
-                        'class="erp-link" ' +
-                        'data-buy-card="' +
-                        c +
-                        '" ' +
-                        'data-buy-link="' +
-                        j +
-                        '">' +
-
-                            '<span class="erp-link-text">' +
-
-                                escapeHtml(
-                                    translate(name)
-                                ) +
-
-                            '</span>' +
-
-                            '<span class="erp-link-arrow">' +
-
-                                (
-                                    isArabic
-                                        ? "←"
-                                        : "→"
-                                ) +
-
-                            '</span>' +
-
-                        '</button>' +
-
-                        details +
-
-                    '</div>';
-
-            }
-
-
-            cardsHtml +=
-
-                '<article class="erp-card tone-' +
-                (c % 5) +
-                '" data-buy-card-container>' +
-
-                    '<button class="erp-card-heading" data-buy-card-toggle>' +
-
-                        '<span class="erp-icon">' +
-                            card.icon +
-                        '</span>' +
-
-                        '<span class="erp-card-title">' +
-
-                            escapeHtml(
-                                text(
-                                    card.titleAr,
-                                    card.titleEn
-                                )
-                            ) +
-
-                        '</span>' +
-
-                        '<span class="erp-card-chevron">⌄</span>' +
-
-                    '</button>' +
-
-                    '<div class="erp-card-links">' +
-                        linksHtml +
-                    '</div>' +
-
-                '</article>';
-
-        }
-
-
-        content.innerHTML =
-
-            '<section class="erp-module-section">' +
-
-                '<h2 class="erp-section-title">' +
-
-                    text(
-                        "البيانات الرئيسية والتقارير",
-                        "Masters & Reports"
-                    ) +
-
-                '</h2>' +
-
-                '<div class="erp-dashboard-grid">' +
-                    cardsHtml +
-                '</div>' +
-
-            '</section>';
-
-
-        content.addEventListener(
-            "click",
-            function (event) {
-
-
-                var info =
-                    event.target.closest(
-                        "[data-buy-info]"
-                    );
-
-
-                if (info) {
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-
-                    showDetails(
-                        info.getAttribute(
-                            "data-buy-info"
-                        )
-                    );
-
-                    return;
-                }
-
-
-                var link =
-                    event.target.closest(
-                        "[data-buy-link]"
-                    );
-
-
-                if (link) {
-
-                    var cardIndex =
-                        parseInt(
-                            link.getAttribute(
-                                "data-buy-card"
-                            ),
-                            10
-                        );
-
-
-                    var linkIndex =
-                        parseInt(
-                            link.getAttribute(
-                                "data-buy-link"
-                            ),
-                            10
-                        );
-
-
-                    var name =
-                        cards[
-                            cardIndex
-                        ].links[
-                            linkIndex
-                        ];
-
-
-                    navigate(
-                        name
-                    );
-
-                    return;
-                }
-
-
-                var toggle =
-                    event.target.closest(
-                        "[data-buy-card-toggle]"
-                    );
-
-
-                if (!toggle) {
-                    return;
-                }
-
-
-                var selected =
-                    toggle.closest(
-                        "[data-buy-card-container]"
-                    );
-
-
-                if (!selected) {
-                    return;
-                }
-
-
-                var shouldOpen =
-                    !selected.classList.contains(
-                        "is-open"
-                    );
-
-
-                var all =
-                    content.querySelectorAll(
-                        "[data-buy-card-container]"
-                    );
-
-
-                for (
-                    var x = 0;
-                    x < all.length;
-                    x++
-                ) {
-
-                    if (
-                        all[x] !== selected
-                    ) {
-
-                        all[x]
-                            .classList
-                            .remove(
-                                "is-open"
-                            );
-
-                    }
-
-                }
-
-
-                selected.classList.toggle(
-                    "is-open",
-                    shouldOpen
-                );
-
-            }
-        );
-
-
-        /* =================================================
-           6. FOOTER
-        ================================================= */
-
-        if (footerEl) {
-
-            footerEl.innerHTML =
-
-                '<div class="erp-footer-inner">' +
-
-                    '<div class="erp-footer-item">' +
-
-                        '<span class="erp-footer-icon">☎</span>' +
-
-                        '<span class="erp-footer-label">' +
-
-                            text(
-                                "الهاتف الموحد:",
-                                "Phone:"
-                            ) +
-
-                        '</span>' +
-
-                        '<a href="tel:0115110455" ' +
-                        'class="erp-footer-link" ' +
-                        'dir="ltr">' +
-
-                            "0115110455" +
-
-                        '</a>' +
-
-                    '</div>' +
-
-
-                    '<span class="erp-footer-sep">|</span>' +
-
-
-                    '<div class="erp-footer-item">' +
-
-                        '<span class="erp-footer-icon">✉</span>' +
-
-                        '<span class="erp-footer-label">' +
-
-                            text(
-                                "البريد الإلكتروني:",
-                                "Email:"
-                            ) +
-
-                        '</span>' +
-
-                        '<a href="mailto:sales@mubtkir.com" ' +
-                        'class="erp-footer-link">' +
-
-                            "sales@mubtkir.com" +
-
-                        '</a>' +
-
-                    '</div>' +
-
-
-                    '<span class="erp-footer-sep">|</span>' +
-
-
-                    '<div class="erp-footer-item">' +
-
-                        '<span class="erp-footer-icon">◎</span>' +
-
-                        '<span class="erp-footer-label">' +
-
-                            text(
-                                "الموقع:",
-                                "Website:"
-                            ) +
-
-                        '</span>' +
-
-                        '<a href="https://www.mubtkir.com" ' +
-                        'class="erp-footer-link" ' +
-                        'target="_blank" ' +
-                        'rel="noopener">' +
-
-                            "www.mubtkir.com" +
-
-                        '</a>' +
-
-                    '</div>' +
-
-                '</div>';
-
-        }
-
-
-        console.log(
-            "Buying Dashboard Loaded Successfully"
-        );
-
-    }
-
-
-    /* =====================================================
-       START
-    ===================================================== */
-
-    setTimeout(
-        startDashboard,
-        100
-    );
-
+(() => {
+  /*
+   * ══════════════════════════════════════════
+   *  لوحة تحكم إدارة المشتريات — ERPNext Buying
+   * ══════════════════════════════════════════
+   */
+
+  const root = root_element.querySelector("[data-erp-dashboard]");
+  const content = root_element.querySelector("[data-dashboard-content]");
+  const statsSection = root_element.querySelector("[data-stats-section]");
+  const quickActions = root_element.querySelector("[data-quick-actions]");
+  const footerEl = root_element.querySelector("[data-dashboard-footer]");
+
+  if (!root || !content) return;
+
+  const langValue =
+    window.frappe?.boot?.lang ||
+    window.frappe?.boot?.user?.language ||
+    document.documentElement.lang || "en";
+
+  const isArabic = String(langValue).toLowerCase().startsWith("ar");
+
+  /* ─────────────────────────────────────────
+     ١. إحصائيات المشتريات
+  ───────────────────────────────────────── */
+
+  const statsCards = [
+    {
+      id: "open-material-requests",
+      short: "MRQ",
+      labelEn: "Open Material Requests",
+      labelAr: "طلبات مواد مفتوحة",
+      fetch: () =>
+        new Promise(resolve => {
+          frappe.call({
+            method: "frappe.client.get_count",
+            args: {
+              doctype: "Material Request",
+              filters: { docstatus: 1, status: ["in", ["Pending", "Partially Ordered"]] }
+            },
+            callback: data => resolve(data?.message || 0),
+            error: () => resolve(0)
+          });
+        })
+    },
+    {
+      id: "pending-purchase-orders",
+      short: "POR",
+      labelEn: "Pending Purchase Orders",
+      labelAr: "أوامر شراء معلقة",
+      fetch: () =>
+        new Promise(resolve => {
+          frappe.call({
+            method: "frappe.client.get_count",
+            args: {
+              doctype: "Purchase Order",
+              filters: {
+                docstatus: 1,
+                status: ["in", ["To Receive and Bill", "To Receive", "To Bill"]]
+              }
+            },
+            callback: data => resolve(data?.message || 0),
+            error: () => resolve(0)
+          });
+        })
+    },
+    {
+      id: "unpaid-invoices",
+      short: "PINV",
+      labelEn: "Unpaid Invoices",
+      labelAr: "فواتير بانتظار السداد",
+      fetch: () =>
+        new Promise(resolve => {
+          frappe.call({
+            method: "frappe.client.get_count",
+            args: {
+              doctype: "Purchase Invoice",
+              filters: { docstatus: 1, outstanding_amount: [">", 0] }
+            },
+            callback: data => resolve(data?.message || 0),
+            error: () => resolve(0)
+          });
+        })
+    },
+    {
+      id: "suppliers",
+      short: "SUP",
+      labelEn: "Total Suppliers",
+      labelAr: "إجمالي الموردين",
+      fetch: () =>
+        new Promise(resolve => {
+          frappe.call({
+            method: "frappe.client.get_count",
+            args: { doctype: "Supplier" },
+            callback: data => resolve(data?.message || 0),
+            error: () => resolve(0)
+          });
+        })
+    }
+  ];
+
+  /* ─────────────────────────────────────────
+     ٢. أزرار الاختصارات السريعة
+  ───────────────────────────────────────── */
+
+  const quickActionButtons = [
+    {
+      doctype: "Purchase Order",
+      labelEn: "New Purchase Order",
+      labelAr: "أمر شراء جديد"
+    },
+    {
+      doctype: "Purchase Invoice",
+      labelEn: "New Purchase Invoice",
+      labelAr: "فاتورة مشتريات جديدة"
+    },
+    {
+      doctype: "Supplier",
+      labelEn: "New Supplier",
+      labelAr: "مورد جديد"
+    },
+    {
+      doctype: "Item",
+      labelEn: "New Item",
+      labelAr: "صنف جديد"
+    }
+  ];
+
+  /* ─────────────────────────────────────────
+     ٣. إعدادات الفوتر
+  ───────────────────────────────────────── */
+
+  const footerInfo = {
+    phone: "0115110455",
+    email: "sales@mubtkir.com",
+    website: "www.mubtkir.com",
+    labels: {
+      phoneEn: "Phone", phoneAr: "الهاتف الموحد",
+      emailEn: "Email", emailAr: "البريد الإلكتروني",
+      websiteEn: "Website", websiteAr: "الموقع"
+    }
+  };
+
+  /* ─────────────────────────────────────────
+     ٤. بطاقات المشتريات — مطابقة للصورة الأصلية
+  ───────────────────────────────────────── */
+
+  const sections = [
+    [
+      "Reports & Masters",
+      [
+        // الصف الأول
+        [
+          "Buying",
+          "🛒",
+          [
+            "Material Request",
+            "Purchase Order",
+            "Purchase Invoice",
+            "Request for Quotation",
+            "Supplier Quotation"
+          ]
+        ],
+        [
+          "Items & Pricing",
+          "🏷️",
+          [
+            "Item",
+            "Item Price",
+            "Price List",
+            "Product Bundle",
+            "Item Group",
+            "Promotional Scheme",
+            "Pricing Rule"
+          ]
+        ],
+        [
+          "Settings",
+          "⚙️",
+          [
+            "Buying Settings",
+            "Purchase Taxes and Charges Template",
+            "Terms and Conditions Template"
+          ]
+        ],
+
+        // الصف الثاني
+        [
+          "Supplier",
+          "🏭",
+          [
+            "Supplier",
+            "Supplier Group",
+            "Contact",
+            "Address"
+          ]
+        ],
+        [
+          "Supplier Scorecard",
+          "🎯",
+          [
+            "Supplier Scorecard",
+            "Supplier Scorecard Variable",
+            "Supplier Scorecard Criteria",
+            "Supplier Scorecard Standing"
+          ]
+        ],
+        [
+          "Key Reports",
+          "📊",
+          [
+            "Purchase Analytics",
+            "Purchase Order Analysis",
+            "Supplier-Wise Sales Analytics",
+            "Items to Order and Receive",
+            "Purchase Order Trends",
+            "Procurement Tracker"
+          ]
+        ],
+
+        // الصف الثالث
+        [
+          "Other Reports",
+          "📑",
+          [
+            "Items To Be Requested",
+            "Item-wise Purchase History",
+            "Purchase Receipt Trends",
+            "Purchase Invoice Trends",
+            "Subcontracted Raw Materials To Be Transferred",
+            "Subcontracted Item To Be Received",
+            "Supplier Quotation Comparison",
+            "Material Requests for which Supplier Quotations are not created",
+            "Supplier Addresses And Contacts"
+          ]
+        ],
+        [
+          "Regional",
+          "🌐",
+          [
+            "Import Supplier Invoice"
+          ]
+        ]
+      ]
+    ]
+  ];
+
+  /* ─────────────────────────────────────────
+     ٥. الترجمات العربية
+  ───────────────────────────────────────── */
+
+  const arabicFallback = {
+    "Reports & Masters": "التقارير والبيانات الرئيسية",
+
+    // المربع ١: المشتريات
+    "Buying": "المشتريات",
+    "Material Request": "طلب مواد",
+    "Purchase Order": "أمر شراء",
+    "Purchase Invoice": "فاتورة مشتريات",
+    "Request for Quotation": "طلب عرض سعر من مورد",
+    "Supplier Quotation": "عرض سعر المورد",
+
+    // المربع ٢: الأصناف والتسعير
+    "Items & Pricing": "الأصناف والتسعير",
+    "Item": "الصنف",
+    "Item Price": "سعر الصنف",
+    "Price List": "قائمة الأسعار",
+    "Product Bundle": "حزمة المنتجات",
+    "Item Group": "مجموعة الأصناف",
+    "Promotional Scheme": "خطة العروض الترويجية",
+    "Pricing Rule": "قاعدة التسعير",
+
+    // المربع ٣: الإعدادات
+    "Settings": "الإعدادات",
+    "Buying Settings": "إعدادات المشتريات",
+    "Purchase Taxes and Charges Template": "قالب ضرائب ورسوم المشتريات",
+    "Terms and Conditions Template": "قالب الشروط والأحكام",
+
+    // المربع ٤: الموردين
+    "Supplier": "المورد",
+    "Supplier Group": "مجموعة الموردين",
+    "Contact": "جهة الاتصال",
+    "Address": "العنوان",
+
+    // المربع ٥: بطاقة تقييم المورد
+    "Supplier Scorecard": "بطاقة تقييم المورد",
+    "Supplier Scorecard Variable": "متغير تقييم المورد",
+    "Supplier Scorecard Criteria": "معايير تقييم المورد",
+    "Supplier Scorecard Standing": "تصنيف وتقييم المورد",
+
+    // المربع ٦: التقارير الرئيسية
+    "Key Reports": "التقارير الرئيسية",
+    "Purchase Analytics": "تحليلات المشتريات",
+    "Purchase Order Analysis": "تحليل أوامر الشراء",
+    "Supplier-Wise Sales Analytics": "تحليلات المبيعات حسب المورد",
+    "Items to Order and Receive": "أصناف للطلب والاستلام",
+    "Purchase Order Trends": "اتجاهات أوامر الشراء",
+    "Procurement Tracker": "متتبع المشتريات والتوريد",
+
+    // المربع ٧: تقارير أخرى
+    "Other Reports": "تقارير أخرى",
+    "Items To Be Requested": "أصناف بانتظار الطلب",
+    "Item-wise Purchase History": "سجل المشتريات حسب الصنف",
+    "Purchase Receipt Trends": "اتجاهات إيصالات الاستلام",
+    "Purchase Invoice Trends": "اتجاهات فواتير المشتريات",
+    "Subcontracted Raw Materials To Be Transferred": "مواد خام التعاقد من الباطن بانتظار النقل",
+    "Subcontracted Item To Be Received": "أصناف التعاقد من الباطن بانتظار الاستلام",
+    "Supplier Quotation Comparison": "مقارنة عروض أسعار الموردين",
+    "Material Requests for which Supplier Quotations are not created": "طلبات مواد بدون عروض أسعار موردين",
+    "Supplier Addresses And Contacts": "عناوين وجهات اتصال الموردين",
+
+    // المربع ٨: إقليمي
+    "Regional": "إقليمي",
+    "Import Supplier Invoice": "استيراد فاتورة المورد"
+  };
+
+  /* ─────────────────────────────────────────
+     ٦. أنواع المسارات
+  ───────────────────────────────────────── */
+
+  const reportNames = new Set([
+    "Purchase Analytics",
+    "Purchase Order Analysis",
+    "Supplier-Wise Sales Analytics",
+    "Items to Order and Receive",
+    "Purchase Order Trends",
+    "Procurement Tracker",
+    "Items To Be Requested",
+    "Item-wise Purchase History",
+    "Purchase Receipt Trends",
+    "Purchase Invoice Trends",
+    "Subcontracted Raw Materials To Be Transferred",
+    "Subcontracted Item To Be Received",
+    "Supplier Quotation Comparison",
+    "Material Requests for which Supplier Quotations are not created",
+    "Supplier Addresses And Contacts"
+  ]);
+
+  const treeDocs = new Set([
+    "Supplier Group",
+    "Item Group"
+  ]);
+
+  const singleDocs = new Set([
+    "Buying Settings",
+    "Import Supplier Invoice"
+  ]);
+
+  /* ─────────────────────────────────────────
+     ٧. تفاصيل الشاشات والإعدادات (ما عدا التقارير)
+  ───────────────────────────────────────── */
+
+  const itemDescriptions = {
+    // ═══ المشتريات ═══
+    "Material Request": {
+      icon: "📋",
+      summaryAr: "إنشاء طلب احتياج مواد داخلي من الأقسام أو المشاريع للشراء أو التحويل أو التصنيع أو الاستهلاك.",
+      summaryEn: "Create internal material requisition from departments or projects for purchase, transfer, or manufacturing.",
+      stepsAr: [
+        "اضغط «طلب مواد جديد»",
+        "حدد غرض الطلب (شراء، تحويل مخزني، تصنيع، استخدام عميل)",
+        "أدخل الأصناف والكميات المطلوبة وتاريخ الاحتياج",
+        "حدد المستودع المستهدف",
+        "اضغط «حفظ» ثم «تسجيل» للاعتماد"
+      ],
+      stepsEn: [
+        "Click «New Material Request»",
+        "Select purpose (Purchase, Transfer, Manufacture, Customer Issue)",
+        "Add required items, quantities, and required by date",
+        "Set target warehouse",
+        "Click «Save» then «Submit»"
+      ]
+    },
+
+    "Purchase Order": {
+      icon: "📦",
+      summaryAr: "إصدار أمر شراء رسمي للمورد بالكميات والأسعار المتفق عليها وتتبع مواعيد التسليم والفواتير.",
+      summaryEn: "Issue official purchase orders to suppliers with agreed quantities, rates, delivery dates, and terms.",
+      stepsAr: [
+        "اضغط «أمر شراء جديد» أو أنشئه من طلب مواد أو عرض سعر مورد",
+        "اختر المورد وتاريخ التسليم المتوقع",
+        "راجع الأصناف والكميات والأسعار ومستودع الاستلام",
+        "تأكد من قالب الضرائب والشروط",
+        "اضغط «حفظ» ثم «تسجيل» لإرساله للمورد"
+      ],
+      stepsEn: [
+        "Click «New Purchase Order» or generate from Material Request / Supplier Quotation",
+        "Select supplier and expected delivery date",
+        "Verify items, quantities, rates, and receiving warehouse",
+        "Ensure tax templates and payment terms are applied",
+        "Click «Save» then «Submit»"
+      ]
+    },
+
+    "Purchase Invoice": {
+      icon: "🧾",
+      summaryAr: "تسجيل فواتير المشتريات الواردة من الموردين وتوليد قيود الذمم الدائنة وضريبة المدخلات ومطابقتها مع الاستلام.",
+      summaryEn: "Record vendor purchase invoices, post accounts payable and input VAT, and match with receipts.",
+      stepsAr: [
+        "اضغط «فاتورة مشتريات جديدة» أو أنشئها من أمر شراء أو سند استلام",
+        "اختر المورد ورقم وتاريخ فاتورة المورد",
+        "راجع الأصناف والكميات والأسعار المفوترة",
+        "تأكد من حساب ضريبة القيمة المضافة 15%",
+        "اضغط «حفظ» ثم «تسجيل» لترحيل الفاتورة في الحسابات"
+      ],
+      stepsEn: [
+        "Click «New Purchase Invoice» or create from Purchase Order / Receipt",
+        "Select supplier, supplier invoice number, and date",
+        "Verify billed items, quantities, and rates",
+        "Ensure 15% input VAT ledger is calculated",
+        "Click «Save» then «Submit» to post to ledgers"
+      ]
+    },
+
+    "Request for Quotation": {
+      icon: "✉️",
+      summaryAr: "إرسال طلبات عروض أسعار لموردين متعددين لمقارنة الأسعار وشروط التوريد لاختيار العرض الأفضل.",
+      summaryEn: "Send requests for quotation to multiple suppliers to compare rates and terms for optimal selection.",
+      stepsAr: [
+        "اضغط «طلب عرض سعر جديد» أو أنشئه من طلب مواد",
+        "أضف قائمة الموردين المراد استدراج عروضهم",
+        "أضف الأصناف والكميات المطلوبة وتاريخ التقديم النهائي",
+        "اضغط «حفظ» ثم «تسجيل» لإرساله عبر البريد الإلكتروني للموردين"
+      ],
+      stepsEn: [
+        "Click «New Request for Quotation» or create from Material Request",
+        "Add candidate suppliers list",
+        "Add requested items, quantities, and submission deadline",
+        "Click «Save» then «Submit» to email suppliers"
+      ]
+    },
+
+    "Supplier Quotation": {
+      icon: "💬",
+      summaryAr: "تسجيل الأسعار والعروض المستلمة من الموردين وتثبيت الشروط وتاريخ صلاحية العرض.",
+      summaryEn: "Record incoming supplier quotation responses, pricing, payment terms, and validity.",
+      stepsAr: [
+        "اضغط «عرض سعر مورد جديد» أو أنشئه من طلب عرض سعر",
+        "اختر المورد وتاريخ صلاحية العرض",
+        "أدخل الأسعار المقدمة والخصومات ومواعيد التسليم",
+        "اضغط «حفظ» ثم «تسجيل» للمقارنة والاعتماد"
+      ],
+      stepsEn: [
+        "Click «New Supplier Quotation» or create from Request for Quotation",
+        "Select supplier and quotation validity period",
+        "Enter quoted rates, discounts, and lead times",
+        "Click «Save» then «Submit»"
+      ]
+    },
+
+    // ═══ الأصناف والتسعير ═══
+    "Item": {
+      icon: "📦",
+      summaryAr: "بطاقة الصنف لتعريف المنتجات والمواد الخام وتحديد وحدات الشراء ومستويات إعادة الطلب ومستودعات التخزين.",
+      summaryEn: "Item master defining raw materials, purchase units of measure, reorder levels, and storage locations.",
+      stepsAr: [
+        "اضغط «صنف جديد»",
+        "أدخل رمز الصنف واسمه ومجموعته",
+        "حدد وحدة قياس الشراء والباركود ومستودع الاستلام الافتراضي",
+        "أدخل سعر الشراء التقديري وقالب الضريبة",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Item»",
+        "Enter item code, name, and group",
+        "Set purchase unit of measure, barcode, and default warehouse",
+        "Set default purchase price and tax template",
+        "Click «Save»"
+      ]
+    },
+
+    "Item Price": {
+      icon: "💲",
+      summaryAr: "تحديد أسعار الشراء للأصناف بحسب قوائم أسعار الموردين والعملات المعتمدة.",
+      summaryEn: "Maintain purchase price lists and vendor rates per item in supported currencies.",
+      stepsAr: [
+        "اضغط «سعر صنف جديد»",
+        "اختر الصنف وقائمة أسعار الشراء",
+        "أدخل السعر وتاريخ الصلاحية",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Item Price»",
+        "Select item and Buying Price List",
+        "Enter rate and effective dates",
+        "Click «Save»"
+      ]
+    },
+
+    "Price List": {
+      icon: "📋",
+      summaryAr: "إنشاء وإدارة قوائم أسعار الشراء للموردين والعملات والبلدان المرتبطة بها.",
+      summaryEn: "Manage buying price lists for supplier procurement and currency mappings.",
+      stepsAr: [
+        "اضغط «قائمة أسعار جديدة»",
+        "حدد نوع القائمة (شراء Buying)",
+        "أدخل اسم القائمة والعملة المعتمدة",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Price List»",
+        "Check Buying option",
+        "Enter price list title and currency",
+        "Click «Save»"
+      ]
+    },
+
+    "Product Bundle": {
+      icon: "🎁",
+      summaryAr: "باقات وتجميعات الأصناف المشتراة كحزمة واحدة ويتم تفكيكها إلى مكونات في المخزن.",
+      summaryEn: "Procurement product bundles bought as a package and unpacked into individual components.",
+      stepsAr: [
+        "اضغط «حزمة منتجات جديدة»",
+        "اختر صنف الحزمة الرئيسي",
+        "أضف الأصناف المكونة والكميات الخاصة بكل مكون",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Product Bundle»",
+        "Select parent bundle item",
+        "Add component items and bundle quantities",
+        "Click «Save»"
+      ]
+    },
+
+    "Item Group": {
+      icon: "🗃️",
+      summaryAr: "شجرة تصنيف مجموعات الأصناف لترتيب المواد الخام ومستلزمات التشغيل ومتابعة مشترياتها.",
+      summaryEn: "Hierarchical item groups for categorizing raw materials and operating supplies.",
+      stepsAr: [
+        "اضغط «مجموعة أصناف جديدة»",
+        "أدخل اسم المجموعة وحدد المجموعة الأب",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Item Group»",
+        "Enter group name and parent group",
+        "Click «Save»"
+      ]
+    },
+
+    "Promotional Scheme": {
+      icon: "🎉",
+      summaryAr: "خطط العروض والخصومات الممنوحة من الموردين بناءً على كميات الشراء الإجمالية.",
+      summaryEn: "Vendor promotional schemes and tiered discount agreements on procurement volume.",
+      stepsAr: [
+        "اضغط «خطة عروض ترويجية جديدة»",
+        "أدخل اسم العرض وتاريخ السريان",
+        "حدد شروط الحصول على الخصم أو الأصناف المجانية",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Promotional Scheme»",
+        "Enter scheme title and validity dates",
+        "Configure qualification thresholds and benefits",
+        "Click «Save»"
+      ]
+    },
+
+    "Pricing Rule": {
+      icon: "⚖️",
+      summaryAr: "قواعد الخصومات وأسعار الشراء التلقائية من الموردين بحسب شرائح الكميات.",
+      summaryEn: "Automated purchasing pricing rules and volume-based discounts from vendors.",
+      stepsAr: [
+        "اضغط «قاعدة تسعير جديدة»",
+        "حدد نوع القاعدة على الشراء (Buying)",
+        "حدد الشروط (الكمية، المورد، الصنف)",
+        "أدخل نسبة الخصم أو السعر التعاقدي",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Pricing Rule»",
+        "Set rule type to Buying",
+        "Configure criteria (quantity, supplier, item)",
+        "Enter discount percentage or special rate",
+        "Click «Save»"
+      ]
+    },
+
+    // ═══ الإعدادات ═══
+    "Buying Settings": {
+      icon: "⚙️",
+      summaryAr: "شاشة الإعدادات العامة للمشتريات لضبط سياسات التوريد، وسقوف الصلاحيات واعتماد أوامر الشراء، وإلزامية إيصالات الاستلام قبل الفوترة، وضبط نسب السماح بتجاوز الكميات والأسعار.",
+      summaryEn: "General procurement configuration to set purchasing policies, authorization thresholds, mandatory receipt before billing, and quantity/price variance allowances.",
+      stepsAr: [
+        "تحديد ما إذا كانت فاتورة الشراء تتطلب أمراً أو إيصال استلام مسبق",
+        "ضبط نسبة السماح بالزيادة في كميات الاستلام أو الفوترة مقارنة بأمر الشراء",
+        "تحديد حسابات المشتريات ومصروفات الشحن الافتراضية",
+        "تفعيل تجميد الأسعار والتحقق من عدم تجاوز أسعار الموردين المعيارية",
+        "ضبط سياسات التنبيه التلقائي للمشتريات المتأخرة عن مواعيد التوريد"
+      ],
+      stepsEn: [
+        "Configure mandatory purchase order / receipt matching before billing",
+        "Set tolerance percentages for over-receipt and over-billing",
+        "Set default purchase, freight, and tax expense accounts",
+        "Enable purchase rate lock and standard vendor price variance checks",
+        "Configure automated alerts for delayed vendor shipments"
+      ]
+    },
+
+    "Purchase Taxes and Charges Template": {
+      icon: "🧾",
+      summaryAr: "قوالب الضرائب والرسوم على المشتريات (ضريبة القيمة المضافة المدخلات 15%) وتحديد حساب الضريبة المستردة.",
+      summaryEn: "Purchase tax templates (15% input VAT) and recoverable tax ledger mappings.",
+      stepsAr: [
+        "اضغط «قالب ضرائب مشتريات جديد»",
+        "أدخل اسم القالب واختر حساب ضريبة المدخلات",
+        "حدد نسبة الضريبة (15%)",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Purchase Taxes and Charges Template»",
+        "Enter template name and select Input VAT ledger",
+        "Set tax percentage (15%)",
+        "Click «Save»"
+      ]
+    },
+
+    "Terms and Conditions Template": {
+      icon: "📜",
+      summaryAr: "قوالب الشروط والأحكام الخاصة بأوامر الشراء (شروط الدفع، سياسات الفحص، وفترات التوريد).",
+      summaryEn: "Standard procurement terms templates covering payment, inspection, and delivery.",
+      stepsAr: [
+        "اضغط «قالب شروط وأحكام جديد»",
+        "أدخل عنوان القالب وبنود التوريد والفحص وشروط الدفع",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Terms and Conditions Template»",
+        "Enter title and terms clauses",
+        "Click «Save»"
+      ]
+    },
+
+    // ═══ الموردين ═══
+    "Supplier": {
+      icon: "🏭",
+      summaryAr: "إنشاء وإدارة بيانات الموردين، الحسابات المالية، أرقام السجلات والضرائب، شروط الدفع، وتقييم الأداء.",
+      summaryEn: "Create and manage supplier profiles, tax details, ledger accounts, payment terms, and ratings.",
+      stepsAr: [
+        "اضغط «مورد جديد»",
+        "أدخل اسم المورد ونوعه (شركة أو فرد)",
+        "اختر مجموعة المورد وأدخل الرقم الضريبي والسجل التجاري",
+        "أضف العنوان وجهات الاتصال",
+        "حدد شروط الدفع والعملة وحساب الذمم الدائنة",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Supplier»",
+        "Enter supplier name and type (Company or Individual)",
+        "Select supplier group, Tax ID, and CR number",
+        "Add address and contact details",
+        "Set payment terms, currency, and payable account",
+        "Click «Save»"
+      ]
+    },
+
+    "Supplier Group": {
+      icon: "🗂️",
+      summaryAr: "تصنيف الموردين إلى فئات (محلي، خارجي، خدمات، مقاولات) لضبط شروط الدفع وإدارة الموردين.",
+      summaryEn: "Categorize suppliers into hierarchical groups (Local, Foreign, Services, Subcontractors).",
+      stepsAr: [
+        "اضغط «مجموعة موردين جديدة»",
+        "أدخل اسم المجموعة وحدد المجموعة الأب",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Supplier Group»",
+        "Enter group name and parent group",
+        "Click «Save»"
+      ]
+    },
+
+    "Contact": {
+      icon: "📞",
+      summaryAr: "دليل مسؤولي المبيعات والمتابعة لدى الموردين وأرقام التواصل المباشرة والبريد الإلكتروني.",
+      summaryEn: "Directory of vendor contact representatives, phone numbers, and emails.",
+      stepsAr: [
+        "اضغط «جهة اتصال جديدة»",
+        "أدخل الاسم والمنصب الوظيفي لدى المورد",
+        "أدخل رقم الجوال والبريد",
+        "اربط جهة الاتصال بالمورد المعني",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Contact»",
+        "Enter person name and title at supplier",
+        "Enter phone and email",
+        "Link contact to supplier",
+        "Click «Save»"
+      ]
+    },
+
+    "Address": {
+      icon: "📍",
+      summaryAr: "عناوين ومستودعات ومواقع الموردين لاستلام البضائع وإدارة الشحن والمراسلات الرسمية.",
+      summaryEn: "Supplier addresses, warehouses, and locations for dispatch and correspondence.",
+      stepsAr: [
+        "اضغط «عنوان جديد»",
+        "أدخل بيانات الشارع والحي والمدينة والرمز البريدي",
+        "اربط العنوان بالمورد المعني",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Address»",
+        "Enter street, city, and postal code details",
+        "Link address to supplier",
+        "Click «Save»"
+      ]
+    },
+
+    // ═══ بطاقة تقييم المورد ═══
+    "Supplier Scorecard": {
+      icon: "🎯",
+      summaryAr: "بطاقة تقييم أداء المورد الدورية من حيث جودة المنتجات، الالتزام بمواعيد التوريد، ومطابقة الأسعار.",
+      summaryEn: "Periodic supplier performance scorecard measuring quality, on-time delivery, and price accuracy.",
+      stepsAr: [
+        "اضغط «بطاقة تقييم مورد جديدة»",
+        "اختر المورد وفترة التقييم (شهرية، ربع سنوية)",
+        "حدد المعايير والمتغيرات المستخدمة في احتساب الدرجة",
+        "اضغط «حفظ» لحساب النتيجة وتحديد تصنيف المورد"
+      ],
+      stepsEn: [
+        "Click «New Supplier Scorecard»",
+        "Select supplier and evaluation period",
+        "Assign scoring criteria and calculation variables",
+        "Click «Save» to compute score and standing"
+      ]
+    },
+
+    "Supplier Scorecard Variable": {
+      icon: "📐",
+      summaryAr: "تعريف المتغيرات والمعادلات الإحصائية المستخدمة في قياس أداء الموردين (مثل نسبة المردودات أو التأخير).",
+      summaryEn: "Define quantitative metrics and formulas for vendor evaluation (rejection rate, delay days).",
+      stepsAr: [
+        "اضغط «متغير تقييم مورد جديد»",
+        "أدخل اسم المتغير والمسار البرمجي أو المعادلة الحسابية",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Supplier Scorecard Variable»",
+        "Enter variable name and measurement formula",
+        "Click «Save»"
+      ]
+    },
+
+    "Supplier Scorecard Criteria": {
+      icon: "⚖️",
+      summaryAr: "تحديد معايير التقييم والأوزان النسبية لكل معيار (الجودة 40%، سرعة التوريد 30%، السعر 30%).",
+      summaryEn: "Define evaluation criteria and weighting percentages (Quality, Delivery, Pricing).",
+      stepsAr: [
+        "اضغط «معيار تقييم مورد جديد»",
+        "أدخل اسم المعيار والوزن النسبي والصيغة الرياضية",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Supplier Scorecard Criteria»",
+        "Enter criteria title, weight, and formula",
+        "Click «Save»"
+      ]
+    },
+
+    "Supplier Scorecard Standing": {
+      icon: "🏆",
+      summaryAr: "تحديد مراتب ومستويات تصنيف الموردين (ممتاز A، جيد B، تحت المراقبة C، محظور D).",
+      summaryEn: "Define supplier classification tiers and status ratings (e.g., Preferred, Approved, Probation).",
+      stepsAr: [
+        "اضغط «تصنيف مورد جديد»",
+        "أدخل اسم التصنيف والحد الأدنى للدرجات المطلوبة",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Supplier Scorecard Standing»",
+        "Enter standing level and minimum qualifying score",
+        "Click «Save»"
+      ]
+    },
+
+    // ═══ إقليمي ═══
+    "Import Supplier Invoice": {
+      icon: "📥",
+      summaryAr: "أداة استيراد فواتير الموردين من ملفات إلكترونية (XML / JSON / Excel) ومطابقتها آلياً مع أوامر الشراء.",
+      summaryEn: "Tool to import vendor e-invoices from XML, JSON, or Excel files and auto-match with Purchase Orders.",
+      stepsAr: [
+        "افتح «استيراد فاتورة المورد»",
+        "ارفع ملف الفاتورة الإلكترونية المستلمة من المورد",
+        "راجع البيانات المستخلصة وتطابق الأصناف والمبالغ",
+        "اضغط «إنشاء فاتورة الشراء» لتسجيلها بالنظام"
+      ],
+      stepsEn: [
+        "Open «Import Supplier Invoice»",
+        "Upload supplier invoice electronic file",
+        "Review parsed fields, items, and tax amounts",
+        "Click «Create Purchase Invoice» to post"
+      ]
+    }
+  };
+
+  /* ─────────────────────────────────────────
+     ٨. دوال مساعدة
+  ───────────────────────────────────────── */
+
+  function translate(name) {
+    if (!isArabic) return name;
+    if (arabicFallback[name]) return arabicFallback[name];
+    if (typeof window.__ === "function") return window.__(name);
+    return name;
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function formatNumber(num) {
+    const n = parseFloat(num) || 0;
+    if (n % 1 !== 0) {
+      return n.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+    return n.toLocaleString("en-US");
+  }
+
+  /* ─────────────────────────────────────────
+     ٩. نافذة التفاصيل المنبثقة
+  ───────────────────────────────────────── */
+
+  function showInfoModal(itemName) {
+    const data = itemDescriptions[itemName];
+    if (!data) return;
+
+    const modalId = "erp-buying-info-modal";
+    let modal = document.getElementById(modalId);
+    if (modal) modal.remove();
+
+    const title = translate(itemName);
+    const summary = isArabic ? data.summaryAr : data.summaryEn;
+    const steps = isArabic ? data.stepsAr : data.stepsEn;
+    const hasSteps = Array.isArray(steps) && steps.length > 0;
+    const stepsTitle = isArabic ? "خطوات العمل والإعداد:" : "Step-by-step Guide:";
+    const closeText = isArabic ? "إغلاق" : "Close";
+
+    modal = document.createElement("div");
+    modal.id = modalId;
+    modal.className = "erp-modal-overlay";
+    modal.setAttribute("dir", isArabic ? "rtl" : "ltr");
+
+    modal.innerHTML = `
+      <div class="erp-modal-dialog" role="dialog" aria-modal="true">
+        <div class="erp-modal-header">
+          <div class="erp-modal-title-wrap">
+            <span class="erp-modal-icon">${data.icon || "📄"}</span>
+            <h3 class="erp-modal-title">${escapeHtml(title)}</h3>
+          </div>
+          <button type="button" class="erp-modal-close" data-modal-close aria-label="${closeText}">×</button>
+        </div>
+        <div class="erp-modal-body">
+          <p class="erp-modal-summary">${escapeHtml(summary)}</p>
+          ${hasSteps ? `
+            <div class="erp-modal-steps-section">
+              <h4 class="erp-modal-steps-heading">${stepsTitle}</h4>
+              <ol class="erp-modal-steps-list">
+                ${steps.map(step => `<li>${escapeHtml(step)}</li>`).join("")}
+              </ol>
+            </div>
+          ` : ""}
+        </div>
+        <div class="erp-modal-footer">
+          <button type="button" class="erp-modal-btn" data-modal-close>${closeText}</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const closeModal = () => modal.remove();
+    modal.querySelectorAll("[data-modal-close]").forEach(el => {
+      el.addEventListener("click", closeModal);
+    });
+    modal.addEventListener("click", e => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     ١٠. إنشاء بطاقات الإحصائيات
+  ───────────────────────────────────────── */
+
+  function renderStats() {
+    if (!statsSection) return;
+
+    statsSection.innerHTML = `
+      <div class="erp-stats-grid">
+        ${statsCards.map(c => `
+          <div class="erp-stat-card" data-stat-id="${escapeHtml(c.id)}">
+            <div class="erp-stat-badge">${escapeHtml(c.short)}</div>
+            <div class="erp-stat-info">
+              <span class="erp-stat-label">${escapeHtml(isArabic ? c.labelAr : c.labelEn)}</span>
+              <span class="erp-stat-value" data-stat-value>—</span>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+
+    statsCards.forEach(c => {
+      c.fetch().then(val => {
+        const el = statsSection.querySelector(`[data-stat-id="${c.id}"] [data-stat-value]`);
+        if (el) {
+          el.textContent = formatNumber(val);
+        }
+      });
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     ١١. إنشاء أزرار الاختصارات السريعة
+  ───────────────────────────────────────── */
+
+  function renderQuickActions() {
+    if (!quickActions) return;
+
+    const title = isArabic ? "اختصارات سريعة" : "Quick Actions";
+
+    quickActions.innerHTML = `
+      <h2 class="erp-section-title">${escapeHtml(title)}</h2>
+      <div class="erp-quick-grid">
+        ${quickActionButtons.map(btn => {
+          const label = isArabic ? btn.labelAr : btn.labelEn;
+          return `
+            <button type="button" class="erp-quick-btn" data-new-doc="${escapeHtml(btn.doctype)}">
+              <span class="erp-quick-icon" aria-hidden="true">+</span>
+              <span class="erp-quick-label">${escapeHtml(label)}</span>
+            </button>`;
+        }).join("")}
+      </div>
+    `;
+
+    quickActions.addEventListener("click", event => {
+      const btn = event.target.closest("[data-new-doc]");
+      if (!btn) return;
+      const doctype = btn.dataset.newDoc;
+      if (window.frappe && typeof frappe.new_doc === "function") {
+        frappe.new_doc(doctype);
+      }
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     ١٢. إنشاء بطاقات الوحدات والمربعات
+  ───────────────────────────────────────── */
+
+  function renderSections() {
+    root.setAttribute("dir", isArabic ? "rtl" : "ltr");
+    root.classList.toggle("erp-dashboard-rtl", isArabic);
+
+    content.innerHTML = sections
+      .map((section, sectionIndex) => {
+        const sectionName = section[0];
+        const sectionCards = section[1];
+
+        const cardsHtml = sectionCards
+          .map((card, cardIndex) => {
+            const cardName = card[0];
+            const icon = card[1];
+            const items = card[2];
+
+            const linksHtml = items.map(itemName => {
+              const desc = itemDescriptions[itemName];
+              const detailsLabel = isArabic ? "تفاصيل" : "Details";
+              const infoBtn = desc
+                ? `<button type="button" class="erp-info-link" data-info-item="${escapeHtml(itemName)}">${detailsLabel}</button>`
+                : "";
+
+              return `
+                <div class="erp-link-row">
+                  <button type="button" class="erp-link" data-route-name="${escapeHtml(itemName)}">
+                    <span class="erp-link-text">${escapeHtml(translate(itemName))}</span>
+                    <span class="erp-link-arrow" aria-hidden="true">${isArabic ? "←" : "→"}</span>
+                  </button>
+                  ${infoBtn}
+                </div>`;
+            }).join("");
+
+            return `
+              <article class="erp-card tone-${(sectionIndex + cardIndex) % 5}" data-erp-card>
+                <button type="button" class="erp-card-heading" data-card-toggle aria-expanded="false">
+                  <span class="erp-icon" aria-hidden="true">${icon}</span>
+                  <span class="erp-card-title">${escapeHtml(translate(cardName))}</span>
+                  <span class="erp-card-chevron" aria-hidden="true">⌄</span>
+                </button>
+                <div class="erp-card-links">${linksHtml}</div>
+              </article>`;
+          }).join("");
+
+        return `
+          <section class="erp-module-section">
+            <h2 class="erp-section-title">${escapeHtml(translate(sectionName))}</h2>
+            <div class="erp-dashboard-grid">${cardsHtml}</div>
+          </section>`;
+      }).join("");
+  }
+
+  /* ─────────────────────────────────────────
+     ١٣. إنشاء الفوتر
+  ───────────────────────────────────────── */
+
+  function renderFooter() {
+    if (!footerEl) return;
+    const labels = footerInfo.labels;
+    const phoneLabel = isArabic ? labels.phoneAr : labels.phoneEn;
+    const emailLabel = isArabic ? labels.emailAr : labels.emailEn;
+    const websiteLabel = isArabic ? labels.websiteAr : labels.websiteEn;
+
+    footerEl.innerHTML = `
+      <div class="erp-footer-inner">
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">📞</span>
+          <span class="erp-footer-label">${escapeHtml(phoneLabel)}:</span>
+          <a href="tel:${footerInfo.phone}" class="erp-footer-link" dir="ltr">${escapeHtml(footerInfo.phone)}</a>
+        </div>
+        <span class="erp-footer-sep">|</span>
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">✉️</span>
+          <span class="erp-footer-label">${escapeHtml(emailLabel)}:</span>
+          <a href="mailto:${footerInfo.email}" class="erp-footer-link">${escapeHtml(footerInfo.email)}</a>
+        </div>
+        <span class="erp-footer-sep">|</span>
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">🌐</span>
+          <span class="erp-footer-label">${escapeHtml(websiteLabel)}:</span>
+          <a href="https://${footerInfo.website}" class="erp-footer-link" target="_blank" rel="noopener">${escapeHtml(footerInfo.website)}</a>
+        </div>
+      </div>`;
+  }
+
+  /* ─────────────────────────────────────────
+     ١٤. التوجيه وفتح الشاشات داخل النظام
+  ───────────────────────────────────────── */
+
+  function openRoute(name) {
+    if (!window.frappe || typeof frappe.set_route !== "function") return;
+    if (reportNames.has(name)) {
+      frappe.set_route("query-report", name);
+      return;
+    }
+    if (singleDocs.has(name)) {
+      frappe.set_route("Form", name);
+      return;
+    }
+    if (treeDocs.has(name)) {
+      frappe.set_route("Tree", name);
+      return;
+    }
+    frappe.set_route("List", name);
+  }
+
+  /* ─────────────────────────────────────────
+     ١٥. معالجة الأحداث والضغط
+  ───────────────────────────────────────── */
+
+  let lastToggleTime = 0;
+
+  content.addEventListener("click", event => {
+    const infoBtn = event.target.closest("[data-info-item]");
+    if (infoBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      showInfoModal(infoBtn.dataset.infoItem);
+      return;
+    }
+
+    const link = event.target.closest("[data-route-name]");
+    if (link) {
+      event.preventDefault();
+      openRoute(link.dataset.routeName);
+      return;
+    }
+
+    const toggle = event.target.closest("[data-card-toggle]");
+    if (toggle) {
+      const now = Date.now();
+      if (now - lastToggleTime < 300) return;
+      lastToggleTime = now;
+
+      const card = toggle.closest("[data-erp-card]");
+      const expanded = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", String(!expanded));
+      if (card) {
+        card.classList.toggle("is-collapsed", expanded);
+      }
+    }
+  });
+
+  /* ─────────────────────────────────────────
+     ١٦. التهيئة الأولية
+  ───────────────────────────────────────── */
+
+  renderStats();
+  renderQuickActions();
+  renderSections();
+  renderFooter();
 })();

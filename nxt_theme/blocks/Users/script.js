@@ -1,2010 +1,731 @@
-(() => {
-
-  /* =========================================================
-     MUBTKIR ERP — USERS WORKSPACE
-     لوحة تحكم المستخدمين والصلاحيات
-  ========================================================= */
-
-  const root = root_element.querySelector("[data-erp-dashboard]");
-  const userFlow = root_element.querySelector("[data-purchase-cycle]");
-  const statsSection = root_element.querySelector("[data-stats-section]");
-  const quickActions = root_element.querySelector("[data-quick-actions]");
-  const content = root_element.querySelector("[data-dashboard-content]");
-  const footerEl = root_element.querySelector("[data-dashboard-footer]");
-
-  if (!root || !content) return;
-
-
-  /* =========================================================
-     1. LANGUAGE
-  ========================================================= */
-
-  const langValue =
-    window.frappe?.boot?.lang ||
-    window.frappe?.boot?.user?.language ||
-    document.documentElement.lang ||
-    "en";
-
-  const isArabic =
-    String(langValue).toLowerCase().startsWith("ar");
-
-  root.setAttribute("dir", isArabic ? "rtl" : "ltr");
-  root.classList.toggle("erp-dashboard-rtl", isArabic);
-
-
-  /* =========================================================
-     2. USER MANAGEMENT FLOW
-     إدارة المستخدمين
-  ========================================================= */
-
-  const userFlowCards = [
-
-    {
-      step: 1,
-
-      action: "new",
-      doctype: "User",
-
-      labelEn: "Create User",
-      labelAr: "إنشاء مستخدم",
-
-      descriptionEn:
-        "Create a new system user and define login information.",
-
-      descriptionAr:
-        "إنشاء مستخدم جديد وتحديد بيانات الدخول."
-    },
-
-
-    {
-      step: 2,
-
-      action: "route",
-      doctype: "Role Profile",
-
-      labelEn: "Assign Roles",
-      labelAr: "تعيين الأدوار",
-
-      descriptionEn:
-        "Create role profiles and assign groups of roles.",
-
-      descriptionAr:
-        "إنشاء ملفات أدوار وتجميع الصلاحيات للمستخدمين."
-    },
-
-
-    {
-      step: 3,
-
-      action: "page",
-      route: "permission-manager",
-
-      labelEn: "Role Permissions",
-      labelAr: "صلاحيات الأدوار",
-
-      descriptionEn:
-        "Control read, write, create, submit and other permissions.",
-
-      descriptionAr:
-        "تحديد صلاحيات القراءة والإنشاء والتعديل والتسجيل وغيرها."
-    },
-
-
-    {
-      step: 4,
-
-      action: "route",
-      doctype: "User Permission",
-
-      labelEn: "User Restrictions",
-      labelAr: "تقييد المستخدم",
-
-      descriptionEn:
-        "Restrict a user to specific companies, branches or records.",
-
-      descriptionAr:
-        "تقييد المستخدم على شركات أو فروع أو بيانات محددة."
-    },
-
-
-    {
-      step: 5,
-
-      action: "route",
-      doctype: "User",
-
-      labelEn: "Enable / Disable",
-      labelAr: "تفعيل / تعطيل",
-
-      descriptionEn:
-        "Manage active and disabled system users.",
-
-      descriptionAr:
-        "إدارة المستخدمين النشطين والمعطلين."
-    }
-
-  ];
-
-
-  /* =========================================================
-     3. OVERVIEW
-  ========================================================= */
-
-  const statsCards = [
-
-    /* إجمالي المستخدمين */
-    {
-      id: "total-users",
-
-      short: "USR",
-
-      labelEn: "Total Users",
-      labelAr: "إجمالي المستخدمين",
-
-      fetch: () =>
-        new Promise(resolve => {
-
-          frappe.call({
-
-            method: "frappe.client.get_count",
-
-            args: {
-
-              doctype: "User",
-
-              filters: {
-                user_type: "System User"
-              }
-
-            },
-
-            callback: data =>
-              resolve(data?.message || 0),
-
-            error: () =>
-              resolve(0)
-
-          });
-
-        })
-    },
-
-
-    /* المستخدمون النشطون */
-    {
-      id: "active-users",
-
-      short: "ACT",
-
-      labelEn: "Active Users",
-      labelAr: "المستخدمون النشطون",
-
-      fetch: () =>
-        new Promise(resolve => {
-
-          frappe.call({
-
-            method: "frappe.client.get_count",
-
-            args: {
-
-              doctype: "User",
-
-              filters: {
-
-                user_type: "System User",
-
-                enabled: 1
-
-              }
-
-            },
-
-            callback: data =>
-              resolve(data?.message || 0),
-
-            error: () =>
-              resolve(0)
-
-          });
-
-        })
-    },
-
-
-    /* المستخدمون المعطلون */
-    {
-      id: "disabled-users",
-
-      short: "OFF",
-
-      labelEn: "Disabled Users",
-      labelAr: "المستخدمون المعطلون",
-
-      fetch: () =>
-        new Promise(resolve => {
-
-          frappe.call({
-
-            method: "frappe.client.get_count",
-
-            args: {
-
-              doctype: "User",
-
-              filters: {
-
-                user_type: "System User",
-
-                enabled: 0
-
-              }
-
-            },
-
-            callback: data =>
-              resolve(data?.message || 0),
-
-            error: () =>
-              resolve(0)
-
-          });
-
-        })
-    },
-
-
-    /* الأدوار */
-    {
-      id: "roles",
-
-      short: "ROL",
-
-      labelEn: "Roles",
-      labelAr: "الأدوار",
-
-      fetch: () =>
-        new Promise(resolve => {
-
-          frappe.call({
-
-            method: "frappe.client.get_count",
-
-            args: {
-              doctype: "Role"
-            },
-
-            callback: data =>
-              resolve(data?.message || 0),
-
-            error: () =>
-              resolve(0)
-
-          });
-
-        })
-    }
-
-  ];
-
-
-  /* =========================================================
-     4. QUICK ACTIONS
-  ========================================================= */
-
-  const quickActionButtons = [
-
-    {
-      action: "new",
-
-      doctype: "User",
-
-      labelEn: "New User",
-      labelAr: "مستخدم جديد"
-    },
-
-
-    {
-      action: "new",
-
-      doctype: "Role",
-
-      labelEn: "New Role",
-      labelAr: "دور جديد"
-    },
-
-
-    {
-      action: "page",
-
-      route: "permission-manager",
-
-      labelEn: "Role Permissions",
-      labelAr: "صلاحيات الأدوار"
-    },
-
-
-    {
-      action: "new",
-
-      doctype: "User Permission",
-
-      labelEn: "User Permission",
-      labelAr: "صلاحية مستخدم"
-    }
-
-  ];
-
-
-  /* =========================================================
-     5. FOOTER
-  ========================================================= */
-
-  const footerInfo = {
-
-    phone: "0115110455",
-
-    email: "sales@mubtkir.com",
-
-    website: "www.mubtkir.com",
-
-    labels: {
-
-      phoneEn: "Phone",
-      phoneAr: "الهاتف الموحد",
-
-      emailEn: "Email",
-      emailAr: "البريد الإلكتروني",
-
-      websiteEn: "Website",
-      websiteAr: "الموقع"
-
-    }
-
-  };
-
-
-  /* =========================================================
-     6. DASHBOARD SECTIONS
-  ========================================================= */
-
-  const sections = [
-
-    [
-      "Reports & Masters",
-
-      [
-
-        /* المستخدمون */
-        [
-          "Users",
-          "👤",
-          [
-            "User"
-          ]
-        ],
-
-
-        /* الأدوار */
-        [
-          "Roles",
-          "🪪",
-          [
-            "Role",
-            "Role Profile"
-          ]
-        ],
-
-
-        /* الصلاحيات */
-        [
-          "Permissions",
-          "🔐",
-          [
-            "Role Permission Manager",
-            "User Permission"
-          ]
-        ],
-
-
-        /* ملفات الوصول */
-        [
-          "Access Profiles",
-          "📂",
-          [
-            "Role Profile",
-            "Module Profile"
-          ]
-        ],
-
-
-        /* إعدادات النظام */
-        [
-          "System Settings",
-          "⚙️",
-          [
-            "System Settings"
-          ]
-        ],
-
-
-        /* المراقبة */
-        [
-          "Activity & Logs",
-          "📋",
-          [
-            "Activity Log",
-            "Error Log"
-          ]
-        ]
-
-      ]
-
-    ]
-
-  ];
-
-
-  /* =========================================================
-     7. ARABIC TRANSLATIONS
-  ========================================================= */
-
-  const arabicFallback = {
-
-    "Reports & Masters":
-      "البيانات الرئيسية والإعدادات",
-
-
-    "Users":
-      "المستخدمون",
-
-    "Roles":
-      "الأدوار",
-
-    "Permissions":
-      "الصلاحيات",
-
-    "Access Profiles":
-      "ملفات الوصول",
-
-    "System Settings":
-      "إعدادات النظام",
-
-    "Activity & Logs":
-      "النشاط والسجلات",
-
-
-    "User":
-      "المستخدم",
-
-    "Role":
-      "الدور",
-
-    "Role Profile":
-      "ملف الأدوار",
-
-    "Role Permission Manager":
-      "إدارة صلاحيات الأدوار",
-
-    "User Permission":
-      "صلاحيات المستخدم",
-
-    "Module Profile":
-      "ملف الوحدات",
-
-    "Activity Log":
-      "سجل النشاط",
-
-    "Error Log":
-      "سجل الأخطاء"
-
-  };
-
-
-  /* =========================================================
-     8. ROUTE TYPES
-  ========================================================= */
-
-  const singleDocs =
-    new Set([
-      "System Settings"
-    ]);
-
-
-  const specialPages = {
-
-    "Role Permission Manager":
-      "permission-manager"
-
-  };
-
-
-  /* =========================================================
-     9. ITEM DESCRIPTIONS
-  ========================================================= */
-
-  const itemDescriptions = {
-
-
-    /* =========================
-       USER
-    ========================= */
-
-    "User": {
-
-      icon: "👤",
-
-      summaryAr:
-        "إنشاء حساب مستخدم وتحديد بيانات الدخول والأدوار وإمكانية الوصول للنظام.",
-
-      summaryEn:
-        "Create a user account and define login details, roles, and system access.",
-
-      stepsAr: [
-
-        "اضغط «مستخدم جديد»",
-
-        "أدخل البريد الإلكتروني للمستخدم",
-
-        "أدخل الاسم الأول والاسم الكامل",
-
-        "فعّل المستخدم",
-
-        "حدد نوع المستخدم «System User»",
-
-        "اختر ملف الأدوار أو أضف الأدوار",
-
-        "حدد اللغة عند الحاجة",
-
-        "اضغط «حفظ»"
-
-      ],
-
-      stepsEn: [
-
-        "Click «New User»",
-
-        "Enter user email",
-
-        "Enter first and full name",
-
-        "Enable the user",
-
-        "Set User Type to System User",
-
-        "Select Role Profile or assign roles",
-
-        "Set language if required",
-
-        "Click «Save»"
-
-      ]
-
-    },
-
-
-    /* =========================
-       ROLE
-    ========================= */
-
-    "Role": {
-
-      icon: "🪪",
-
-      summaryAr:
-        "إنشاء دور وظيفي يتم استخدامه لتحديد صلاحيات المستخدم على المستندات.",
-
-      summaryEn:
-        "Create a role used to control user permissions on documents.",
-
-      stepsAr: [
-
-        "اضغط «دور جديد»",
-
-        "أدخل اسم الدور",
-
-        "حدد إذا كان الدور يسمح بالدخول إلى النظام",
-
-        "اضغط «حفظ»",
-
-        "انتقل إلى إدارة صلاحيات الأدوار",
-
-        "حدد صلاحيات الدور على المستندات"
-
-      ],
-
-      stepsEn: [
-
-        "Click «New Role»",
-
-        "Enter role name",
-
-        "Specify Desk access if applicable",
-
-        "Click «Save»",
-
-        "Open Role Permission Manager",
-
-        "Configure document permissions"
-
-      ]
-
-    },
-
-
-    /* =========================
-       ROLE PROFILE
-    ========================= */
-
-    "Role Profile": {
-
-      icon: "📂",
-
-      summaryAr:
-        "تجميع عدة أدوار داخل ملف واحد لتعيينها للمستخدم بسهولة.",
-
-      summaryEn:
-        "Group multiple roles into one profile for easier assignment to users.",
-
-      stepsAr: [
-
-        "اضغط «ملف أدوار جديد»",
-
-        "أدخل اسم الملف",
-
-        "حدد الأدوار المطلوبة",
-
-        "اضغط «حفظ»",
-
-        "افتح المستخدم",
-
-        "اختر ملف الأدوار"
-
-      ],
-
-      stepsEn: [
-
-        "Click «New Role Profile»",
-
-        "Enter profile name",
-
-        "Select required roles",
-
-        "Click «Save»",
-
-        "Open the User",
-
-        "Assign the Role Profile"
-
-      ]
-
-    },
-
-
-    /* =========================
-       USER PERMISSION
-    ========================= */
-
-    "User Permission": {
-
-      icon: "🔐",
-
-      summaryAr:
-        "تقييد المستخدم بحيث يرى بيانات محددة فقط مثل شركة أو فرع أو عميل أو مستودع معين.",
-
-      summaryEn:
-        "Restrict a user to specific records such as company, branch, customer, or warehouse.",
-
-      stepsAr: [
-
-        "اضغط «صلاحية مستخدم جديدة»",
-
-        "اختر المستخدم",
-
-        "حدد نوع المستند المراد التقييد عليه",
-
-        "حدد القيمة المسموح بها",
-
-        "فعّل تطبيق الصلاحية على المستندات المرتبطة عند الحاجة",
-
-        "اضغط «حفظ»"
-
-      ],
-
-      stepsEn: [
-
-        "Click «New User Permission»",
-
-        "Select user",
-
-        "Select Allow DocType",
-
-        "Select allowed value",
-
-        "Apply to linked documents if required",
-
-        "Click «Save»"
-
-      ]
-
-    },
-
-
-    /* =========================
-       ROLE PERMISSION MANAGER
-    ========================= */
-
-    "Role Permission Manager": {
-
-      icon: "🛡️",
-
-      summaryAr:
-        "تحديد ما يستطيع كل دور القيام به مثل القراءة والإنشاء والتعديل والحذف والتسجيل والإلغاء.",
-
-      summaryEn:
-        "Control what each role can do including read, create, write, delete, submit, and cancel.",
-
-      stepsAr: [
-
-        "افتح «إدارة صلاحيات الأدوار»",
-
-        "اختر نوع المستند",
-
-        "اختر الدور",
-
-        "حدد صلاحيات القراءة والإنشاء والتعديل",
-
-        "حدد التسجيل والإلغاء والتعديل بعد التسجيل عند الحاجة",
-
-        "راجع مستوى الصلاحية",
-
-        "احفظ التغييرات"
-
-      ],
-
-      stepsEn: [
-
-        "Open Role Permission Manager",
-
-        "Select DocType",
-
-        "Select Role",
-
-        "Configure Read, Create and Write",
-
-        "Configure Submit, Cancel and Amend if required",
-
-        "Review Permission Level",
-
-        "Save changes"
-
-      ]
-
-    },
-
-
-    /* =========================
-       MODULE PROFILE
-    ========================= */
-
-    "Module Profile": {
-
-      icon: "🧩",
-
-      summaryAr:
-        "تحديد الوحدات التي يستطيع المستخدم الوصول إليها داخل النظام.",
-
-      summaryEn:
-        "Control which modules are available to a user.",
-
-      stepsAr: [
-
-        "اضغط «ملف وحدات جديد»",
-
-        "أدخل اسم الملف",
-
-        "حدد الوحدات المطلوبة",
-
-        "اضغط «حفظ»",
-
-        "اربط الملف بالمستخدم"
-
-      ],
-
-      stepsEn: [
-
-        "Click «New Module Profile»",
-
-        "Enter profile name",
-
-        "Select required modules",
-
-        "Click «Save»",
-
-        "Assign the profile to a user"
-
-      ]
-
-    },
-
-
-    /* =========================
-       SYSTEM SETTINGS
-    ========================= */
-
-    "System Settings": {
-
-      icon: "⚙️",
-
-      summaryAr:
-        "إعدادات عامة للنظام تشمل اللغة والتاريخ والوقت وبعض خيارات الأمان والصلاحيات.",
-
-      summaryEn:
-        "Configure general system settings including language, date, time, security, and permissions.",
-
-      stepsAr: [
-
-        "افتح «إعدادات النظام»",
-
-        "راجع إعدادات اللغة والتاريخ",
-
-        "راجع إعدادات الجلسات",
-
-        "راجع خيارات الصلاحيات",
-
-        "احفظ التغييرات"
-
-      ],
-
-      stepsEn: [
-
-        "Open System Settings",
-
-        "Review language and date settings",
-
-        "Review session settings",
-
-        "Review permission options",
-
-        "Save changes"
-
-      ]
-
-    }
-
-  };
-
-
-  /* =========================================================
-     10. HELPERS
-  ========================================================= */
-
-  function translate(name) {
-
-    if (!isArabic)
-      return name;
-
-    return (
-      arabicFallback[name] ||
-      (
-        typeof window.__ === "function"
-          ? window.__(name)
-          : name
-      )
-    );
-
-  }
-
-
-  function escapeHtml(value) {
-
-    return String(value ?? "")
-
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-
-  }
-
-
-  function formatNumber(number) {
-
-    return (
-      parseFloat(number) || 0
-    ).toLocaleString("en-US");
-
-  }
-
-
-  /* =========================================================
-     11. INFO MODAL
-  ========================================================= */
-
-  function showInfoModal(data) {
-
-    const title =
-      isArabic
-        ? data.labelAr
-        : data.labelEn;
-
-    const summary =
-      isArabic
-        ? data.summaryAr
-        : data.summaryEn;
-
-    const steps =
-      isArabic
-        ? data.stepsAr
-        : data.stepsEn;
-
-    const hasSteps =
-      Array.isArray(steps) &&
-      steps.length > 0;
-
-    const showText =
-      isArabic
-        ? "📖 عرض الخطوات"
-        : "📖 Show Steps";
-
-    const hideText =
-      isArabic
-        ? "📖 إخفاء الخطوات"
-        : "📖 Hide Steps";
-
-
-    const overlay =
-      document.createElement("div");
-
-    overlay.className =
-      "erp-modal-overlay";
-
-    overlay.setAttribute(
-      "dir",
-      isArabic ? "rtl" : "ltr"
-    );
-
-
-    overlay.innerHTML = `
-
-      <div class="erp-modal-box">
-
-        <button
-          type="button"
-          class="erp-modal-close"
-          data-modal-close
-        >
-          ✕
-        </button>
-
-
-        <div class="erp-modal-header">
-
-          <span class="erp-modal-icon">
-            ${data.icon || "📄"}
-          </span>
-
-          <h3 class="erp-modal-title">
-            ${escapeHtml(title)}
-          </h3>
-
-        </div>
-
-
-        <p class="erp-modal-summary">
-          ${escapeHtml(summary)}
-        </p>
-
-
-        ${
-          hasSteps
-            ? `
-
-              <button
-                type="button"
-                class="erp-modal-toggle-steps"
-                data-toggle-steps
-              >
-                ${showText}
-              </button>
-
-
-              <div
-                class="erp-modal-steps"
-                data-modal-steps
-              >
-
-                <ol class="erp-modal-steps-list">
-
-                  ${steps
-                    .map(
-                      step =>
-                        `<li>${escapeHtml(step)}</li>`
-                    )
-                    .join("")}
-
-                </ol>
-
-              </div>
-
-            `
-            : ""
-        }
-
-      </div>
-
-    `;
-
-
-    root.appendChild(overlay);
-
-
-    requestAnimationFrame(() => {
-
-      overlay.classList.add(
-        "is-visible"
-      );
-
-    });
-
-
-    function closeModal() {
-
-      overlay.remove();
-
-    }
-
-
-    overlay
-      .querySelector("[data-modal-close]")
-      ?.addEventListener(
-        "click",
-        closeModal
-      );
-
-
-    overlay.addEventListener(
-
-      "click",
-
-      event => {
-
-        if (event.target === overlay)
-          closeModal();
-
-      }
-
-    );
-
-
-    const toggleButton =
-      overlay.querySelector(
-        "[data-toggle-steps]"
-      );
-
-    const stepsContainer =
-      overlay.querySelector(
-        "[data-modal-steps]"
-      );
-
-
-    if (
-      toggleButton &&
-      stepsContainer
-    ) {
-
-      toggleButton.addEventListener(
-
-        "click",
-
-        () => {
-
-          stepsContainer
-            .classList
-            .toggle(
-              "is-shown"
-            );
-
-
-          toggleButton.textContent =
-            stepsContainer
-              .classList
-              .contains(
-                "is-shown"
-              )
-              ? hideText
-              : showText;
-
-        }
-
-      );
-
-    }
-
-  }
-
-
-  /* =========================================================
-     12. ROUTING
-  ========================================================= */
-
-  function openRoute(name) {
-
-    if (
-      !window.frappe ||
-      typeof frappe.set_route !== "function"
-    )
-      return;
-
-
-    /* Role Permission Manager */
-
-    if (specialPages[name]) {
-
-      frappe.set_route(
-        specialPages[name]
-      );
-
-      return;
-
-    }
-
-
-    /* Single Doc */
-
-    if (singleDocs.has(name)) {
-
-      frappe.set_route(
-        "Form",
-        name
-      );
-
-      return;
-
-    }
-
-
-    /* Normal List */
-
-    frappe.set_route(
-      "List",
-      name
-    );
-
-  }
-
-
-  /* =========================================================
-     13. RENDER USER FLOW
-  ========================================================= */
-
-  function renderUserFlow() {
-
-    if (!userFlow)
-      return;
-
-
-    const sectionTitle =
-      isArabic
-        ? "إدارة المستخدمين"
-        : "User Management Flow";
-
-
-    userFlow.innerHTML = `
-
-      <section class="erp-cycle-container">
-
-        <h2
-          class="
-            erp-section-title
-            erp-cycle-title
-          "
-        >
-          ${escapeHtml(sectionTitle)}
-        </h2>
-
-
-        <div
-          class="erp-cycle-grid"
-          style="
-            grid-template-columns:
-            repeat(
-              ${userFlowCards.length},
-              minmax(0, 1fr)
-            );
-          "
-        >
-
-          ${userFlowCards
-
-            .map(
-              (card, index) => {
-
-                const title =
-                  isArabic
-                    ? card.labelAr
-                    : card.labelEn;
-
-
-                const description =
-                  isArabic
-                    ? card.descriptionAr
-                    : card.descriptionEn;
-
-
-                const arrow =
-                  index <
-                  userFlowCards.length - 1
-
-                    ? `
-                      <span
-                        class="erp-cycle-arrow"
-                        aria-hidden="true"
-                      >
-                        ${isArabic ? "←" : "→"}
-                      </span>
-                    `
-
-                    : "";
-
-
-                return `
-
-                  <div class="erp-cycle-item">
-
-                    <button
-                      type="button"
-                      class="
-                        erp-cycle-card
-                        cycle-tone-${(index % 4) + 1}
-                      "
-                      data-user-flow-index="${index}"
-                    >
-
-                      <span class="erp-cycle-number">
-                        ${card.step}
-                      </span>
-
-
-                      <span class="erp-cycle-card-title">
-                        ${escapeHtml(title)}
-                      </span>
-
-
-                      <span class="erp-cycle-description">
-                        ${escapeHtml(description)}
-                      </span>
-
-                    </button>
-
-
-                    ${arrow}
-
-                  </div>
-
-                `;
-
-              }
-            )
-
-            .join("")}
-
-        </div>
-
-      </section>
-
-    `;
-
-
-    userFlow.addEventListener(
-
-      "click",
-
-      event => {
-
-        const element =
-          event.target.closest(
-            "[data-user-flow-index]"
-          );
-
-
-        if (!element)
-          return;
-
-
-        const card =
-          userFlowCards[
-            Number(
-              element.dataset.userFlowIndex
-            )
-          ];
-
-
-        if (!card)
-          return;
-
-
-        if (
-          card.action === "new"
-        ) {
-
-          frappe.new_doc(
-            card.doctype
-          );
-
-          return;
-
-        }
-
-
-        if (
-          card.action === "page"
-        ) {
-
-          frappe.set_route(
-            card.route
-          );
-
-          return;
-
-        }
-
-
-        openRoute(
-          card.doctype
-        );
-
-      }
-
-    );
-
-  }
-
-
-  /* =========================================================
-     14. RENDER STATS
-  ========================================================= */
-
-  function renderStats() {
-
-    if (!statsSection)
-      return;
-
-
-    statsSection.innerHTML = `
-
-      <section class="erp-overview-container">
-
-        <h2 class="erp-section-title">
-          ${
-            isArabic
-              ? "نظرة عامة"
-              : "Overview"
-          }
-        </h2>
-
-
-        <div class="erp-stats-grid">
-
-          ${statsCards
-
-            .map(
-              (card, index) => `
-
-                <div
-                  class="
-                    erp-stat-card
-                    overview-tone-${index + 1}
-                  "
-                >
-
-                  <div class="erp-stat-icon">
-                    ${escapeHtml(card.short)}
-                  </div>
-
-
-                  <div class="erp-stat-info">
-
-                    <span
-                      class="erp-stat-value"
-                      data-stat-id="${card.id}"
-                    >
-                      ...
-                    </span>
-
-
-                    <span class="erp-stat-label">
-
-                      ${escapeHtml(
-                        isArabic
-                          ? card.labelAr
-                          : card.labelEn
-                      )}
-
-                    </span>
-
-                  </div>
-
-                </div>
-
-              `
-            )
-
-            .join("")}
-
-        </div>
-
-      </section>
-
-    `;
-
-
-    statsCards.forEach(card => {
-
-      card.fetch().then(value => {
-
-        const element =
-          statsSection.querySelector(
-            `[data-stat-id="${card.id}"]`
-          );
-
-
-        if (element) {
-
-          element.textContent =
-            formatNumber(value);
-
-        }
-
-      });
-
-    });
-
-  }
-
-
-  /* =========================================================
-     15. QUICK ACTIONS
-  ========================================================= */
-
-  function renderQuickActions() {
-
-    if (!quickActions)
-      return;
-
-
-    quickActions.innerHTML = `
-
-      <h2 class="erp-section-title">
-
-        ${
-          isArabic
-            ? "اختصارات سريعة"
-            : "Quick Actions"
-        }
-
-      </h2>
-
-
-      <div class="erp-quick-grid">
-
-        ${quickActionButtons
-
-          .map(
-            (button, index) => `
-
-              <button
-                type="button"
-                class="erp-quick-btn"
-                data-quick-index="${index}"
-              >
-
-                <span class="erp-quick-label">
-
-                  ${escapeHtml(
-                    isArabic
-                      ? button.labelAr
-                      : button.labelEn
-                  )}
-
-                </span>
-
-              </button>
-
-            `
-          )
-
-          .join("")}
-
-      </div>
-
-    `;
-
-
-    quickActions.addEventListener(
-
-      "click",
-
-      event => {
-
-        const element =
-          event.target.closest(
-            "[data-quick-index]"
-          );
-
-
-        if (!element)
-          return;
-
-
-        const button =
-          quickActionButtons[
-            Number(
-              element.dataset.quickIndex
-            )
-          ];
-
-
-        if (!button)
-          return;
-
-
-        if (
-          button.action === "page"
-        ) {
-
-          frappe.set_route(
-            button.route
-          );
-
-          return;
-
-        }
-
-
-        frappe.new_doc(
-          button.doctype
-        );
-
-      }
-
-    );
-
-  }
-
-
-  /* =========================================================
-     16. RENDER SECTIONS
-  ========================================================= */
-
-  function renderSections() {
-
-    content.innerHTML =
-      sections
-
-        .map(
-          (section, sectionIndex) => {
-
-
-            const cards =
-              section[1]
-
-                .map(
-                  (card, cardIndex) => {
-
-
-                    const links =
-                      card[2]
-
-                        .map(
-                          item => {
-
-
-                            const description =
-                              itemDescriptions[item];
-
-
-                            return `
-
-                              <div class="erp-link-row">
-
-                                <button
-                                  type="button"
-                                  class="erp-link"
-                                  data-route-name="${escapeHtml(item)}"
-                                >
-
-                                  <span class="erp-link-text">
-                                    ${escapeHtml(translate(item))}
-                                  </span>
-
-
-                                  <span class="erp-link-arrow">
-                                    ${isArabic ? "←" : "→"}
-                                  </span>
-
-                                </button>
-
-
-                                ${
-                                  description
-                                    ? `
-                                      <button
-                                        type="button"
-                                        class="erp-info-link"
-                                        data-info-item="${escapeHtml(item)}"
-                                      >
-                                        ${
-                                          isArabic
-                                            ? "تفاصيل"
-                                            : "Details"
-                                        }
-                                      </button>
-                                    `
-                                    : ""
-                                }
-
-                              </div>
-
-                            `;
-
-                          }
-                        )
-
-                        .join("");
-
-
-                    return `
-
-                      <article
-                        class="
-                          erp-card
-                          tone-${(sectionIndex + cardIndex) % 5}
-                        "
-                        data-erp-card
-                      >
-
-                        <button
-                          type="button"
-                          class="erp-card-heading"
-                          data-card-toggle
-                          aria-expanded="false"
-                        >
-
-                          <span class="erp-icon">
-                            ${card[1]}
-                          </span>
-
-
-                          <span class="erp-card-title">
-                            ${escapeHtml(translate(card[0]))}
-                          </span>
-
-
-                          <span class="erp-card-chevron">
-                            ⌄
-                          </span>
-
-                        </button>
-
-
-                        <div class="erp-card-links">
-                          ${links}
-                        </div>
-
-                      </article>
-
-                    `;
-
-                  }
-                )
-
-                .join("");
-
-
-            return `
-
-              <section class="erp-module-section">
-
-                <h2 class="erp-section-title">
-                  ${escapeHtml(translate(section[0]))}
-                </h2>
-
-
-                <div class="erp-dashboard-grid">
-                  ${cards}
-                </div>
-
-              </section>
-
-            `;
-
-          }
-        )
-
-        .join("");
-
-  }
-
-
-  /* =========================================================
-     17. FOOTER
-  ========================================================= */
-
-  function renderFooter() {
-
-    if (!footerEl)
-      return;
-
-
-    footerEl.innerHTML = `
-
-      <div class="erp-footer-inner">
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ☎
-          </span>
-
-          <span class="erp-footer-label">
-            ${
-              isArabic
-                ? footerInfo.labels.phoneAr
-                : footerInfo.labels.phoneEn
-            }:
-          </span>
-
-          <a
-            href="tel:${footerInfo.phone}"
-            class="erp-footer-link"
-            dir="ltr"
-          >
-            ${footerInfo.phone}
-          </a>
-
-        </div>
-
-
-        <span class="erp-footer-sep">
-          |
-        </span>
-
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ✉
-          </span>
-
-          <span class="erp-footer-label">
-            ${
-              isArabic
-                ? footerInfo.labels.emailAr
-                : footerInfo.labels.emailEn
-            }:
-          </span>
-
-          <a
-            href="mailto:${footerInfo.email}"
-            class="erp-footer-link"
-          >
-            ${footerInfo.email}
-          </a>
-
-        </div>
-
-
-        <span class="erp-footer-sep">
-          |
-        </span>
-
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ◎
-          </span>
-
-          <span class="erp-footer-label">
-            ${
-              isArabic
-                ? footerInfo.labels.websiteAr
-                : footerInfo.labels.websiteEn
-            }:
-          </span>
-
-          <a
-            href="https://${footerInfo.website}"
-            class="erp-footer-link"
-            target="_blank"
-            rel="noopener"
-          >
-            ${footerInfo.website}
-          </a>
-
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     18. EVENTS
-  ========================================================= */
-
-  let lastToggleTime = 0;
-
-
-  content.addEventListener(
-
-    "click",
-
-    event => {
-
-
-      /* DETAILS */
-
-      const infoButton =
-        event.target.closest(
-          "[data-info-item]"
-        );
-
-
-      if (infoButton) {
-
-        event.preventDefault();
-        event.stopPropagation();
-
-
-        const itemName =
-          infoButton.dataset.infoItem;
-
-
-        const data =
-          itemDescriptions[itemName];
-
-
-        if (data) {
-
-          showInfoModal({
-
-            ...data,
-
-            labelAr:
-              translate(itemName),
-
-            labelEn:
-              itemName
-
-          });
-
-        }
-
-
-        return;
-
-      }
-
-
-      /* ROUTE */
-
-      const routeButton =
-        event.target.closest(
-          "[data-route-name]"
-        );
-
-
-      if (routeButton) {
-
-        event.preventDefault();
-        event.stopPropagation();
-
-
-        openRoute(
-          routeButton.dataset.routeName
-        );
-
-
-        return;
-
-      }
-
-
-      /* CARD TOGGLE */
-
-      const cardButton =
-        event.target.closest(
-          "[data-card-toggle]"
-        );
-
-
-      if (!cardButton)
-        return;
-
-
-      const now =
-        Date.now();
-
-
-      if (
-        now - lastToggleTime <
-        400
-      )
-        return;
-
-
-      lastToggleTime =
-        now;
-
-
-      const selectedCard =
-        cardButton.closest(
-          "[data-erp-card]"
-        );
-
-
-      if (!selectedCard)
-        return;
-
-
-      const shouldOpen =
-        !selectedCard
-          .classList
-          .contains(
-            "is-open"
-          );
-
-
-      content
-        .querySelectorAll(
-          "[data-erp-card]"
-        )
-        .forEach(card => {
-
-          if (
-            card !== selectedCard
-          ) {
-
-            card
-              .classList
-              .remove(
-                "is-open"
-              );
-
-          }
-
-        });
-
-
-      selectedCard
-        .classList
-        .toggle(
-          "is-open",
-          shouldOpen
-        );
-
-    }
-
-  );
-
-
-  /* =========================================================
-     19. INIT
-  ========================================================= */
-
-  renderUserFlow();
-
-  renderStats();
-
-  renderQuickActions();
-
-  renderSections();
-
-  renderFooter();
-
+(() => {
+  /*
+   * ══════════════════════════════════════════
+   *  لوحة تحكم المستخدمين والصلاحيات — ERPNext Users
+   * ══════════════════════════════════════════
+   */
+
+  const root = root_element.querySelector("[data-erp-dashboard]");
+  const content = root_element.querySelector("[data-dashboard-content]");
+  const statsSection = root_element.querySelector("[data-stats-section]");
+  const quickActions = root_element.querySelector("[data-quick-actions]");
+  const footerEl = root_element.querySelector("[data-dashboard-footer]");
+
+  if (!root || !content) return;
+
+  const langValue =
+    window.frappe?.boot?.lang ||
+    window.frappe?.boot?.user?.language ||
+    document.documentElement.lang || "en";
+
+  const isArabic = String(langValue).toLowerCase().startsWith("ar");
+
+  /* ─────────────────────────────────────────
+     ١. إحصائيات المستخدمين
+  ───────────────────────────────────────── */
+
+  const statsCards = [
+    {
+      id: "total-users",
+      short: "USR",
+      labelEn: "Total Users",
+      labelAr: "إجمالي المستخدمين",
+      fetch: () =>
+        new Promise(resolve => {
+          frappe.call({
+            method: "frappe.client.get_count",
+            args: { doctype: "User" },
+            callback: data => resolve(data?.message || 0),
+            error: () => resolve(0)
+          });
+        })
+    },
+    {
+      id: "active-users",
+      short: "ACT",
+      labelEn: "Active Users",
+      labelAr: "المستخدمين النشطين",
+      fetch: () =>
+        new Promise(resolve => {
+          frappe.call({
+            method: "frappe.client.get_count",
+            args: { doctype: "User", filters: { enabled: 1, user_type: "System User" } },
+            callback: data => resolve(data?.message || 0),
+            error: () => resolve(0)
+          });
+        })
+    },
+    {
+      id: "disabled-users",
+      short: "DIS",
+      labelEn: "Disabled Users",
+      labelAr: "مستخدمين معطلين",
+      fetch: () =>
+        new Promise(resolve => {
+          frappe.call({
+            method: "frappe.client.get_count",
+            args: { doctype: "User", filters: { enabled: 0 } },
+            callback: data => resolve(data?.message || 0),
+            error: () => resolve(0)
+          });
+        })
+    },
+    {
+      id: "roles",
+      short: "ROL",
+      labelEn: "System Roles",
+      labelAr: "الأدوار والصلاحيات",
+      fetch: () =>
+        new Promise(resolve => {
+          frappe.call({
+            method: "frappe.client.get_count",
+            args: { doctype: "Role" },
+            callback: data => resolve(data?.message || 0),
+            error: () => resolve(0)
+          });
+        })
+    }
+  ];
+
+  /* ─────────────────────────────────────────
+     ٢. أزرار الاختصارات السريعة (مطابقة للصورة الأصلية)
+  ───────────────────────────────────────── */
+
+  const quickActionButtons = [
+    {
+      doctype: "User",
+      labelEn: "User",
+      labelAr: "مستخدم"
+    },
+    {
+      doctype: "Role",
+      labelEn: "Role",
+      labelAr: "دور"
+    },
+    {
+      doctype: "Role Permissions Manager",
+      isPage: true,
+      route: "permission-manager",
+      labelEn: "Permission Manager",
+      labelAr: "مدير الصلاحيات"
+    },
+    {
+      doctype: "User Profile",
+      isUserProfile: true,
+      labelEn: "User Profile",
+      labelAr: "الملف الشخصي"
+    },
+    {
+      doctype: "User Type",
+      labelEn: "User Type",
+      labelAr: "نوع المستخدم"
+    }
+  ];
+
+  /* ─────────────────────────────────────────
+     ٣. إعدادات الفوتر
+  ───────────────────────────────────────── */
+
+  const footerInfo = {
+    phone: "0115110455",
+    email: "sales@mubtkir.com",
+    website: "www.mubtkir.com",
+    labels: {
+      phoneEn: "Phone", phoneAr: "الهاتف الموحد",
+      emailEn: "Email", emailAr: "البريد الإلكتروني",
+      websiteEn: "Website", websiteAr: "الموقع"
+    }
+  };
+
+  /* ─────────────────────────────────────────
+     ٤. بطاقات المستخدمين — مطابقة للصورة الأصلية
+  ───────────────────────────────────────── */
+
+  const sections = [
+    [
+      "Reports & Masters",
+      [
+        [
+          "Users",
+          "👥",
+          [
+            "User",
+            "Role",
+            "Role Profile",
+            "Module Profile"
+          ]
+        ],
+        [
+          "Logs",
+          "📜",
+          [
+            "Activity Log",
+            "Access Log"
+          ]
+        ],
+        [
+          "Permissions",
+          "🛡️",
+          [
+            "Role Permissions Manager",
+            "User Permissions",
+            "Role Permission for Page and Report",
+            "Permitted Documents For User",
+            "Document Share Report"
+          ]
+        ]
+      ]
+    ]
+  ];
+
+  /* ─────────────────────────────────────────
+     ٥. الترجمات العربية
+  ───────────────────────────────────────── */
+
+  const arabicFallback = {
+    "Reports & Masters": "التقارير والبيانات الرئيسية",
+
+    // المربع ١: المستخدمين
+    "Users": "المستخدمين",
+    "User": "المستخدم",
+    "Role": "الدور",
+    "Role Profile": "ملف تعريف الأدوار",
+    "Module Profile": "ملف تعريف الوحدات",
+
+    // المربع ٢: السجلات
+    "Logs": "السجلات",
+    "Activity Log": "سجل الأنشطة والعمليات",
+    "Access Log": "سجل الدخول والوصول",
+
+    // المربع ٣: الصلاحيات
+    "Permissions": "الصلاحيات والأذونات",
+    "Role Permissions Manager": "مدير صلاحيات الأدوار",
+    "User Permissions": "صلاحيات المستخدم على البيانات",
+    "Role Permission for Page and Report": "صلاحيات الصفحات والتقارير للأدوار",
+    "Permitted Documents For User": "المستندات المصرح بها للمستخدم",
+    "Document Share Report": "تقرير مشاركة المستندات",
+
+    // الاختصارات
+    "Permission Manager": "مدير الصلاحيات",
+    "User Profile": "الملف الشخصي",
+    "User Type": "نوع المستخدم"
+  };
+
+  /* ─────────────────────────────────────────
+     ٦. أنواع المسارات
+  ───────────────────────────────────────── */
+
+  const reportNames = new Set([
+    "Permitted Documents For User",
+    "Document Share Report"
+  ]);
+
+  const treeDocs = new Set([]);
+
+  const singleDocs = new Set([]);
+
+  /* ─────────────────────────────────────────
+     ٧. تفاصيل الشاشات والإعدادات (ما عدا التقارير)
+  ───────────────────────────────────────── */
+
+  const itemDescriptions = {
+    // ═══ المستخدمين ═══
+    "User": {
+      icon: "👤",
+      summaryAr: "إنشاء وإدارة حسابات موظفي ومستخدمي النظام، وتعيين الأدوار والصلاحيات، وتعيين كلمات المرور والمصادقة الثنائية.",
+      summaryEn: "Create and manage system user accounts, assign roles, reset passwords, and configure two-factor authentication.",
+      stepsAr: [
+        "اضغط «مستخدم جديد»",
+        "أدخل البريد الإلكتروني والاسم الأول والأخير",
+        "حدد نوع المستخدم (مستخدم نظام System User أو مستخدم موقع Website User)",
+        "اختر الأدوار والصلاحيات المناسبة في جدول الأدوار",
+        "اضغط «حفظ» لإرسال بريد التفعيل وتعيين كلمة المرور"
+      ],
+      stepsEn: [
+        "Click «New User»",
+        "Enter email address, first name, and last name",
+        "Select User Type (System User or Website User)",
+        "Assign applicable roles in the Roles table",
+        "Click «Save» to trigger welcome invite and password setup"
+      ]
+    },
+
+    "Role": {
+      icon: "🔑",
+      summaryAr: "تعريف المسميات الوظيفية والأدوار الأمنية بالنظام (مثل: مدير مبيعات، محاسب، أمين مستودع) لتجميع الصلاحيات.",
+      summaryEn: "Define security roles and organizational job profiles (e.g. Sales Manager, Accountant, Stock Keeper).",
+      stepsAr: [
+        "اضغط «دور جديد»",
+        "أدخل اسم الدور الوظيفي",
+        "حدد ما إذا كان مخصصاً لمستخدمي المكتب Desk Access",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Role»",
+        "Enter role name",
+        "Check Desk Access if role requires backend UI access",
+        "Click «Save»"
+      ]
+    },
+
+    "Role Profile": {
+      icon: "🗂️",
+      summaryAr: "باقة أدوار وصلاحيات مجمعة لتطبيقها على مستخدمين متعددين بنقرة واحدة لتسهيل إدارة الفرق الكبيرة.",
+      summaryEn: "Bundle multiple roles into reusable role profiles for fast one-click assignment to multiple users.",
+      stepsAr: [
+        "اضغط «ملف تعريف أدوار جديد»",
+        "أدخل اسم الملف (مثل: باقة مسؤولي المشتريات)",
+        "حدد مجموعة الأدوار التابعة لهذا الملف",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Role Profile»",
+        "Enter profile title",
+        "Select included roles checklist",
+        "Click «Save»"
+      ]
+    },
+
+    "Module Profile": {
+      icon: "📦",
+      summaryAr: "تحديد الوحدات والأقسام المسموح للمستخدم برؤيتها في القائمة الجانبية وشريط التنقل وإخفاء البقية.",
+      summaryEn: "Control workspace module visibility on the sidebar and navigation desk per user group.",
+      stepsAr: [
+        "اضغط «ملف تعريف وحدات جديد»",
+        "أدخل اسم الملف وحدد الوحدات المسموح بظهورها فقط",
+        "اربط الملف بحسابات المستخدمين المعنيين",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New Module Profile»",
+        "Enter title and check allowed modules",
+        "Assign profile to target users",
+        "Click «Save»"
+      ]
+    },
+
+    // ═══ السجلات ═══
+    "Activity Log": {
+      icon: "📝",
+      summaryAr: "سجل تدقيق كامل لكافة الأنشطة والعمليات التي تمت بالنظام مع بيان المستخدم ونوع الحركة والتاريخ والوقت.",
+      summaryEn: "Comprehensive system audit log tracking user actions, document updates, timestamp, and IP addresses.",
+      stepsAr: [
+        "افتح «سجل الأنشطة والعمليات»",
+        "استعرض الحركات مصنفة حسب المستخدم أو نوع المستند أو التاريخ",
+        "اضغط على أي عملية لمراجعة التفاصيل والقيم السابقة والجديدة"
+      ],
+      stepsEn: [
+        "Open «Activity Log»",
+        "Filter actions by user, document type, or date range",
+        "Click any log entry to view historical diff and changes"
+      ]
+    },
+
+    "Access Log": {
+      icon: "🚪",
+      summaryAr: "سجل أمني متقدم يوثق عمليات تصدير البيانات وعرض التقارير الحساسة ومحاولات تنزيل الملفات.",
+      summaryEn: "Security access log recording sensitive document exports, report generation, and data views.",
+      stepsAr: [
+        "افتح «سجل الدخول والوصول»",
+        "راجع تفاصيل الوصول للملفات وتصدير البيانات الحساسة",
+        "تأكد من مطابقة صلاحيات التنزيل والتصدير للسياسات الأمنية"
+      ],
+      stepsEn: [
+        "Open «Access Log»",
+        "Audit data exports, downloads, and report views",
+        "Ensure compliance with organizational data security policies"
+      ]
+    },
+
+    // ═══ الصلاحيات ═══
+    "Role Permissions Manager": {
+      icon: "🛡️",
+      summaryAr: "الشاشة المركزية لضبط أذونات القراءة والكتابة والإنشاء والتعديل والإلغاء على مستوى كافة الشاشات والمستندات.",
+      summaryEn: "Central permission matrix configuring Read, Write, Create, Submit, Cancel, and Delete access per DocType and Role.",
+      stepsAr: [
+        "افتح «مدير صلاحيات الأدوار»",
+        "اختر المستند المراد ضبط صلاحياته (مثل: فاتورة مبيعات)",
+        "حدد الدور الوظيفي واستعرض الصلاحيات الممنوحة",
+        "فعل أو عطل أذونات: القراءة، الإنشاء، التعديل، التسجيل، والإلغاء",
+        "اضبط أذونات الحقول السرية عبر مستويات الصلاحية Perm Levels"
+      ],
+      stepsEn: [
+        "Open «Role Permissions Manager»",
+        "Select target DocType and Role",
+        "Toggle permissions: Read, Write, Create, Submit, Cancel, Delete",
+        "Configure row-level or field-level Perm Levels as needed"
+      ]
+    },
+
+    "User Permissions": {
+      icon: "🔒",
+      summaryAr: "تقييد وصول المستخدم إلى سجلات محددة فقط (مثل: فرع معين، شركة محددة، أو عملاء منطقة معينة) دون غيرها.",
+      summaryEn: "Row-level data security restricting a user to specific records (e.g., Company, Branch, or Territory).",
+      stepsAr: [
+        "اضغط «صلاحية مستخدم جديدة»",
+        "اختر المستخدم المراد تقييد صلاحياته",
+        "حدد نوع المستند المسموح به والقيمة المحددة (مثل: الشركة = فرع الرياض)",
+        "حدد ما إذا كان القيد يطبق على كافة الشاشات المرتبطة",
+        "اضغط «حفظ»"
+      ],
+      stepsEn: [
+        "Click «New User Permission»",
+        "Select user to restrict",
+        "Select allow DocType and specific allowed value (e.g. Branch = Riyadh)",
+        "Specify if restriction cascades across linked DocTypes",
+        "Click «Save»"
+      ]
+    },
+
+    "Role Permission for Page and Report": {
+      icon: "📑",
+      summaryAr: "تحديد صلاحيات الوصول والاطلاع على الصفحات والتقارير المخصصة لكل دور وظيفي.",
+      summaryEn: "Manage page and report access permissions assigned to specific security roles.",
+      stepsAr: [
+        "افتح «صلاحيات الصفحات والتقارير للأدوار»",
+        "اختر الدور الوظيفي واستعرض قائمة التقارير والصفحات المسموح بها",
+        "أضف أو احذف الصفحات والتقارير الممنوحة للدور",
+        "اضغط «تحديث الصلاحيات»"
+      ],
+      stepsEn: [
+        "Open «Role Permission for Page and Report»",
+        "Select role to inspect permitted reports and pages",
+        "Add or revoke page and custom report access",
+        "Click «Update Permissions»"
+      ]
+    }
+  };
+
+  /* ─────────────────────────────────────────
+     ٨. دوال مساعدة
+  ───────────────────────────────────────── */
+
+  function translate(name) {
+    if (!isArabic) return name;
+    if (arabicFallback[name]) return arabicFallback[name];
+    if (typeof window.__ === "function") return window.__(name);
+    return name;
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function formatNumber(num) {
+    const n = parseFloat(num) || 0;
+    if (n % 1 !== 0) {
+      return n.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+    return n.toLocaleString("en-US");
+  }
+
+  /* ─────────────────────────────────────────
+     ٩. نافذة التفاصيل المنبثقة
+  ───────────────────────────────────────── */
+
+  function showInfoModal(itemName) {
+    const data = itemDescriptions[itemName];
+    if (!data) return;
+
+    const modalId = "erp-users-info-modal";
+    let modal = document.getElementById(modalId);
+    if (modal) modal.remove();
+
+    const title = translate(itemName);
+    const summary = isArabic ? data.summaryAr : data.summaryEn;
+    const steps = isArabic ? data.stepsAr : data.stepsEn;
+    const hasSteps = Array.isArray(steps) && steps.length > 0;
+    const stepsTitle = isArabic ? "خطوات العمل والإعداد:" : "Step-by-step Guide:";
+    const closeText = isArabic ? "إغلاق" : "Close";
+
+    modal = document.createElement("div");
+    modal.id = modalId;
+    modal.className = "erp-modal-overlay";
+    modal.setAttribute("dir", isArabic ? "rtl" : "ltr");
+
+    modal.innerHTML = `
+      <div class="erp-modal-dialog" role="dialog" aria-modal="true">
+        <div class="erp-modal-header">
+          <div class="erp-modal-title-wrap">
+            <span class="erp-modal-icon">${data.icon || "👤"}</span>
+            <h3 class="erp-modal-title">${escapeHtml(title)}</h3>
+          </div>
+          <button type="button" class="erp-modal-close" data-modal-close aria-label="${closeText}">×</button>
+        </div>
+        <div class="erp-modal-body">
+          <p class="erp-modal-summary">${escapeHtml(summary)}</p>
+          ${hasSteps ? `
+            <div class="erp-modal-steps-section">
+              <h4 class="erp-modal-steps-heading">${stepsTitle}</h4>
+              <ol class="erp-modal-steps-list">
+                ${steps.map(step => `<li>${escapeHtml(step)}</li>`).join("")}
+              </ol>
+            </div>
+          ` : ""}
+        </div>
+        <div class="erp-modal-footer">
+          <button type="button" class="erp-modal-btn" data-modal-close>${closeText}</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const closeModal = () => modal.remove();
+    modal.querySelectorAll("[data-modal-close]").forEach(el => {
+      el.addEventListener("click", closeModal);
+    });
+    modal.addEventListener("click", e => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     ١٠. إنشاء بطاقات الإحصائيات
+  ───────────────────────────────────────── */
+
+  function renderStats() {
+    if (!statsSection) return;
+
+    statsSection.innerHTML = `
+      <div class="erp-stats-grid">
+        ${statsCards.map(c => `
+          <div class="erp-stat-card" data-stat-id="${escapeHtml(c.id)}">
+            <div class="erp-stat-badge">${escapeHtml(c.short)}</div>
+            <div class="erp-stat-info">
+              <span class="erp-stat-label">${escapeHtml(isArabic ? c.labelAr : c.labelEn)}</span>
+              <span class="erp-stat-value" data-stat-value>—</span>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+
+    statsCards.forEach(c => {
+      c.fetch().then(val => {
+        const el = statsSection.querySelector(`[data-stat-id="${c.id}"] [data-stat-value]`);
+        if (el) {
+          el.textContent = formatNumber(val);
+        }
+      });
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     ١١. إنشاء أزرار الاختصارات السريعة
+  ───────────────────────────────────────── */
+
+  function renderQuickActions() {
+    if (!quickActions) return;
+
+    const title = isArabic ? "اختصاراتك" : "Your Shortcuts";
+
+    quickActions.innerHTML = `
+      <h2 class="erp-section-title">${escapeHtml(title)}</h2>
+      <div class="erp-quick-grid">
+        ${quickActionButtons.map(btn => {
+          const label = isArabic ? btn.labelAr : btn.labelEn;
+          return `
+            <button type="button" class="erp-quick-btn" data-shortcut-btn="${escapeHtml(btn.doctype)}" ${btn.isPage ? 'data-is-page="1"' : ""} ${btn.isUserProfile ? 'data-is-profile="1"' : ""}>
+              <span class="erp-quick-icon" aria-hidden="true">+</span>
+              <span class="erp-quick-label">${escapeHtml(label)}</span>
+            </button>`;
+        }).join("")}
+      </div>
+    `;
+
+    quickActions.addEventListener("click", event => {
+      const btn = event.target.closest("[data-shortcut-btn]");
+      if (!btn) return;
+      const doctype = btn.dataset.shortcutBtn;
+
+      if (!window.frappe) return;
+
+      if (btn.dataset.isPage === "1") {
+        frappe.set_route("permission-manager");
+        return;
+      }
+
+      if (btn.dataset.isProfile === "1") {
+        const user = frappe.session?.user || "Administrator";
+        frappe.set_route("Form", "User", user);
+        return;
+      }
+
+      if (typeof frappe.set_route === "function") {
+        frappe.set_route("List", doctype);
+      }
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     ١٢. إنشاء بطاقات الوحدات والمربعات
+  ───────────────────────────────────────── */
+
+  function renderSections() {
+    root.setAttribute("dir", isArabic ? "rtl" : "ltr");
+    root.classList.toggle("erp-dashboard-rtl", isArabic);
+
+    content.innerHTML = sections
+      .map((section, sectionIndex) => {
+        const sectionName = section[0];
+        const sectionCards = section[1];
+
+        const cardsHtml = sectionCards
+          .map((card, cardIndex) => {
+            const cardName = card[0];
+            const icon = card[1];
+            const items = card[2];
+
+            const linksHtml = items.map(itemName => {
+              const desc = itemDescriptions[itemName];
+              const detailsLabel = isArabic ? "تفاصيل" : "Details";
+              const infoBtn = desc
+                ? `<button type="button" class="erp-info-link" data-info-item="${escapeHtml(itemName)}">${detailsLabel}</button>`
+                : "";
+
+              return `
+                <div class="erp-link-row">
+                  <button type="button" class="erp-link" data-route-name="${escapeHtml(itemName)}">
+                    <span class="erp-link-text">${escapeHtml(translate(itemName))}</span>
+                    <span class="erp-link-arrow" aria-hidden="true">${isArabic ? "←" : "→"}</span>
+                  </button>
+                  ${infoBtn}
+                </div>`;
+            }).join("");
+
+            return `
+              <article class="erp-card tone-${(sectionIndex + cardIndex) % 5}" data-erp-card>
+                <button type="button" class="erp-card-heading" data-card-toggle aria-expanded="false">
+                  <span class="erp-icon" aria-hidden="true">${icon}</span>
+                  <span class="erp-card-title">${escapeHtml(translate(cardName))}</span>
+                  <span class="erp-card-chevron" aria-hidden="true">⌄</span>
+                </button>
+                <div class="erp-card-links">${linksHtml}</div>
+              </article>`;
+          }).join("");
+
+        return `
+          <section class="erp-module-section">
+            <h2 class="erp-section-title">${escapeHtml(translate(sectionName))}</h2>
+            <div class="erp-dashboard-grid">${cardsHtml}</div>
+          </section>`;
+      }).join("");
+  }
+
+  /* ─────────────────────────────────────────
+     ١٣. إنشاء الفوتر
+  ───────────────────────────────────────── */
+
+  function renderFooter() {
+    if (!footerEl) return;
+    const labels = footerInfo.labels;
+    const phoneLabel = isArabic ? labels.phoneAr : labels.phoneEn;
+    const emailLabel = isArabic ? labels.emailAr : labels.emailEn;
+    const websiteLabel = isArabic ? labels.websiteAr : labels.websiteEn;
+
+    footerEl.innerHTML = `
+      <div class="erp-footer-inner">
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">📞</span>
+          <span class="erp-footer-label">${escapeHtml(phoneLabel)}:</span>
+          <a href="tel:${footerInfo.phone}" class="erp-footer-link" dir="ltr">${escapeHtml(footerInfo.phone)}</a>
+        </div>
+        <span class="erp-footer-sep">|</span>
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">✉️</span>
+          <span class="erp-footer-label">${escapeHtml(emailLabel)}:</span>
+          <a href="mailto:${footerInfo.email}" class="erp-footer-link">${escapeHtml(footerInfo.email)}</a>
+        </div>
+        <span class="erp-footer-sep">|</span>
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">🌐</span>
+          <span class="erp-footer-label">${escapeHtml(websiteLabel)}:</span>
+          <a href="https://${footerInfo.website}" class="erp-footer-link" target="_blank" rel="noopener">${escapeHtml(footerInfo.website)}</a>
+        </div>
+      </div>`;
+  }
+
+  /* ─────────────────────────────────────────
+     ١٤. التوجيه وفتح الشاشات داخل النظام
+  ───────────────────────────────────────── */
+
+  function openRoute(name) {
+    if (!window.frappe || typeof frappe.set_route !== "function") return;
+    if (reportNames.has(name)) {
+      frappe.set_route("query-report", name);
+      return;
+    }
+    if (name === "Role Permissions Manager") {
+      frappe.set_route("permission-manager");
+      return;
+    }
+    if (name === "Role Permission for Page and Report") {
+      frappe.set_route("role-permission-for-page-and-report");
+      return;
+    }
+    if (singleDocs.has(name)) {
+      frappe.set_route("Form", name);
+      return;
+    }
+    if (treeDocs.has(name)) {
+      frappe.set_route("Tree", name);
+      return;
+    }
+    frappe.set_route("List", name);
+  }
+
+  /* ─────────────────────────────────────────
+     ١٥. معالجة الأحداث والضغط
+  ───────────────────────────────────────── */
+
+  let lastToggleTime = 0;
+
+  content.addEventListener("click", event => {
+    const infoBtn = event.target.closest("[data-info-item]");
+    if (infoBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      showInfoModal(infoBtn.dataset.infoItem);
+      return;
+    }
+
+    const link = event.target.closest("[data-route-name]");
+    if (link) {
+      event.preventDefault();
+      openRoute(link.dataset.routeName);
+      return;
+    }
+
+    const toggle = event.target.closest("[data-card-toggle]");
+    if (toggle) {
+      const now = Date.now();
+      if (now - lastToggleTime < 300) return;
+      lastToggleTime = now;
+
+      const card = toggle.closest("[data-erp-card]");
+      const expanded = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", String(!expanded));
+      if (card) {
+        card.classList.toggle("is-collapsed", expanded);
+      }
+    }
+  });
+
+  /* ─────────────────────────────────────────
+     ١٦. التهيئة الأولية
+  ───────────────────────────────────────── */
+
+  renderStats();
+  renderQuickActions();
+  renderSections();
+  renderFooter();
 })();
