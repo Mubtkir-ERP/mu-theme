@@ -275,8 +275,9 @@
       background:
         var(--brand-primary) !important;
       color: #ffffff !important;
-      font-variant-numeric: lining-nums tabular-nums !important;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+      font-size: 11px;
+      font-weight: 700;
+      direction: ltr;
     }
 
     .hm-sh-count.zero {
@@ -1575,11 +1576,14 @@
 
   const footerInfo = {
 
-    phone: (window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.phone) || "0115110455",
+    phone:
+      "0115110455",
 
-    email: (window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.email) || "sales@mubtkir.com",
+    email:
+      "sales@mubtkir.com",
 
-    website: (window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.website) || "www.mubtkir.com"
+    website:
+      "www.mubtkir.com"
 
   };
 

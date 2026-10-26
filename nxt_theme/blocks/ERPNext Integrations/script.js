@@ -62,9 +62,9 @@
   ───────────────────────────────────────── */
 
   const footerInfo = {
-    phone: (window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.phone) || "0115110455",
-    email: (window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.email) || "sales@mubtkir.com",
-    website: (window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.website) || "www.mubtkir.com",
+    phone: "0115110455",
+    email: "sales@mubtkir.com",
+    website: "www.mubtkir.com",
     labels: {
       phoneEn: "Phone",
       phoneAr: "الهاتف الموحد",
@@ -347,56 +347,52 @@
      توضيح فقط بدون خطوات.
   ───────────────────────────────────────── */
 
-  
-  /* =========================================================
-     DETAILS BUTTON HELPER
-  ========================================================= */
-  function hasDetailsButton(cardTitle, itemName) {
-    if (typeof reportNames !== "undefined" && reportNames && reportNames.has(itemName)) return false;
-    if (typeof singleDocs !== "undefined" && singleDocs && singleDocs.has(itemName)) return false;
-    if (/report|تقارير|تقرير|analytics/i.test(cardTitle) || /report|تقرير/i.test(itemName)) return false;
-    if (/setting|config|إعداد|اعداد|تكوين|تهيئة|setup/i.test(cardTitle) || /setting|إعداد|اعداد|تهيئة/i.test(itemName)) return false;
-    return true;
-  }
-
-
   function showInfoModal(data) {
-    const title =
-      isArabic
-        ? (data.labelAr || translate(data.labelEn || data.name || "") || data.labelEn || data.name || "")
-        : (data.labelEn || data.name || data.labelAr || "");
+    const title = isArabic
+      ? data.labelAr
+      : data.labelEn;
 
-    const summary =
-      isArabic
-        ? (data.summaryAr || ("إدارة ومتابعة " + title + " وتنفيذ العمليات المرتبطة بها في النظام."))
-        : (data.summaryEn || ("Manage and track " + title + " and perform related operations."));
+    const summary = isArabic
+      ? data.summaryAr
+      : data.summaryEn;
 
-    const rawSteps =
-      isArabic
-        ? data.stepsAr
-        : data.stepsEn;
+    const steps = isArabic
+      ? data.stepsAr
+      : data.stepsEn;
 
-    const steps = (Array.isArray(rawSteps) && rawSteps.length > 0)
-      ? rawSteps
-      : (
-        isArabic
-          ? [
-              "فتح شاشة " + title,
-              "إدخال وتعبئة البيانات الأساسية المطلوبة",
-              "مراجعة وتدقيق الحقول والتحقق من صحتها",
-              "حفظ السجل واعتماد المستند"
-            ]
-          : [
-              "Open " + (data.labelEn || title),
-              "Fill in the required information and fields",
-              "Review and verify mandatory values",
-              "Save and submit the record"
-            ]
-      );
+    const hasSteps =
+      Array.isArray(steps) && steps.length > 0;
+
+    const showStepsText = isArabic
+      ? "📖 عرض الخطوات"
+      : "📖 Show Steps";
+
+    const hideStepsText = isArabic
+      ? "📖 إخفاء الخطوات"
+      : "📖 Hide Steps";
+
+    let stepsHtml = "";
+    if (hasSteps) {
+      stepsHtml = `
+        <div class="erp-modal-steps" data-modal-steps>
+          <ol class="erp-modal-steps-list">
+            ${steps
+              .map(
+                (step) =>
+                  `<li>${escapeHtml(step)}</li>`
+              )
+              .join("")}
+          </ol>
+        </div>
+      `;
+    }
 
     const overlay = document.createElement("div");
     overlay.className = "erp-modal-overlay";
-    overlay.setAttribute("dir", isArabic ? "rtl" : "ltr");
+    overlay.setAttribute(
+      "dir",
+      isArabic ? "rtl" : "ltr"
+    );
 
     overlay.innerHTML = `
       <div class="erp-modal-box">
@@ -404,14 +400,11 @@
           type="button"
           class="erp-modal-close"
           data-modal-close
-        >
-          ✕
-        </button>
+          aria-label="Close"
+        >✕</button>
 
         <div class="erp-modal-header">
-          <span class="erp-modal-icon">
-            ${data.icon || "📄"}
-          </span>
+          <span class="erp-modal-icon">${data.icon}</span>
           <h3 class="erp-modal-title">
             ${escapeHtml(title)}
           </h3>
@@ -421,22 +414,17 @@
           ${escapeHtml(summary)}
         </p>
 
-        <div class="erp-modal-steps is-shown" data-modal-steps>
-          <ol class="erp-modal-steps-list">
-            ${steps.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
-          </ol>
-        </div>
+        ${
+          hasSteps
+            ? `<button
+                type="button"
+                class="erp-modal-toggle-steps"
+                data-toggle-steps
+              >${showStepsText}</button>`
+            : ""
+        }
 
-        <div style="margin-top: 18px;">
-          <button
-            type="button"
-            class="erp-quick-btn"
-            data-modal-launch
-            style="width: 100%; min-height: 42px;"
-          >
-            <span class="erp-quick-label">${isArabic ? "فتح الشاشة" : "Open Screen"}</span>
-          </button>
-        </div>
+        ${stepsHtml}
       </div>
     `;
 
@@ -453,24 +441,34 @@
         () => overlay.remove(),
         { once: true }
       );
-      setTimeout(() => overlay.remove(), 250);
     }
 
     overlay
       .querySelector("[data-modal-close]")
-      ?.addEventListener("click", closeModal);
+      .addEventListener("click", closeModal);
 
-    overlay.addEventListener("click", event => {
-      if (event.target === overlay) {
-        closeModal();
-      }
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeModal();
     });
 
-    const launchBtn = overlay.querySelector("[data-modal-launch]");
-    if (launchBtn) {
-      launchBtn.addEventListener("click", () => {
-        closeModal();
-        openRoute(data.name || data.labelEn || data.doctype || title);
+    const toggleBtn = overlay.querySelector(
+      "[data-toggle-steps]"
+    );
+    const stepsContainer = overlay.querySelector(
+      "[data-modal-steps]"
+    );
+
+    if (toggleBtn && stepsContainer) {
+      toggleBtn.addEventListener("click", () => {
+        const isShowing =
+          stepsContainer.classList.contains("is-shown");
+        if (isShowing) {
+          stepsContainer.classList.remove("is-shown");
+          toggleBtn.textContent = showStepsText;
+        } else {
+          stepsContainer.classList.add("is-shown");
+          toggleBtn.textContent = hideStepsText;
+        }
       });
     }
   }
@@ -504,13 +502,15 @@
 
             const linksHtml = items
               .map((itemName) => {
-                const showDetails = hasDetailsButton(card[0] || (typeof cardTitle !== "undefined" ? cardTitle : ""), itemName);
+                const desc =
+                  itemDescriptions[itemName];
 
                 const detailsLabel = isArabic
                   ? "تفاصيل"
                   : "Details";
 
-                const infoBtn = showDetails ? `<button
+                const infoBtn = desc
+                  ? `<button
                       type="button"
                       class="erp-info-link"
                       data-info-item="${escapeHtml(itemName)}"
@@ -540,14 +540,14 @@
 
             return `
               <article
-                class="erp-card is-open tone-${(sectionIndex + cardIndex) % 5}"
+                class="erp-card tone-${(sectionIndex + cardIndex) % 5}"
                 data-erp-card
               >
                 <button
                   type="button"
                   class="erp-card-heading"
                   data-card-toggle
-                  aria-expanded="true"
+                  aria-expanded="false"
                 >
                   <span class="erp-icon" aria-hidden="true">
                     ${icon}
@@ -675,33 +675,27 @@
 
   content.addEventListener("click", (event) => {
     /* ① الضغط على زر "تفاصيل" */
-    const infoBtn =
-        event.target.closest("[data-info-item]");
-
-      if (infoBtn) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const itemName =
-          infoBtn.dataset.infoItem;
-
-        const data =
-          itemDescriptions[itemName] || {};
-
+    const infoBtn = event.target.closest(
+      "[data-info-item]"
+    );
+    if (infoBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      const itemName = infoBtn.dataset.infoItem;
+      const desc = itemDescriptions[itemName];
+      if (desc) {
         showInfoModal({
-          ...data,
-          name: itemName,
-          icon: data.icon || "📄",
-          labelAr: translate(itemName) || itemName,
+          icon: desc.icon || "📄",
+          labelAr: translate(itemName),
           labelEn: itemName,
-          summaryAr: data.summaryAr,
-          summaryEn: data.summaryEn,
-          stepsAr: data.stepsAr,
-          stepsEn: data.stepsEn
+          summaryAr: desc.summaryAr,
+          summaryEn: desc.summaryEn,
+          stepsAr: desc.stepsAr,
+          stepsEn: desc.stepsEn
         });
-
-        return;
       }
+      return;
+    }
 
     /* ② الضغط على رابط خيار */
     const routeButton = event.target.closest(
@@ -729,19 +723,31 @@
     );
     if (!selectedCard) return;
 
-      const isOpen =
-        selectedCard.classList.contains("is-open");
+    const shouldOpen =
+      !selectedCard.classList.contains("is-open");
 
-      if (isOpen) {
-        selectedCard.classList.remove("is-open");
-        selectedCard.classList.add("is-collapsed");
-        cardButton.setAttribute("aria-expanded", "false");
-      } else {
-        selectedCard.classList.add("is-open");
-        selectedCard.classList.remove("is-collapsed");
-        cardButton.setAttribute("aria-expanded", "true");
-      }
-    });
+    content
+      .querySelectorAll("[data-erp-card]")
+      .forEach((card) => {
+        if (card !== selectedCard) {
+          card.classList.remove("is-open");
+          card
+            .querySelector("[data-card-toggle]")
+            ?.setAttribute("aria-expanded", "false");
+        }
+      });
+
+    if (shouldOpen) {
+      selectedCard.classList.add("is-open");
+      cardButton.setAttribute("aria-expanded", "true");
+    } else {
+      selectedCard.classList.remove("is-open");
+      cardButton.setAttribute(
+        "aria-expanded",
+        "false"
+      );
+    }
+  });
 
 
   /* ─────────────────────────────────────────

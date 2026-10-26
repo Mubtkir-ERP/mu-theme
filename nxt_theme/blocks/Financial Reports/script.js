@@ -127,9 +127,9 @@
   ───────────────────────────────────────── */
 
   const footerInfo = {
-    phone: (window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.phone) || "0115110455",
-    email: (window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.email) || "sales@mubtkir.com",
-    website: (window.frappe && frappe.boot && frappe.boot.theme_settings && frappe.boot.theme_settings.website) || "www.mubtkir.com",
+    phone: "0115110455",
+    email: "sales@mubtkir.com",
+    website: "www.mubtkir.com",
     labels: {
       phoneEn: "Phone", phoneAr: "الهاتف الموحد",
       emailEn: "Email", emailAr: "البريد الإلكتروني",
@@ -340,8 +340,8 @@
             }).join("");
 
             return `
-              <article class="erp-card is-open tone-${(sectionIndex + cardIndex) % 5}" data-erp-card>
-                <button type="button" class="erp-card-heading" data-card-toggle aria-expanded="true">
+              <article class="erp-card tone-${(sectionIndex + cardIndex) % 5}" data-erp-card>
+                <button type="button" class="erp-card-heading" data-card-toggle aria-expanded="false">
                   <span class="erp-icon" aria-hidden="true">${icon}</span>
                   <span class="erp-card-title">${escapeHtml(translate(cardName))}</span>
                   <span class="erp-card-chevron" aria-hidden="true">⌄</span>
@@ -430,19 +430,23 @@
     const selectedCard = cardButton.closest("[data-erp-card]");
     if (!selectedCard) return;
 
-      const isOpen =
-        selectedCard.classList.contains("is-open");
+    const shouldOpen = !selectedCard.classList.contains("is-open");
 
-      if (isOpen) {
-        selectedCard.classList.remove("is-open");
-        selectedCard.classList.add("is-collapsed");
-        cardButton.setAttribute("aria-expanded", "false");
-      } else {
-        selectedCard.classList.add("is-open");
-        selectedCard.classList.remove("is-collapsed");
-        cardButton.setAttribute("aria-expanded", "true");
+    content.querySelectorAll("[data-erp-card]").forEach((card) => {
+      if (card !== selectedCard) {
+        card.classList.remove("is-open");
+        card.querySelector("[data-card-toggle]")?.setAttribute("aria-expanded", "false");
       }
     });
+
+    if (shouldOpen) {
+      selectedCard.classList.add("is-open");
+      cardButton.setAttribute("aria-expanded", "true");
+    } else {
+      selectedCard.classList.remove("is-open");
+      cardButton.setAttribute("aria-expanded", "false");
+    }
+  });
 
 
   /* ─────────────────────────────────────────
