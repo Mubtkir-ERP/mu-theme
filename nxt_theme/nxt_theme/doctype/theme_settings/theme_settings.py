@@ -156,6 +156,8 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			candidates.extend(["Bank Reconciliation", "Bank-Reconciliation", "Bank reconciliation", "مطابقة البنك"])
 		elif block_name == "Gas Operations":
 			candidates.extend(["Gas Operations", "Gas-Operations", "Gas operations", "إدارة عمليات الغاز", "عمليات الغاز"])
+		elif block_name == "Container Rental System":
+			candidates.extend(["Container Rental System", "container_rental_system", "Container Rental", "نظام تأجير الحاويات", "تأجير الحاويات"])
 
 		ws_name = None
 		for c in candidates:
