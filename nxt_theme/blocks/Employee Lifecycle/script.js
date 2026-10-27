@@ -1,1623 +1,567 @@
-(() => {
-
-  /* =========================================================
-     MUBTKIR ERP — EMPLOYEE LIFECYCLE WORKSPACE
-     لوحة تحكم دورة حياة الموظف
-  ========================================================= */
-
-  const root =
-    root_element.querySelector("[data-erp-dashboard]");
-
-  const cycleSection =
-    root_element.querySelector("[data-purchase-cycle]");
-
-  const statsSection =
-    root_element.querySelector("[data-stats-section]");
-
-  const quickActions =
-    root_element.querySelector("[data-quick-actions]");
-
-  const content =
-    root_element.querySelector("[data-dashboard-content]");
-
-  const footerEl =
-    root_element.querySelector("[data-dashboard-footer]");
-
-  if (!root) return;
-
-
-  /* =========================================================
-     1. LANGUAGE
-  ========================================================= */
-
-  const langValue =
-    window.frappe?.boot?.lang ||
-    document.documentElement.lang ||
-    "en";
-
-  const isArabic =
-    String(langValue)
-      .toLowerCase()
-      .startsWith("ar");
-
-  root.setAttribute(
-    "dir",
-    isArabic ? "rtl" : "ltr"
-  );
-
-
-  /* =========================================================
-     2. HELPERS
-  ========================================================= */
-
-  function escapeHtml(value) {
-
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-
-  function formatNumber(value) {
-
-    return (
-      parseFloat(value) || 0
-    ).toLocaleString("en-US");
-  }
-
-
-  function safeCount(
-    doctype,
-    filters = {}
-  ) {
-
-    return new Promise(resolve => {
-
-      try {
-
-        frappe.call({
-
-          method:
-            "frappe.client.get_count",
-
-          args: {
-            doctype,
-            filters
-          },
-
-          callback: r => {
-
-            resolve(
-              r?.message || 0
-            );
-
-          },
-
-          error: () =>
-            resolve(0)
-
-        });
-
-      } catch (e) {
-
-        console.error(
-          "Employee Lifecycle Count Error:",
-          doctype,
-          e
-        );
-
-        resolve(0);
-
-      }
-
-    });
-
-  }
-
-
-  function newDoc(doctype) {
-
-    try {
-
-      frappe.new_doc(
-        doctype
-      );
-
-    } catch (e) {
-
-      console.error(
-        "Employee Lifecycle New Doc Error:",
-        doctype,
-        e
-      );
-
-    }
-
-  }
-
-
-  /* =========================================================
-     3. ROUTING
-  ========================================================= */
-
-  const treeDocs =
-    new Set([
-      "Department"
-    ]);
-
-
-  function openRoute(name) {
-
-    try {
-
-      if (
-        treeDocs.has(name)
-      ) {
-
-        frappe.set_route(
-          "Tree",
-          name
-        );
-
-        return;
-      }
-
-
-      frappe.set_route(
-        "List",
-        name
-      );
-
-    } catch (e) {
-
-      console.error(
-        "Employee Lifecycle Route Error:",
-        name,
-        e
-      );
-
-    }
-
-  }
-
-
-  /* =========================================================
-     4. EMPLOYEE LIFECYCLE CYCLE
-  ========================================================= */
-
-  const cycleCards = [
-
-    {
-      step: 1,
-
-      action: "new",
-      doctype: "Employee",
-
-      labelAr:
-        "إنشاء الموظف",
-
-      labelEn:
-        "Create Employee",
-
-      descriptionAr:
-        "إنشاء ملف الموظف وتسجيل بياناته الأساسية والوظيفية.",
-
-      descriptionEn:
-        "Create the employee record and employment information."
-    },
-
-
-    {
-      step: 2,
-
-      action: "new",
-      doctype: "Employee Onboarding",
-
-      labelAr:
-        "التهيئة والتجهيز",
-
-      labelEn:
-        "Employee Onboarding",
-
-      descriptionAr:
-        "تنفيذ مهام تهيئة الموظف وتجهيزه للبدء في العمل.",
-
-      descriptionEn:
-        "Manage onboarding activities before the employee starts work."
-    },
-
-
-    {
-      step: 3,
-
-      action: "movement-selector",
-
-      labelAr:
-        "النقل والترقية",
-
-      labelEn:
-        "Transfer & Promotion",
-
-      descriptionAr:
-        "تنفيذ نقل الموظف أو ترقيته وتحديث بياناته الوظيفية.",
-
-      descriptionEn:
-        "Manage employee transfers and promotions."
-    },
-
-
-    {
-      step: 4,
-
-      action: "route",
-      doctype: "Employee",
-
-      labelAr:
-        "تحديث البيانات",
-
-      labelEn:
-        "Update Employment",
-
-      descriptionAr:
-        "متابعة وتحديث بيانات الموظف أثناء فترة عمله.",
-
-      descriptionEn:
-        "Maintain and update the employee employment record."
-    },
-
-
-    {
-      step: 5,
-
-      action: "new",
-      doctype: "Employee Separation",
-
-      labelAr:
-        "إجراءات المغادرة",
-
-      labelEn:
-        "Employee Separation",
-
-      descriptionAr:
-        "بدء إجراءات مغادرة الموظف وتحديد مهام إنهاء الخدمة.",
-
-      descriptionEn:
-        "Start employee separation and exit activities."
-    },
-
-
-    {
-      step: 6,
-
-      action: "route",
-      doctype: "Employee Separation",
-
-      labelAr:
-        "متابعة إنهاء الخدمة",
-
-      labelEn:
-        "Separation Follow-up",
-
-      descriptionAr:
-        "متابعة تنفيذ جميع مهام ومتطلبات إنهاء الخدمة.",
-
-      descriptionEn:
-        "Track completion of separation activities."
-    },
-
-
-    {
-      step: 7,
-
-      action: "route",
-      doctype: "Employee",
-
-      labelAr:
-        "إغلاق ملف الموظف",
-
-      labelEn:
-        "Close Employee Record",
-
-      descriptionAr:
-        "تحديث حالة الموظف بعد اكتمال إجراءات المغادرة.",
-
-      descriptionEn:
-        "Update employee status after completing the exit process."
-    }
-
-  ];
-
-
-  /* =========================================================
-     5. OVERVIEW
-  ========================================================= */
-
-  const statsCards = [
-
-    {
-      id:
-        "active-employees",
-
-      short:
-        "EMP",
-
-      labelAr:
-        "الموظفون النشطون",
-
-      labelEn:
-        "Active Employees",
-
-      fetch: () =>
-        safeCount(
-          "Employee",
-          {
-            status: "Active"
-          }
-        )
-    },
-
-
-    {
-      id:
-        "onboarding",
-
-      short:
-        "ONB",
-
-      labelAr:
-        "قيد التهيئة",
-
-      labelEn:
-        "Employee Onboarding",
-
-      fetch: () =>
-        safeCount(
-          "Employee Onboarding",
-          {
-            docstatus: [
-              "<",
-              2
-            ]
-          }
-        )
-    },
-
-
-    {
-      id:
-        "transfers",
-
-      short:
-        "TRF",
-
-      labelAr:
-        "عمليات النقل",
-
-      labelEn:
-        "Employee Transfers",
-
-      fetch: () =>
-        safeCount(
-          "Employee Transfer",
-          {
-            docstatus: [
-              "<",
-              2
-            ]
-          }
-        )
-    },
-
-
-    {
-      id:
-        "separations",
-
-      short:
-        "SEP",
-
-      labelAr:
-        "إجراءات إنهاء الخدمة",
-
-      labelEn:
-        "Employee Separations",
-
-      fetch: () =>
-        safeCount(
-          "Employee Separation",
-          {
-            docstatus: [
-              "<",
-              2
-            ]
-          }
-        )
-    }
-
-  ];
-
-
-  /* =========================================================
-     6. QUICK ACTIONS
-  ========================================================= */
-
-  const quickButtons = [
-
-    {
-      doctype:
-        "Employee",
-
-      labelAr:
-        "موظف جديد",
-
-      labelEn:
-        "New Employee"
-    },
-
-
-    {
-      doctype:
-        "Employee Onboarding",
-
-      labelAr:
-        "تهيئة موظف جديدة",
-
-      labelEn:
-        "New Employee Onboarding"
-    },
-
-
-    {
-      doctype:
-        "Employee Transfer",
-
-      labelAr:
-        "نقل موظف جديد",
-
-      labelEn:
-        "New Employee Transfer"
-    },
-
-
-    {
-      doctype:
-        "Employee Separation",
-
-      labelAr:
-        "إنهاء خدمة جديد",
-
-      labelEn:
-        "New Employee Separation"
-    }
-
-  ];
-
-
-  /* =========================================================
-     7. LOWER CARDS
-  ========================================================= */
-
-  const cards = [
-
-    {
-      titleAr:
-        "الموظفون",
-
-      titleEn:
-        "Employees",
-
-      icon:
-        "👤",
-
-      links: [
-        "Employee"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "تهيئة الموظفين",
-
-      titleEn:
-        "Employee Onboarding",
-
-      icon:
-        "🚀",
-
-      links: [
-        "Employee Onboarding",
-        "Employee Onboarding Template"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "النقل",
-
-      titleEn:
-        "Employee Transfers",
-
-      icon:
-        "🔄",
-
-      links: [
-        "Employee Transfer"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "الترقيات",
-
-      titleEn:
-        "Promotions",
-
-      icon:
-        "📈",
-
-      links: [
-        "Employee Promotion"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "إنهاء الخدمة",
-
-      titleEn:
-        "Employee Separation",
-
-      icon:
-        "🚪",
-
-      links: [
-        "Employee Separation",
-        "Employee Separation Template"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "الهيكل التنظيمي",
-
-      titleEn:
-        "Organization",
-
-      icon:
-        "🏢",
-
-      links: [
-        "Department",
-        "Designation",
-        "Branch",
-        "Employment Type"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "المستندات الوظيفية",
-
-      titleEn:
-        "Employment Documents",
-
-      icon:
-        "📄",
-
-      links: [
-        "Appointment Letter",
-        "Appointment Letter Template"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "الموظف والعقد",
-
-      titleEn:
-        "Employment",
-
-      icon:
-        "💼",
-
-      links: [
-        "Employee",
-        "Employee Contract"
-      ]
-    }
-
-  ];
-
-
-  /* =========================================================
-     8. TRANSLATIONS
-  ========================================================= */
-
-  const translations = {
-
-    "Employee":
-      "الموظف",
-
-    "Employee Onboarding":
-      "تهيئة الموظف",
-
-    "Employee Onboarding Template":
-      "قالب تهيئة الموظف",
-
-    "Employee Transfer":
-      "نقل الموظف",
-
-    "Employee Promotion":
-      "ترقية الموظف",
-
-    "Employee Separation":
-      "إنهاء خدمة الموظف",
-
-    "Employee Separation Template":
-      "قالب إنهاء الخدمة",
-
-    "Department":
-      "القسم",
-
-    "Designation":
-      "المسمى الوظيفي",
-
-    "Branch":
-      "الفرع",
-
-    "Employment Type":
-      "نوع التوظيف",
-
-    "Appointment Letter":
-      "خطاب التعيين",
-
-    "Appointment Letter Template":
-      "قالب خطاب التعيين",
-
-    "Employee Contract":
-      "عقد الموظف"
-
-  };
-
-
-  function translate(name) {
-
-    if (!isArabic)
-      return name;
-
-    return (
-      translations[name] ||
-      name
-    );
-
-  }
-
-
-  /* =========================================================
-     9. MOVEMENT SELECTOR
-  ========================================================= */
-
-  function showMovementSelector() {
-
-    const overlay =
-      document.createElement("div");
-
-    overlay.className =
-      "erp-modal-overlay";
-
-    overlay.setAttribute(
-      "dir",
-      isArabic
-        ? "rtl"
-        : "ltr"
-    );
-
-
-    overlay.innerHTML = `
-
-      <div class="erp-modal-box">
-
-        <button
-          type="button"
-          class="erp-modal-close"
-          data-lifecycle-close
-        >
-          ✕
-        </button>
-
-
-        <div class="erp-modal-header">
-
-          <span class="erp-modal-icon">
-            🔄
-          </span>
-
-          <h3 class="erp-modal-title">
-
-            ${
-              isArabic
-                ? "النقل والترقية"
-                : "Transfer & Promotion"
-            }
-
-          </h3>
-
-        </div>
-
-
-        <div
-          class="erp-quick-grid"
-          style="
-            margin-top:18px;
-            grid-template-columns:
-            repeat(2,minmax(0,1fr)) !important;
-          "
-        >
-
-          <button
-            type="button"
-            class="erp-quick-btn"
-            data-lifecycle-action="Employee Transfer"
-          >
-            ${
-              isArabic
-                ? "نقل موظف"
-                : "Employee Transfer"
-            }
-          </button>
-
-
-          <button
-            type="button"
-            class="erp-quick-btn"
-            data-lifecycle-action="Employee Promotion"
-          >
-            ${
-              isArabic
-                ? "ترقية موظف"
-                : "Employee Promotion"
-            }
-          </button>
-
-        </div>
-
-      </div>
-
-    `;
-
-
-    root.appendChild(
-      overlay
-    );
-
-
-    requestAnimationFrame(() => {
-
-      overlay.classList.add(
-        "is-visible"
-      );
-
-    });
-
-
-    overlay
-      .querySelector(
-        "[data-lifecycle-close]"
-      )
-      ?.addEventListener(
-        "click",
-        () => overlay.remove()
-      );
-
-
-    overlay.addEventListener(
-      "click",
-      event => {
-
-        if (
-          event.target === overlay
-        ) {
-
-          overlay.remove();
-
-        }
-
-      }
-    );
-
-
-    overlay
-      .querySelectorAll(
-        "[data-lifecycle-action]"
-      )
-      .forEach(button => {
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            const doctype =
-              button.dataset.lifecycleAction;
-
-
-            overlay.remove();
-
-
-            newDoc(
-              doctype
-            );
-
-          }
-        );
-
-      });
-
-  }
-
-
-  /* =========================================================
-     10. RENDER CYCLE
-  ========================================================= */
-
-  function renderCycle() {
-
-    if (!cycleSection)
-      return;
-
-
-    cycleSection.innerHTML = `
-
-      <section class="erp-cycle-container">
-
-        <h2
-          class="
-            erp-section-title
-            erp-cycle-title
-          "
-        >
-          ${
-            isArabic
-              ? "دورة حياة الموظف"
-              : "Employee Lifecycle"
-          }
-        </h2>
-
-
-        <div
-          class="erp-cycle-grid"
-          style="
-            grid-template-columns:
-            repeat(
-              ${cycleCards.length},
-              minmax(0,1fr)
-            );
-          "
-        >
-
-          ${cycleCards
-            .map(
-              (card, index) => `
-
-                <div class="erp-cycle-item">
-
-                  <button
-                    type="button"
-                    class="
-                      erp-cycle-card
-                      cycle-tone-${(index % 4) + 1}
-                    "
-                    data-lifecycle-cycle="${index}"
-                  >
-
-                    <span
-                      class="erp-cycle-number"
-                    >
-                      ${card.step}
-                    </span>
-
-
-                    <span
-                      class="erp-cycle-card-title"
-                    >
-
-                      ${escapeHtml(
-                        isArabic
-                          ? card.labelAr
-                          : card.labelEn
-                      )}
-
-                    </span>
-
-
-                    <span
-                      class="erp-cycle-description"
-                    >
-
-                      ${escapeHtml(
-                        isArabic
-                          ? card.descriptionAr
-                          : card.descriptionEn
-                      )}
-
-                    </span>
-
-                  </button>
-
-
-                  ${
-                    index <
-                    cycleCards.length - 1
-
-                      ? `
-                        <span class="erp-cycle-arrow">
-                          ${isArabic ? "←" : "→"}
-                        </span>
-                      `
-
-                      : ""
-                  }
-
-                </div>
-
-              `
-            )
-            .join("")}
-
-        </div>
-
-      </section>
-
-    `;
-
-
-    cycleSection.addEventListener(
-      "click",
-      event => {
-
-        const element =
-          event.target.closest(
-            "[data-lifecycle-cycle]"
-          );
-
-
-        if (!element)
-          return;
-
-
-        const card =
-          cycleCards[
-            Number(
-              element.dataset.lifecycleCycle
-            )
-          ];
-
-
-        if (!card)
-          return;
-
-
-        if (
-          card.action === "new"
-        ) {
-
-          newDoc(
-            card.doctype
-          );
-
-          return;
-        }
-
-
-        if (
-          card.action ===
-          "movement-selector"
-        ) {
-
-          showMovementSelector();
-
-          return;
-        }
-
-
-        openRoute(
-          card.doctype
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     11. RENDER STATS
-  ========================================================= */
-
-  function renderStats() {
-
-    if (!statsSection)
-      return;
-
-
-    statsSection.innerHTML = `
-
-      <section class="erp-overview-container">
-
-        <h2 class="erp-section-title">
-
-          ${
-            isArabic
-              ? "نظرة عامة"
-              : "Overview"
-          }
-
-        </h2>
-
-
-        <div class="erp-stats-grid">
-
-          ${statsCards
-            .map(
-              (card, index) => `
-
-                <div
-                  class="
-                    erp-stat-card
-                    overview-tone-${index + 1}
-                  "
-                >
-
-                  <div class="erp-stat-icon">
-                    ${escapeHtml(card.short)}
-                  </div>
-
-
-                  <div class="erp-stat-info">
-
-                    <span
-                      class="erp-stat-value"
-                      data-lifecycle-stat="${card.id}"
-                    >
-                      0
-                    </span>
-
-
-                    <span
-                      class="erp-stat-label"
-                    >
-
-                      ${escapeHtml(
-                        isArabic
-                          ? card.labelAr
-                          : card.labelEn
-                      )}
-
-                    </span>
-
-                  </div>
-
-                </div>
-
-              `
-            )
-            .join("")}
-
-        </div>
-
-      </section>
-
-    `;
-
-
-    statsCards.forEach(
-      card => {
-
-        Promise
-          .resolve()
-          .then(
-            () => card.fetch()
-          )
-          .then(
-            value => {
-
-              const element =
-                statsSection.querySelector(
-                  `[data-lifecycle-stat="${card.id}"]`
-                );
-
-
-              if (element) {
-
-                element.textContent =
-                  formatNumber(value);
-
-              }
-
-            }
-          )
-          .catch(
-            error => {
-
-              console.error(
-                "Lifecycle Stat Error:",
-                card.id,
-                error
-              );
-
-            }
-          );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     12. QUICK ACTIONS
-  ========================================================= */
-
-  function renderQuickActions() {
-
-    if (!quickActions)
-      return;
-
-
-    quickActions.innerHTML = `
-
-      <h2 class="erp-section-title">
-
-        ${
-          isArabic
-            ? "اختصارات سريعة"
-            : "Quick Actions"
-        }
-
-      </h2>
-
-
-      <div class="erp-quick-grid">
-
-        ${quickButtons
-          .map(
-            (button, index) => `
-
-              <button
-                type="button"
-                class="erp-quick-btn"
-                data-lifecycle-quick="${index}"
-              >
-
-                <span
-                  class="erp-quick-label"
-                >
-
-                  ${escapeHtml(
-                    isArabic
-                      ? button.labelAr
-                      : button.labelEn
-                  )}
-
-                </span>
-
-              </button>
-
-            `
-          )
-          .join("")}
-
-      </div>
-
-    `;
-
-
-    quickActions.addEventListener(
-      "click",
-      event => {
-
-        const element =
-          event.target.closest(
-            "[data-lifecycle-quick]"
-          );
-
-
-        if (!element)
-          return;
-
-
-        const button =
-          quickButtons[
-            Number(
-              element.dataset.lifecycleQuick
-            )
-          ];
-
-
-        if (!button)
-          return;
-
-
-        newDoc(
-          button.doctype
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     13. RENDER CARDS
-  ========================================================= */
-
-  function renderCards() {
-
-    if (!content)
-      return;
-
-
-    const cardsHtml =
-      cards
-        .map(
-          (card, index) => {
-
-            const links =
-              card.links
-                .map(
-                  item => `
-
-                    <div class="erp-link-row">
-
-                      <button
-                        type="button"
-                        class="erp-link"
-                        data-lifecycle-route="${escapeHtml(item)}"
-                      >
-
-                        <span class="erp-link-text">
-                          ${escapeHtml(translate(item))}
-                        </span>
-
-
-                        <span class="erp-link-arrow">
-                          ${isArabic ? "←" : "→"}
-                        </span>
-
-                      </button>
-
-                    </div>
-
-                  `
-                )
-                .join("");
-
-
-            return `
-
-              <article
-                class="
-                  erp-card
-                  tone-${index % 5}
-                "
-                data-lifecycle-card
-              >
-
-                <button
-                  type="button"
-                  class="erp-card-heading"
-                  data-lifecycle-toggle
-                  aria-expanded="false"
-                >
-
-                  <span class="erp-icon">
-                    ${card.icon}
-                  </span>
-
-
-                  <span
-                    class="erp-card-title"
-                  >
-
-                    ${escapeHtml(
-                      isArabic
-                        ? card.titleAr
-                        : card.titleEn
-                    )}
-
-                  </span>
-
-
-                  <span
-                    class="erp-card-chevron"
-                  >
-                    ⌄
-                  </span>
-
-                </button>
-
-
-                <div class="erp-card-links">
-                  ${links}
-                </div>
-
-              </article>
-
-            `;
-
-          }
-        )
-        .join("");
-
-
-    content.innerHTML = `
-
-      <section class="erp-module-section">
-
-        <h2 class="erp-section-title">
-
-          ${
-            isArabic
-              ? "البيانات الرئيسية"
-              : "Masters & Operations"
-          }
-
-        </h2>
-
-
-        <div class="erp-dashboard-grid">
-          ${cardsHtml}
-        </div>
-
-      </section>
-
-    `;
-
-
-    content.addEventListener(
-      "click",
-      event => {
-
-        const routeButton =
-          event.target.closest(
-            "[data-lifecycle-route]"
-          );
-
-
-        if (routeButton) {
-
-          event.preventDefault();
-
-          openRoute(
-            routeButton.dataset.lifecycleRoute
-          );
-
-          return;
-        }
-
-
-        const toggle =
-          event.target.closest(
-            "[data-lifecycle-toggle]"
-          );
-
-
-        if (!toggle)
-          return;
-
-
-        const selectedCard =
-          toggle.closest(
-            "[data-lifecycle-card]"
-          );
-
-
-        if (!selectedCard)
-          return;
-
-
-        const shouldOpen =
-          !selectedCard.classList.contains(
-            "is-open"
-          );
-
-
-        content
-          .querySelectorAll(
-            "[data-lifecycle-card]"
-          )
-          .forEach(card => {
-
-            if (
-              card !== selectedCard
-            ) {
-
-              card.classList.remove(
-                "is-open"
-              );
-
-            }
-
-          });
-
-
-        selectedCard.classList.toggle(
-          "is-open",
-          shouldOpen
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     14. FOOTER
-  ========================================================= */
-
-  function renderFooter() {
-
-    if (!footerEl)
-      return;
-
-
-    footerEl.innerHTML = `
-
-      <div class="erp-footer-inner">
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ☎
-          </span>
-
-          <span class="erp-footer-label">
-            ${
-              isArabic
-                ? "الهاتف الموحد:"
-                : "Phone:"
-            }
-          </span>
-
-          <a
-            href="tel:0115110455"
-            class="erp-footer-link"
-            dir="ltr"
-          >
-            0115110455
-          </a>
-
-        </div>
-
-
-        <span class="erp-footer-sep">
-          |
-        </span>
-
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ✉
-          </span>
-
-          <span class="erp-footer-label">
-            ${
-              isArabic
-                ? "البريد الإلكتروني:"
-                : "Email:"
-            }
-          </span>
-
-          <a
-            href="mailto:sales@mubtkir.com"
-            class="erp-footer-link"
-          >
-            sales@mubtkir.com
-          </a>
-
-        </div>
-
-
-        <span class="erp-footer-sep">
-          |
-        </span>
-
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ◎
-          </span>
-
-          <span class="erp-footer-label">
-            ${
-              isArabic
-                ? "الموقع:"
-                : "Website:"
-            }
-          </span>
-
-          <a
-            href="https://www.mubtkir.com"
-            class="erp-footer-link"
-            target="_blank"
-            rel="noopener"
-          >
-            www.mubtkir.com
-          </a>
-
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     15. INIT
-  ========================================================= */
-
-  try {
-    renderCycle();
-  } catch (e) {
-    console.error(
-      "Lifecycle Cycle Error:",
-      e
-    );
-  }
-
-
-  try {
-    renderStats();
-  } catch (e) {
-    console.error(
-      "Lifecycle Stats Error:",
-      e
-    );
-  }
-
-
-  try {
-    renderQuickActions();
-  } catch (e) {
-    console.error(
-      "Lifecycle Quick Actions Error:",
-      e
-    );
-  }
-
-
-  try {
-    renderCards();
-  } catch (e) {
-    console.error(
-      "Lifecycle Cards Error:",
-      e
-    );
-  }
-
-
-  try {
-    renderFooter();
-  } catch (e) {
-    console.error(
-      "Lifecycle Footer Error:",
-      e
-    );
-  }
-
+(() => {
+  /*
+   * ══════════════════════════════════════════
+   *  لوحة تحكم دورة حياة الموظف — Employee Lifecycle Workspace
+   * ══════════════════════════════════════════
+   */
+
+  const root = root_element.querySelector("[data-erp-dashboard]");
+  const content = root_element.querySelector("[data-dashboard-content]");
+  const statsSection = root_element.querySelector("[data-stats-section]");
+  const quickActions = root_element.querySelector("[data-quick-actions]");
+  const footerEl = root_element.querySelector("[data-dashboard-footer]");
+
+  if (!root || !content) return;
+
+  const langValue =
+    window.frappe?.boot?.lang ||
+    window.frappe?.boot?.user?.language ||
+    document.documentElement.lang || "en";
+
+  const isArabic = String(langValue).toLowerCase().startsWith("ar");
+
+  /* ─────────────────────────────────────────
+     ١. أزرار الوصول السريع والبطاقات العلوية
+  ───────────────────────────────────────── */
+
+  const quickActionButtons = [
+    { labelEn: "New Hires (This Month)", labelAr: "المعينون الجدد (هذا الشهر)", doctype: "Employee", isList: true, color: "#10b981" },
+    { labelEn: "Exits (This Month)", labelAr: "المغادرون (هذا الشهر)", doctype: "Employee Separation", isList: true, color: "#ef4444" },
+    { labelEn: "Trainings (This Week)", labelAr: "الدورات التدريبية (هذا الأسبوع)", doctype: "Training Event", isList: true, color: "#64748b" }
+  ];
+
+  /* ─────────────────────────────────────────
+     ٢. هيكل الأقسام والبطاقات (مطابق تماماً للصورة)
+  ───────────────────────────────────────── */
+
+  const sections = [
+    [
+      "Masters & Reports",
+      [
+        [
+          "Onboarding",
+          "🚀",
+          [
+            "Employee Onboarding Template",
+            "Employee Onboarding",
+            "Employee Skill Map"
+          ]
+        ],
+        [
+          "Grievance",
+          "⚖️",
+          [
+            "Grievance Type",
+            "Employee Grievance"
+          ]
+        ],
+        [
+          "Training",
+          "🎓",
+          [
+            "Training Program",
+            "Training Event",
+            "Training Feedback",
+            "Training Result"
+          ]
+        ],
+        [
+          "Daily Work Summary",
+          "📝",
+          [
+            "Daily Work Summary",
+            "Daily Work Summary Group",
+            "Daily Work Summary Replies"
+          ]
+        ],
+        [
+          "Reports",
+          "📊",
+          [
+            "Employee Exits",
+            "Employee Birthday",
+            "Employee Information",
+            "Employee Analytics"
+          ]
+        ]
+      ]
+    ]
+  ];
+
+  /* ─────────────────────────────────────────
+     ٣. أنواع المستندات الفردية والشجرية والتقارير
+  ───────────────────────────────────────── */
+
+  const singleDocs = new Set([]);
+
+  const treeDocs = new Set([]);
+
+  // التقارير المستثناة من زر التفاصيل
+  const reportNames = new Set([
+    "Employee Exits",
+    "Employee Birthday",
+    "Employee Information",
+    "Employee Analytics"
+  ]);
+
+  const customRoutes = {};
+
+  /* ─────────────────────────────────────────
+     ٤. الترجمات العربية
+  ───────────────────────────────────────── */
+
+  const arabicFallback = {
+    "Masters & Reports": "البيانات والتقارير",
+    "New Hires (This Month)": "المعينون الجدد (هذا الشهر)",
+    "Exits (This Month)": "المغادرون (هذا الشهر)",
+    "Trainings (This Week)": "الدورات التدريبية (هذا الأسبوع)",
+
+    "Onboarding": "تهيئة ومباشرة العمل",
+    "Employee Onboarding Template": "قالب تهيئة الموظف الجديد",
+    "Employee Onboarding": "إجراء تهيئة الموظف",
+    "Employee Skill Map": "خريطة مهارات الموظف",
+
+    "Grievance": "الشكاوى والتظلمات",
+    "Grievance Type": "نوع التظلم والشكوى",
+    "Employee Grievance": "شكاوى وتظلمات الموظفين",
+
+    "Training": "التدريب والتطوير",
+    "Training Program": "البرامج التدريبية",
+    "Training Event": "فعالية أو دورة تدريبية",
+    "Training Feedback": "تقييم المتدربين للدورة",
+    "Training Result": "نتائج واجتياز التدريب",
+
+    "Daily Work Summary": "ملخص العمل اليومي",
+    "Daily Work Summary Group": "مجموعة ملخص العمل اليومي",
+    "Daily Work Summary Replies": "ردود ملخص العمل اليومي",
+
+    "Reports": "التقارير",
+    "Employee Exits": "مغادرات واستقالات الموظفين",
+    "Employee Birthday": "أعياد ميلاد الموظفين",
+    "Employee Information": "معلومات وبيانات الموظفين",
+    "Employee Analytics": "تحليلات وإحصاءات الموظفين"
+  };
+
+  /* ─────────────────────────────────────────
+     ٥. أوصاف المستندات والإعدادات (مع خطوات تفصيلية)
+  ───────────────────────────────────────── */
+
+  const itemDescriptions = {
+    "Employee Onboarding Template": {
+      icon: "📋",
+      summaryAr: "بناء قوالب المهام والإجراءات المعتمدة لتهيئة الموظفين الجدد (تسليم الأجهزة، توقيع العقود، التدريب).",
+      summaryEn: "Configure standardized onboarding task checklists (IT provisioning, contract signing, orientation).",
+      stepsAr: ["إنشاء قالب جديد وتحديد الوظيفة أو القسم المستهدف", "إضافة قائمة المهام والأنشطة والمسؤول عن كل مهمة", "حفظ القالب لتطبيقه تلقائياً عند تعيين موظف جديد"],
+      stepsEn: ["Create new onboarding template for specific designation", "Map orientation activities and assign responsible team members", "Save template to auto-trigger upon new hire creation"]
+    },
+    "Employee Onboarding": {
+      icon: "🚀",
+      summaryAr: "متابعة تنفيذ مهام تهيئة واستقبال الموظف الجديد ومراقبة إنجاز كافة متطلبات الانضمام للفريق.",
+      summaryEn: "Track active new hire onboarding progression and checklist completion status across departments.",
+      stepsAr: ["إنشاء إجراء تهيئة واختيار الموظف الجديد وقالب التهيئة", "متابعة إنجاز المهام من قبل تقنية المعلومات والموارد البشرية", "اعتماد اكتمال التهيئة وبدء مباشرة العمل الرسمية"],
+      stepsEn: ["Initiate onboarding journey linked to employee and template", "Monitor task execution across IT, admin, and HR departments", "Submit onboarding completion to confirm full operational readiness"]
+    },
+    "Employee Skill Map": {
+      icon: "🎯",
+      summaryAr: "توثيق وتقييم المهارات والقدرات الفنية والسلوكية للموظف وتحديد الاحتياجات التطويرية المستقبلية.",
+      summaryEn: "Record and evaluate employee competencies, professional skills, and development gaps.",
+      stepsAr: ["اختيار الموظف وإضافة المهارات الفنية والمهنية المعتمدة", "تحديد مستوى الإتقان الحالي والمستوى المستهدف", "حفظ خريطة المهارات لتوجيه خطط التدريب والترقيات"],
+      stepsEn: ["Select employee and map designated technical and soft skills", "Rate current competency proficiency versus target benchmark", "Save skill map to drive targeted training and promotion tracks"]
+    },
+
+    "Grievance Type": {
+      icon: "🏷️",
+      summaryAr: "تعريف وتصنيف أنواع الشكاوى والتظلمات الإدارية والمهنية داخل بيئة العمل وضوابط التحقيق فيها.",
+      summaryEn: "Classify employee workplace grievances and disputes (administrative, policy, peer dispute).",
+      stepsAr: ["إدخال مسمى نوع التظلم وتوصيفه الإداري", "تحديد اللجنة أو الجهة المسؤولة عن التحقيق في هذا النوع", "حفظ النوع لتصنيف بلاغات الموظفين"],
+      stepsEn: ["Enter grievance category title and description", "Designate responsible investigative committee or HR officer", "Save grievance type for structured dispute management"]
+    },
+    "Employee Grievance": {
+      icon: "⚖️",
+      summaryAr: "تسجيل والتحقيق في شكاوى وتظلمات الموظفين بسرية تامة وتوثيق الإجراءات التصحيحية المتخذة.",
+      summaryEn: "Confidential employee grievance case logging, investigation notes, and resolution actions.",
+      stepsAr: ["تسجيل الشكوى الواردة وتحديد نوعها والأطراف المعنية", "توثيق جلسات الاستماع والتحقيق والأدلة المقدمة", "اعتماد القرار النهائي والإجراءات الإدارية المتخذة لحل التظلم"],
+      stepsEn: ["Log incoming grievance case, category, and involved parties", "Document hearing notes, investigative evidence, and findings", "Submit final resolution decision and corrective actions taken"]
+    },
+
+    "Training Program": {
+      icon: "📚",
+      summaryAr: "تخطيط وتصميم البرامج التدريبية وورش العمل لتطوير كفاءات الموظفين ورفع الإنتاجية.",
+      summaryEn: "Curriculum and development syllabus planning to build employee skills and performance.",
+      stepsAr: ["إنشاء برنامج تدريبي وتحديد أهدافه وموضوعاته الرئيسية", "تحديد المهارات المستهدف تطويرها والفئات المرشحة", "حفظ البرنامج لجدولة الدورات التدريبية التنفيذية بناءً عليه"],
+      stepsEn: ["Create training program defining core objectives and syllabus", "Specify target competencies to develop and candidate profiles", "Save program to structure upcoming active training events"]
+    },
+    "Training Event": {
+      icon: "🎓",
+      summaryAr: "جدولة وتنظيم الدورات والورش التدريبية؛ تحديد المدرب، المواعيد، القاعة، وقوائم الموظفين المشاركين.",
+      summaryEn: "Schedule training events: trainer details, dates, venue, and employee attendee roster.",
+      stepsAr: ["إنشاء فعالية تدريبية وربطها بالبرنامج التدريبي والمدرب", "تحديد مواعيد الانعقاد وإضافة أسماء الموظفين المشاركين", "حفظ الفعالية وإرسال الدعوات وتسجيل الحضور والانصراف"],
+      stepsEn: ["Create training event, linking program syllabus and trainer", "Schedule dates, physical room or link, and enrolled employees", "Dispatch invites and log attendee participation during sessions"]
+    },
+    "Training Feedback": {
+      icon: "⭐",
+      summaryAr: "جمع استطلاعات وتقييمات الموظفين لجودة الدورة التدريبية وكفاءة المدرب ومدى الاستفادة.",
+      summaryEn: "Collect attendee feedback surveys evaluating training event quality, content, and trainer.",
+      stepsAr: ["اختيار الفعالية التدريبية والموظف المشارك", "رصد درجات تقييم المحتوى والمدرب والتنظيم", "حفظ التقييم لتحليل العائد على الاستثمار في التدريب"],
+      stepsEn: ["Select completed training event and participating employee", "Rate course material, trainer competence, and logistics", "Submit feedback survey to assess training ROI and satisfaction"]
+    },
+    "Training Result": {
+      icon: "🏆",
+      summaryAr: "رصد وتوثيق نتائج الاختبارات ومستويات اجتياز الموظفين للدورات التدريبية وإصدار الشهادات.",
+      summaryEn: "Record examination scores, passing certificates, and post-training completion assessments.",
+      stepsAr: ["فتح سجل نتائج الدورة واختيار الفعالية التدريبية", "رصد درجات اختبار كل موظف وحالة الاجتياز (ناجح، راسب)", "حفظ النتائج وتحديث خريطة مهارات الموظف وملفه الشخصي"],
+      stepsEn: ["Open result sheet linked to completed training event", "Log assessment scores and pass/fail status per employee", "Save results to automatically update employee skill profile"]
+    },
+
+    "Daily Work Summary": {
+      icon: "📝",
+      summaryAr: "سجل تقارير الإنجاز اليومي؛ استعراض المهام والأنشطة المنجزة والتحديات التي واجهت الموظف.",
+      summaryEn: "Daily work summaries logged by employees documenting completed tasks and roadblocks.",
+      stepsAr: ["استعراض تقارير الإنجاز اليومية المرفوعة من الموظفين", "مراجعة المهام المنجزة ومطابقتها مع الأهداف الأسبوعية", "التعليق وتقديم التوجيهات والدعم للموظف"],
+      stepsEn: ["Review daily progress reports submitted by team members", "Assess completed activities against weekly sprint goals", "Provide managerial comments, feedback, and support"]
+    },
+    "Daily Work Summary Group": {
+      icon: "📬",
+      summaryAr: "إدارة مجموعات إرسال واستقبال تقارير وملخصات الإنجاز اليومي لفرق العمل بالبريد.",
+      summaryEn: "Configure automated daily work summary broadcast groups and recipient mailing lists.",
+      stepsAr: ["إنشاء مجموعة جديدة وتحديد ساعة إرسال التذكير اليومي", "إضافة الموظفين الملزمين بتقديم الملخص وقائمة المشرفين", "تفعيل المجموعة لأتمتة رسائل جمع الإنجاز اليومي"],
+      stepsEn: ["Create group and set scheduled daily prompt dispatch hour", "Add reporting employees and recipient supervisor emails", "Enable group to automate daily work check-ins"]
+    },
+    "Daily Work Summary Replies": {
+      icon: "💬",
+      summaryAr: "أرشيف الردود والرسائل التفاعلية المرسلة بين الموظفين والمشرفين حول ملخصات العمل اليومية.",
+      summaryEn: "Thread archive of discussions and feedback between managers and staff on daily summaries.",
+      stepsAr: ["استعراض الردود والملاحظات المتبادلة على ملخصات العمل", "التحقق من حل العوائق التشغيلية التي طرحها الموظفون", "توثيق التوجيهات ضمن سجل الأداء"],
+      stepsEn: ["Review interactive dialogue and feedback on daily check-ins", "Verify resolution of operational impediments raised by staff", "Archive coaching notes into employee performance context"]
+    }
+  };
+
+  /* ─────────────────────────────────────────
+     ٦. دوال الترجمة والتهريب
+  ───────────────────────────────────────── */
+
+  function translate(key) {
+    if (!isArabic) return key;
+    return arabicFallback[key] || (typeof window.__ === "function" ? window.__(key) : key);
+  }
+
+  function escapeHtml(text) {
+    if (!text) return "";
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  /* ─────────────────────────────────────────
+     ٧. نافذة التفاصيل المنبثقة (Info Modal القياسية)
+  ───────────────────────────────────────── */
+
+  function showInfoModal(itemName) {
+    const desc = itemDescriptions[itemName];
+    const title = isArabic ? (translate(itemName) || itemName) : itemName;
+    const isSettingDoc = singleDocs.has(itemName) || itemName.toLowerCase().includes("settings");
+
+    const summary = desc
+      ? (isArabic ? desc.summaryAr : desc.summaryEn)
+      : (isArabic ? ("إدارة ومتابعة " + title + " وتنفيذ العمليات المرتبطة بها.") : ("Manage and track " + itemName + "."));
+    const rawSteps = desc ? (isArabic ? desc.stepsAr : desc.stepsEn) : null;
+    const steps = (Array.isArray(rawSteps) && rawSteps.length > 0)
+      ? rawSteps
+      : (isArabic
+          ? [
+              "فتح شاشة " + title,
+              "إدخال وتعبئة البيانات الأساسية المطلوبة",
+              "مراجعة وتدقيق الحقول والتحقق من صحتها",
+              "حفظ السجل واعتماد المستند"
+            ]
+          : [
+              "Open " + itemName,
+              "Fill in the required information and fields",
+              "Review and verify mandatory values",
+              "Save and submit the record"
+            ]);
+
+    const existing = root.querySelector(".erp-modal-overlay") || document.querySelector(".erp-modal-overlay");
+    if (existing) existing.remove();
+
+    const overlay = document.createElement("div");
+    overlay.className = "erp-modal-overlay";
+    overlay.setAttribute("dir", isArabic ? "rtl" : "ltr");
+
+    const launchLabel = isSettingDoc
+      ? (isArabic ? "فتح شاشة الإعدادات" : "Open Settings")
+      : (isArabic ? "فتح الشاشة" : "Open Screen");
+
+    overlay.innerHTML = `
+      <div class="erp-modal-box">
+        <button type="button" class="erp-modal-close" data-modal-close aria-label="${isArabic ? "إغلاق" : "Close"}">✕</button>
+        <div class="erp-modal-header">
+          <span class="erp-modal-icon">${desc?.icon || "⚙️"}</span>
+          <h3 class="erp-modal-title">${escapeHtml(title)}</h3>
+        </div>
+        <p class="erp-modal-summary">${escapeHtml(summary)}</p>
+
+        <div class="erp-modal-steps is-shown" data-modal-steps>
+          <ol class="erp-modal-steps-list">
+            ${steps.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
+          </ol>
+        </div>
+
+        <div style="margin-top: 18px;">
+          <button
+            type="button"
+            class="erp-quick-btn"
+            data-modal-launch
+            style="width: 100%; min-height: 42px;"
+          >
+            <span class="erp-quick-label">${escapeHtml(launchLabel)}</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    root.appendChild(overlay);
+    setTimeout(() => overlay.classList.add("is-visible"), 10);
+
+    const closeModal = () => {
+      overlay.classList.remove("is-visible");
+      setTimeout(() => overlay.remove(), 280);
+    };
+
+    const closeBtn = overlay.querySelector("[data-modal-close]");
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+
+    overlay.addEventListener("click", e => {
+      if (e.target === overlay) closeModal();
+    });
+
+    const launchBtn = overlay.querySelector("[data-modal-launch]");
+    if (launchBtn) {
+      launchBtn.addEventListener("click", () => {
+        closeModal();
+        openRoute(itemName);
+      });
+    }
+  }
+
+  /* ─────────────────────────────────────────
+     ٨. إنشاء أزرار الوصول السريع
+  ───────────────────────────────────────── */
+
+  function renderQuickActions() {
+    if (!quickActions) return;
+
+    quickActions.innerHTML = `
+      <div class="erp-quick-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-bottom: 24px;">
+        ${quickActionButtons.map((btn, idx) => {
+          const label = isArabic ? btn.labelAr : btn.labelEn;
+          return `
+            <button
+              type="button"
+              class="erp-quick-btn"
+              data-shortcut-idx="${idx}"
+              style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px;"
+            >
+              <span class="erp-quick-label" style="display: flex; align-items: center; gap: 8px;">
+                <span>${escapeHtml(label)}</span>
+                <span class="erp-link-arrow" aria-hidden="true" style="font-size: 11px; opacity: 0.7;">↗</span>
+              </span>
+              <span style="font-size: 12px; color: var(--text-muted, #64748b);">${isArabic ? "عرض القائمة" : "View List"}</span>
+            </button>`;
+        }).join("")}
+      </div>
+    `;
+
+    quickActions.addEventListener("click", event => {
+      const btnEl = event.target.closest("[data-shortcut-idx]");
+      if (!btnEl || !window.frappe) return;
+      const idx = Number(btnEl.dataset.shortcutIdx);
+      const item = quickActionButtons[idx];
+      if (!item) return;
+
+      if (item.route) {
+        frappe.set_route(item.route);
+        return;
+      }
+      if (item.doctype) {
+        openRoute(item.doctype);
+      }
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     ٩. إنشاء بطاقات الوحدات والمربعات
+  ───────────────────────────────────────── */
+
+  function renderSections() {
+    root.setAttribute("dir", isArabic ? "rtl" : "ltr");
+    root.classList.toggle("erp-dashboard-rtl", isArabic);
+
+    content.innerHTML = sections
+      .map((section, sectionIndex) => {
+        const sectionName = section[0];
+        const sectionCards = section[1];
+
+        const cardsHtml = sectionCards
+          .map((card, cardIndex) => {
+            const cardName = card[0];
+            const icon = card[1];
+            const items = card[2];
+
+            const linksHtml = items.map(itemName => {
+              const desc = itemDescriptions[itemName];
+              const isReport = reportNames.has(itemName);
+              const detailsLabel = isArabic ? "تفاصيل" : "Details";
+              const infoBtn = (!isReport && desc)
+                ? `<button type="button" class="erp-info-link" data-info-item="${escapeHtml(itemName)}">${detailsLabel}</button>`
+                : "";
+
+              return `
+                <div class="erp-link-row">
+                  <button type="button" class="erp-link" data-route-name="${escapeHtml(itemName)}">
+                    <span class="erp-link-text">${escapeHtml(translate(itemName))}</span>
+                    <span class="erp-link-arrow" aria-hidden="true">${isArabic ? "←" : "→"}</span>
+                  </button>
+                  ${infoBtn}
+                </div>`;
+            }).join("");
+
+            return `
+              <article class="erp-card tone-${(sectionIndex + cardIndex) % 5}" data-erp-card>
+                <button type="button" class="erp-card-heading" data-card-toggle aria-expanded="false">
+                  <span class="erp-icon" aria-hidden="true">${icon}</span>
+                  <span class="erp-card-title">${escapeHtml(translate(cardName))}</span>
+                  <span class="erp-card-chevron" aria-hidden="true">⌄</span>
+                </button>
+                <div class="erp-card-links">${linksHtml}</div>
+              </article>`;
+          }).join("");
+
+        return `
+          <section class="erp-module-section">
+            <h2 class="erp-section-title">${escapeHtml(translate(sectionName))}</h2>
+            <div class="erp-dashboard-grid">${cardsHtml}</div>
+          </section>`;
+      }).join("");
+  }
+
+  /* ─────────────────────────────────────────
+     ١٠. إنشاء الفوتر
+  ───────────────────────────────────────── */
+
+  const footerInfo = {
+    phone: "920033198",
+    email: "apps@mubtkir.com",
+    website: "www.mubtkir.com",
+    labels: {
+      phoneAr: "الهاتف الموحد",
+      phoneEn: "Support Phone",
+      emailAr: "البريد الإلكتروني",
+      emailEn: "Email Support",
+      websiteAr: "الموقع الإلكتروني",
+      websiteEn: "Official Website"
+    }
+  };
+
+  function renderFooter() {
+    if (!footerEl) return;
+    const labels = footerInfo.labels;
+    const phoneLabel = isArabic ? labels.phoneAr : labels.phoneEn;
+    const emailLabel = isArabic ? labels.emailAr : labels.emailEn;
+    const websiteLabel = isArabic ? labels.websiteAr : labels.websiteEn;
+
+    footerEl.innerHTML = `
+      <div class="erp-footer-inner">
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">📞</span>
+          <span class="erp-footer-label">${escapeHtml(phoneLabel)}:</span>
+          <a href="tel:${footerInfo.phone}" class="erp-footer-link" dir="ltr">${escapeHtml(footerInfo.phone)}</a>
+        </div>
+        <span class="erp-footer-sep">|</span>
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">✉️</span>
+          <span class="erp-footer-label">${escapeHtml(emailLabel)}:</span>
+          <a href="mailto:${footerInfo.email}" class="erp-footer-link">${escapeHtml(footerInfo.email)}</a>
+        </div>
+        <span class="erp-footer-sep">|</span>
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">🌐</span>
+          <span class="erp-footer-label">${escapeHtml(websiteLabel)}:</span>
+          <a href="https://${footerInfo.website}" class="erp-footer-link" target="_blank" rel="noopener">${escapeHtml(footerInfo.website)}</a>
+        </div>
+      </div>`;
+  }
+
+  /* ─────────────────────────────────────────
+     ١١. التوجيه وفتح الشاشات داخل النظام
+  ───────────────────────────────────────── */
+
+  function openRoute(name) {
+    if (!window.frappe || typeof frappe.set_route !== "function") return;
+    if (customRoutes[name]) {
+      frappe.set_route(customRoutes[name]);
+      return;
+    }
+    if (reportNames.has(name)) {
+      frappe.set_route("query-report", name);
+      return;
+    }
+    if (singleDocs.has(name)) {
+      frappe.set_route("Form", name);
+      return;
+    }
+    if (treeDocs.has(name)) {
+      frappe.set_route("Tree", name);
+      return;
+    }
+    frappe.set_route("List", name);
+  }
+
+  /* ─────────────────────────────────────────
+     ١٢. معالجة الأحداث والضغط
+  ───────────────────────────────────────── */
+
+  let lastToggleTime = 0;
+
+  content.addEventListener("click", event => {
+    const infoBtn = event.target.closest("[data-info-item]");
+    if (infoBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      showInfoModal(infoBtn.dataset.infoItem);
+      return;
+    }
+
+    const link = event.target.closest("[data-route-name]");
+    if (link) {
+      event.preventDefault();
+      openRoute(link.dataset.routeName);
+      return;
+    }
+
+    const toggle = event.target.closest("[data-card-toggle]");
+    if (toggle) {
+      const now = Date.now();
+      if (now - lastToggleTime < 300) return;
+      lastToggleTime = now;
+
+      const card = toggle.closest("[data-erp-card]");
+      const expanded = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", String(!expanded));
+      if (card) {
+        card.classList.toggle("is-collapsed", expanded);
+      }
+    }
+  });
+
+  /* ─────────────────────────────────────────
+     ١٣. بدء التشغيل
+  ───────────────────────────────────────── */
+
+  renderQuickActions();
+  renderSections();
+  renderFooter();
 })();
