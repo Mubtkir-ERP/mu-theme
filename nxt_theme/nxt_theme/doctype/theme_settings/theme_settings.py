@@ -168,6 +168,8 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			candidates.extend(["Expense Claims", "expense-claims", "مطالبات المصاريف"])
 		elif block_name == "Leaves":
 			candidates.extend(["Leaves", "leaves", "الإجازات"])
+		elif block_name == "Party Bookings":
+			candidates.extend(["Party Bookings", "party-bookings", "Party Booking", "party_bookings", "حجوزات الحفلات", "حجوزات الحفلات والمناسبات"])
 
 		ws_name = None
 		for c in candidates:
