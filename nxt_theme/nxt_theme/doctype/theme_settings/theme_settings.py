@@ -158,6 +158,16 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			candidates.extend(["Gas Operations", "Gas-Operations", "Gas operations", "إدارة عمليات الغاز", "عمليات الغاز"])
 		elif block_name == "Container Rental System":
 			candidates.extend(["Container Rental System", "container_rental_system", "Container Rental", "نظام تأجير الحاويات", "تأجير الحاويات"])
+		elif block_name == "Tax & Benefits":
+			candidates.extend(["Tax & Benefits", "Tax and Benefits", "tax-and-benefits", "الضرائب والمزايا"])
+		elif block_name == "Salary Payout":
+			candidates.extend(["Salary Payout", "salary-payout", "صرف الرواتب"])
+		elif block_name == "Payroll":
+			candidates.extend(["Payroll", "payroll", "الرواتب", "مسير الرواتب"])
+		elif block_name == "Expense Claims":
+			candidates.extend(["Expense Claims", "expense-claims", "مطالبات المصاريف"])
+		elif block_name == "Leaves":
+			candidates.extend(["Leaves", "leaves", "الإجازات"])
 
 		ws_name = None
 		for c in candidates:

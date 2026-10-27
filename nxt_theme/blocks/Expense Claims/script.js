@@ -1,1640 +1,615 @@
-(() => {
-
-  /* =========================================================
-     MUBTKIR ERP — EXPENSE CLAIMS WORKSPACE
-     لوحة تحكم مطالبات المصروفات
-  ========================================================= */
-
-  const root =
-    root_element.querySelector("[data-erp-dashboard]");
-
-  const cycleSection =
-    root_element.querySelector("[data-purchase-cycle]");
-
-  const statsSection =
-    root_element.querySelector("[data-stats-section]");
-
-  const quickActions =
-    root_element.querySelector("[data-quick-actions]");
-
-  const content =
-    root_element.querySelector("[data-dashboard-content]");
-
-  const footerEl =
-    root_element.querySelector("[data-dashboard-footer]");
-
-  if (!root) return;
-
-
-  /* =========================================================
-     1. LANGUAGE
-  ========================================================= */
-
-  const langValue =
-    window.frappe?.boot?.lang ||
-    document.documentElement.lang ||
-    "en";
-
-  const isArabic =
-    String(langValue)
-      .toLowerCase()
-      .startsWith("ar");
-
-  root.setAttribute(
-    "dir",
-    isArabic ? "rtl" : "ltr"
-  );
-
-
-  /* =========================================================
-     2. HELPERS
-  ========================================================= */
-
-  function escapeHtml(value) {
-
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-
-  function formatNumber(value) {
-
-    return (
-      parseFloat(value) || 0
-    ).toLocaleString("en-US");
-  }
-
-
-  function getMonthStart() {
-
-    const d = new Date();
-
-    const year =
-      d.getFullYear();
-
-    const month =
-      String(
-        d.getMonth() + 1
-      ).padStart(2, "0");
-
-    return `${year}-${month}-01`;
-  }
-
-
-  function safeCount(
-    doctype,
-    filters = {}
-  ) {
-
-    return new Promise(resolve => {
-
-      try {
-
-        frappe.call({
-
-          method:
-            "frappe.client.get_count",
-
-          args: {
-            doctype,
-            filters
-          },
-
-          callback: r => {
-
-            resolve(
-              r?.message || 0
-            );
-
-          },
-
-          error: () =>
-            resolve(0)
-
-        });
-
-      } catch (e) {
-
-        console.error(
-          "Expense Claim Count Error:",
-          doctype,
-          e
-        );
-
-        resolve(0);
-
-      }
-
-    });
-
-  }
-
-
-  function newDoc(doctype) {
-
-    try {
-
-      frappe.new_doc(
-        doctype
-      );
-
-    } catch (e) {
-
-      console.error(
-        "Expense Claim New Doc Error:",
-        doctype,
-        e
-      );
-
-    }
-
-  }
-
-
-  /* =========================================================
-     3. ROUTING
-  ========================================================= */
-
-  const reportNames =
-    new Set([
-      "Unpaid Expense Claim",
-      "Employee Advance Summary"
-    ]);
-
-
-  const treeDocs =
-    new Set([
-      "Cost Center"
-    ]);
-
-
-  function openRoute(name) {
-
-    try {
-
-      if (
-        reportNames.has(name)
-      ) {
-
-        frappe.set_route(
-          "query-report",
-          name
-        );
-
-        return;
-      }
-
-
-      if (
-        treeDocs.has(name)
-      ) {
-
-        frappe.set_route(
-          "Tree",
-          name
-        );
-
-        return;
-      }
-
-
-      frappe.set_route(
-        "List",
-        name
-      );
-
-    } catch (e) {
-
-      console.error(
-        "Expense Claim Route Error:",
-        name,
-        e
-      );
-
-    }
-
-  }
-
-
-  /* =========================================================
-     4. EXPENSE CLAIM CYCLE
-  ========================================================= */
-
-  const cycleCards = [
-
-    {
-      step: 1,
-
-      action: "new",
-      doctype: "Expense Claim",
-
-      labelAr:
-        "إنشاء المطالبة",
-
-      labelEn:
-        "Create Expense Claim",
-
-      descriptionAr:
-        "إنشاء مطالبة مصروف جديدة للموظف.",
-
-      descriptionEn:
-        "Create a new employee expense claim."
-    },
-
-
-    {
-      step: 2,
-
-      action: "route",
-      doctype: "Expense Claim",
-
-      labelAr:
-        "إضافة المصروفات",
-
-      labelEn:
-        "Add Expenses",
-
-      descriptionAr:
-        "إضافة أنواع المصروفات والمبالغ والتواريخ.",
-
-      descriptionEn:
-        "Add expense types, amounts and dates."
-    },
-
-
-    {
-      step: 3,
-
-      action: "route",
-      doctype: "Expense Claim",
-
-      labelAr:
-        "إرفاق المستندات",
-
-      labelEn:
-        "Attach Documents",
-
-      descriptionAr:
-        "إرفاق الفواتير والإيصالات والمستندات المؤيدة.",
-
-      descriptionEn:
-        "Attach invoices, receipts and supporting documents."
-    },
-
-
-    {
-      step: 4,
-
-      action: "route",
-      doctype: "Expense Claim",
-
-      labelAr:
-        "المراجعة والاعتماد",
-
-      labelEn:
-        "Review & Approve",
-
-      descriptionAr:
-        "مراجعة المطالبة واعتمادها من المسؤول.",
-
-      descriptionEn:
-        "Review and approve the employee expense claim."
-    },
-
-
-    {
-      step: 5,
-
-      action: "payment-selector",
-
-      labelAr:
-        "الدفع والتسوية",
-
-      labelEn:
-        "Payment & Settlement",
-
-      descriptionAr:
-        "تسجيل دفع المطالبة أو تسويتها محاسبياً.",
-
-      descriptionEn:
-        "Pay or financially settle the approved claim."
-    },
-
-
-    {
-      step: 6,
-
-      action: "route",
-      doctype: "Expense Claim",
-
-      labelAr:
-        "إغلاق المطالبة",
-
-      labelEn:
-        "Close Claim",
-
-      descriptionAr:
-        "متابعة المطالبة حتى اكتمال السداد والتسوية.",
-
-      descriptionEn:
-        "Track the claim until reimbursement is completed."
-    }
-
-  ];
-
-
-  /* =========================================================
-     5. OVERVIEW
-  ========================================================= */
-
-  const statsCards = [
-
-    {
-      id:
-        "open-claims",
-
-      short:
-        "OPEN",
-
-      labelAr:
-        "المطالبات المفتوحة",
-
-      labelEn:
-        "Open Claims",
-
-      fetch: () =>
-        safeCount(
-          "Expense Claim",
-          {
-            docstatus: 0
-          }
-        )
-    },
-
-
-    {
-      id:
-        "approved-claims",
-
-      short:
-        "APP",
-
-      labelAr:
-        "المطالبات المعتمدة",
-
-      labelEn:
-        "Approved Claims",
-
-      fetch: () =>
-        safeCount(
-          "Expense Claim",
-          {
-            docstatus: 1
-          }
-        )
-    },
-
-
-    {
-      id:
-        "unpaid-claims",
-
-      short:
-        "DUE",
-
-      labelAr:
-        "المطالبات غير المدفوعة",
-
-      labelEn:
-        "Unpaid Claims",
-
-      fetch: () =>
-        safeCount(
-          "Expense Claim",
-          {
-            docstatus: 1,
-
-            status: [
-              "!=",
-              "Paid"
-            ]
-          }
-        )
-    },
-
-
-    {
-      id:
-        "month-claims",
-
-      short:
-        "MTH",
-
-      labelAr:
-        "مطالبات هذا الشهر",
-
-      labelEn:
-        "Claims This Month",
-
-      fetch: () =>
-        safeCount(
-          "Expense Claim",
-          {
-            creation: [
-              ">=",
-              getMonthStart()
-            ]
-          }
-        )
-    }
-
-  ];
-
-
-  /* =========================================================
-     6. QUICK ACTIONS
-  ========================================================= */
-
-  const quickButtons = [
-
-    {
-      doctype:
-        "Expense Claim",
-
-      labelAr:
-        "مطالبة مصروف جديدة",
-
-      labelEn:
-        "New Expense Claim"
-    },
-
-
-    {
-      doctype:
-        "Expense Claim Type",
-
-      labelAr:
-        "نوع مصروف جديد",
-
-      labelEn:
-        "New Expense Type"
-    },
-
-
-    {
-      doctype:
-        "Employee Advance",
-
-      labelAr:
-        "سلفة موظف جديدة",
-
-      labelEn:
-        "New Employee Advance"
-    },
-
-
-    {
-      doctype:
-        "Payment Entry",
-
-      labelAr:
-        "دفعة جديدة",
-
-      labelEn:
-        "New Payment Entry"
-    }
-
-  ];
-
-
-  /* =========================================================
-     7. LOWER CARDS
-  ========================================================= */
-
-  const cards = [
-
-    {
-      titleAr:
-        "مطالبات المصروفات",
-
-      titleEn:
-        "Expense Claims",
-
-      icon:
-        "🧾",
-
-      links: [
-        "Expense Claim"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "أنواع المصروفات",
-
-      titleEn:
-        "Expense Types",
-
-      icon:
-        "🏷️",
-
-      links: [
-        "Expense Claim Type"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "سلف الموظفين",
-
-      titleEn:
-        "Employee Advances",
-
-      icon:
-        "💰",
-
-      links: [
-        "Employee Advance"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "القيود والمدفوعات",
-
-      titleEn:
-        "Payments & Accounting",
-
-      icon:
-        "💳",
-
-      links: [
-        "Payment Entry",
-        "Journal Entry"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "الموظفون",
-
-      titleEn:
-        "Employees",
-
-      icon:
-        "👤",
-
-      links: [
-        "Employee"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "مراكز التكلفة",
-
-      titleEn:
-        "Cost Centers",
-
-      icon:
-        "🎯",
-
-      links: [
-        "Cost Center"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "المشاريع",
-
-      titleEn:
-        "Projects",
-
-      icon:
-        "🏗️",
-
-      links: [
-        "Project"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "السفر والمصروفات",
-
-      titleEn:
-        "Travel & Expenses",
-
-      icon:
-        "✈️",
-
-      links: [
-        "Travel Request"
-      ]
-    },
-
-
-    {
-      titleAr:
-        "التقارير",
-
-      titleEn:
-        "Reports",
-
-      icon:
-        "📊",
-
-      links: [
-        "Unpaid Expense Claim",
-        "Employee Advance Summary"
-      ]
-    }
-
-  ];
-
-
-  /* =========================================================
-     8. TRANSLATIONS
-  ========================================================= */
-
-  const translations = {
-
-    "Expense Claim":
-      "مطالبة المصروف",
-
-    "Expense Claim Type":
-      "نوع المصروف",
-
-    "Employee Advance":
-      "سلفة الموظف",
-
-    "Payment Entry":
-      "سند الدفع",
-
-    "Journal Entry":
-      "قيد اليومية",
-
-    "Employee":
-      "الموظف",
-
-    "Cost Center":
-      "مركز التكلفة",
-
-    "Project":
-      "المشروع",
-
-    "Travel Request":
-      "طلب سفر",
-
-    "Unpaid Expense Claim":
-      "مطالبات المصروفات غير المدفوعة",
-
-    "Employee Advance Summary":
-      "ملخص سلف الموظفين"
-
-  };
-
-
-  function translate(name) {
-
-    if (!isArabic)
-      return name;
-
-    return (
-      translations[name] ||
-      name
-    );
-
-  }
-
-
-  /* =========================================================
-     9. PAYMENT SELECTOR
-  ========================================================= */
-
-  function showPaymentSelector() {
-
-    const overlay =
-      document.createElement("div");
-
-    overlay.className =
-      "erp-modal-overlay";
-
-    overlay.setAttribute(
-      "dir",
-      isArabic
-        ? "rtl"
-        : "ltr"
-    );
-
-
-    overlay.innerHTML = `
-
-      <div class="erp-modal-box">
-
-        <button
-          type="button"
-          class="erp-modal-close"
-          data-expense-close
-        >
-          ✕
-        </button>
-
-
-        <div class="erp-modal-header">
-
-          <span class="erp-modal-icon">
-            💳
-          </span>
-
-          <h3 class="erp-modal-title">
-
-            ${
-              isArabic
-                ? "الدفع والتسوية"
-                : "Payment & Settlement"
-            }
-
-          </h3>
-
-        </div>
-
-
-        <div
-          class="erp-quick-grid"
-          style="
-            margin-top:18px;
-            grid-template-columns:
-            repeat(2,minmax(0,1fr)) !important;
-          "
-        >
-
-          <button
-            type="button"
-            class="erp-quick-btn"
-            data-expense-payment="Payment Entry"
-          >
-            ${
-              isArabic
-                ? "سند دفع"
-                : "Payment Entry"
-            }
-          </button>
-
-
-          <button
-            type="button"
-            class="erp-quick-btn"
-            data-expense-payment="Journal Entry"
-          >
-            ${
-              isArabic
-                ? "قيد يومية"
-                : "Journal Entry"
-            }
-          </button>
-
-        </div>
-
-      </div>
-
-    `;
-
-
-    root.appendChild(
-      overlay
-    );
-
-
-    requestAnimationFrame(() => {
-
-      overlay.classList.add(
-        "is-visible"
-      );
-
-    });
-
-
-    overlay
-      .querySelector(
-        "[data-expense-close]"
-      )
-      ?.addEventListener(
-        "click",
-        () => overlay.remove()
-      );
-
-
-    overlay.addEventListener(
-      "click",
-      event => {
-
-        if (
-          event.target === overlay
-        ) {
-
-          overlay.remove();
-
-        }
-
-      }
-    );
-
-
-    overlay
-      .querySelectorAll(
-        "[data-expense-payment]"
-      )
-      .forEach(button => {
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            const doctype =
-              button.dataset.expensePayment;
-
-            overlay.remove();
-
-            openRoute(
-              doctype
-            );
-
-          }
-        );
-
-      });
-
-  }
-
-
-  /* =========================================================
-     10. RENDER CYCLE
-  ========================================================= */
-
-  function renderCycle() {
-
-    if (!cycleSection)
-      return;
-
-
-    cycleSection.innerHTML = `
-
-      <section class="erp-cycle-container">
-
-        <h2
-          class="
-            erp-section-title
-            erp-cycle-title
-          "
-        >
-          ${
-            isArabic
-              ? "دورة مطالبات المصروفات"
-              : "Expense Claim Cycle"
-          }
-        </h2>
-
-
-        <div
-          class="erp-cycle-grid"
-          style="
-            grid-template-columns:
-            repeat(
-              ${cycleCards.length},
-              minmax(0,1fr)
-            );
-          "
-        >
-
-          ${cycleCards
-            .map(
-              (card, index) => `
-
-                <div class="erp-cycle-item">
-
-                  <button
-                    type="button"
-                    class="
-                      erp-cycle-card
-                      cycle-tone-${(index % 4) + 1}
-                    "
-                    data-expense-cycle="${index}"
-                  >
-
-                    <span
-                      class="erp-cycle-number"
-                    >
-                      ${card.step}
-                    </span>
-
-
-                    <span
-                      class="erp-cycle-card-title"
-                    >
-
-                      ${escapeHtml(
-                        isArabic
-                          ? card.labelAr
-                          : card.labelEn
-                      )}
-
-                    </span>
-
-
-                    <span
-                      class="erp-cycle-description"
-                    >
-
-                      ${escapeHtml(
-                        isArabic
-                          ? card.descriptionAr
-                          : card.descriptionEn
-                      )}
-
-                    </span>
-
-                  </button>
-
-
-                  ${
-                    index <
-                    cycleCards.length - 1
-
-                      ? `
-                        <span class="erp-cycle-arrow">
-                          ${isArabic ? "←" : "→"}
-                        </span>
-                      `
-
-                      : ""
-                  }
-
-                </div>
-
-              `
-            )
-            .join("")}
-
-        </div>
-
-      </section>
-
-    `;
-
-
-    cycleSection.addEventListener(
-      "click",
-      event => {
-
-        const element =
-          event.target.closest(
-            "[data-expense-cycle]"
-          );
-
-
-        if (!element)
-          return;
-
-
-        const card =
-          cycleCards[
-            Number(
-              element.dataset.expenseCycle
-            )
-          ];
-
-
-        if (!card)
-          return;
-
-
-        if (
-          card.action === "new"
-        ) {
-
-          newDoc(
-            card.doctype
-          );
-
-          return;
-        }
-
-
-        if (
-          card.action ===
-          "payment-selector"
-        ) {
-
-          showPaymentSelector();
-
-          return;
-        }
-
-
-        openRoute(
-          card.doctype
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     11. RENDER STATS
-  ========================================================= */
-
-  function renderStats() {
-
-    if (!statsSection)
-      return;
-
-
-    statsSection.innerHTML = `
-
-      <section class="erp-overview-container">
-
-        <h2 class="erp-section-title">
-
-          ${
-            isArabic
-              ? "نظرة عامة"
-              : "Overview"
-          }
-
-        </h2>
-
-
-        <div class="erp-stats-grid">
-
-          ${statsCards
-            .map(
-              (card, index) => `
-
-                <div
-                  class="
-                    erp-stat-card
-                    overview-tone-${index + 1}
-                  "
-                >
-
-                  <div class="erp-stat-icon">
-                    ${escapeHtml(card.short)}
-                  </div>
-
-
-                  <div class="erp-stat-info">
-
-                    <span
-                      class="erp-stat-value"
-                      data-expense-stat="${card.id}"
-                    >
-                      0
-                    </span>
-
-
-                    <span
-                      class="erp-stat-label"
-                    >
-
-                      ${escapeHtml(
-                        isArabic
-                          ? card.labelAr
-                          : card.labelEn
-                      )}
-
-                    </span>
-
-                  </div>
-
-                </div>
-
-              `
-            )
-            .join("")}
-
-        </div>
-
-      </section>
-
-    `;
-
-
-    statsCards.forEach(
-      card => {
-
-        Promise
-          .resolve()
-          .then(
-            () => card.fetch()
-          )
-          .then(
-            value => {
-
-              const element =
-                statsSection.querySelector(
-                  `[data-expense-stat="${card.id}"]`
-                );
-
-
-              if (element) {
-
-                element.textContent =
-                  formatNumber(value);
-
-              }
-
-            }
-          )
-          .catch(
-            error => {
-
-              console.error(
-                "Expense Claim Stat Error:",
-                card.id,
-                error
-              );
-
-            }
-          );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     12. QUICK ACTIONS
-  ========================================================= */
-
-  function renderQuickActions() {
-
-    if (!quickActions)
-      return;
-
-
-    quickActions.innerHTML = `
-
-      <h2 class="erp-section-title">
-
-        ${
-          isArabic
-            ? "اختصارات سريعة"
-            : "Quick Actions"
-        }
-
-      </h2>
-
-
-      <div class="erp-quick-grid">
-
-        ${quickButtons
-          .map(
-            (button, index) => `
-
-              <button
-                type="button"
-                class="erp-quick-btn"
-                data-expense-quick="${index}"
-              >
-
-                <span
-                  class="erp-quick-label"
-                >
-
-                  ${escapeHtml(
-                    isArabic
-                      ? button.labelAr
-                      : button.labelEn
-                  )}
-
-                </span>
-
-              </button>
-
-            `
-          )
-          .join("")}
-
-      </div>
-
-    `;
-
-
-    quickActions.addEventListener(
-      "click",
-      event => {
-
-        const element =
-          event.target.closest(
-            "[data-expense-quick]"
-          );
-
-
-        if (!element)
-          return;
-
-
-        const button =
-          quickButtons[
-            Number(
-              element.dataset.expenseQuick
-            )
-          ];
-
-
-        if (!button)
-          return;
-
-
-        newDoc(
-          button.doctype
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     13. RENDER CARDS
-  ========================================================= */
-
-  function renderCards() {
-
-    if (!content)
-      return;
-
-
-    const cardsHtml =
-      cards
-        .map(
-          (card, index) => {
-
-            const links =
-              card.links
-                .map(
-                  item => `
-
-                    <div class="erp-link-row">
-
-                      <button
-                        type="button"
-                        class="erp-link"
-                        data-expense-route="${escapeHtml(item)}"
-                      >
-
-                        <span class="erp-link-text">
-                          ${escapeHtml(translate(item))}
-                        </span>
-
-
-                        <span class="erp-link-arrow">
-                          ${isArabic ? "←" : "→"}
-                        </span>
-
-                      </button>
-
-                    </div>
-
-                  `
-                )
-                .join("");
-
-
-            return `
-
-              <article
-                class="
-                  erp-card
-                  tone-${index % 5}
-                "
-                data-expense-card
-              >
-
-                <button
-                  type="button"
-                  class="erp-card-heading"
-                  data-expense-toggle
-                  aria-expanded="false"
-                >
-
-                  <span class="erp-icon">
-                    ${card.icon}
-                  </span>
-
-
-                  <span class="erp-card-title">
-
-                    ${escapeHtml(
-                      isArabic
-                        ? card.titleAr
-                        : card.titleEn
-                    )}
-
-                  </span>
-
-
-                  <span class="erp-card-chevron">
-                    ⌄
-                  </span>
-
-                </button>
-
-
-                <div class="erp-card-links">
-                  ${links}
-                </div>
-
-              </article>
-
-            `;
-
-          }
-        )
-        .join("");
-
-
-    content.innerHTML = `
-
-      <section class="erp-module-section">
-
-        <h2 class="erp-section-title">
-
-          ${
-            isArabic
-              ? "البيانات الرئيسية والتقارير"
-              : "Reports & Masters"
-          }
-
-        </h2>
-
-
-        <div class="erp-dashboard-grid">
-          ${cardsHtml}
-        </div>
-
-      </section>
-
-    `;
-
-
-    content.addEventListener(
-      "click",
-      event => {
-
-        const routeButton =
-          event.target.closest(
-            "[data-expense-route]"
-          );
-
-
-        if (routeButton) {
-
-          event.preventDefault();
-
-          openRoute(
-            routeButton.dataset.expenseRoute
-          );
-
-          return;
-        }
-
-
-        const toggle =
-          event.target.closest(
-            "[data-expense-toggle]"
-          );
-
-
-        if (!toggle)
-          return;
-
-
-        const selectedCard =
-          toggle.closest(
-            "[data-expense-card]"
-          );
-
-
-        if (!selectedCard)
-          return;
-
-
-        const shouldOpen =
-          !selectedCard.classList.contains(
-            "is-open"
-          );
-
-
-        content
-          .querySelectorAll(
-            "[data-expense-card]"
-          )
-          .forEach(card => {
-
-            if (
-              card !== selectedCard
-            ) {
-
-              card.classList.remove(
-                "is-open"
-              );
-
-            }
-
-          });
-
-
-        selectedCard.classList.toggle(
-          "is-open",
-          shouldOpen
-        );
-
-      }
-    );
-
-  }
-
-
-  /* =========================================================
-     14. FOOTER
-  ========================================================= */
-
-  function renderFooter() {
-
-    if (!footerEl)
-      return;
-
-
-    footerEl.innerHTML = `
-
-      <div class="erp-footer-inner">
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ☎
-          </span>
-
-          <span class="erp-footer-label">
-
-            ${
-              isArabic
-                ? "الهاتف الموحد:"
-                : "Phone:"
-            }
-
-          </span>
-
-          <a
-            href="tel:0115110455"
-            class="erp-footer-link"
-            dir="ltr"
-          >
-            0115110455
-          </a>
-
-        </div>
-
-
-        <span class="erp-footer-sep">
-          |
-        </span>
-
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ✉
-          </span>
-
-          <span class="erp-footer-label">
-
-            ${
-              isArabic
-                ? "البريد الإلكتروني:"
-                : "Email:"
-            }
-
-          </span>
-
-          <a
-            href="mailto:sales@mubtkir.com"
-            class="erp-footer-link"
-          >
-            sales@mubtkir.com
-          </a>
-
-        </div>
-
-
-        <span class="erp-footer-sep">
-          |
-        </span>
-
-
-        <div class="erp-footer-item">
-
-          <span class="erp-footer-icon">
-            ◎
-          </span>
-
-          <span class="erp-footer-label">
-
-            ${
-              isArabic
-                ? "الموقع:"
-                : "Website:"
-            }
-
-          </span>
-
-          <a
-            href="https://www.mubtkir.com"
-            class="erp-footer-link"
-            target="_blank"
-            rel="noopener"
-          >
-            www.mubtkir.com
-          </a>
-
-        </div>
-
-      </div>
-
-    `;
-
-  }
-
-
-  /* =========================================================
-     15. INIT
-  ========================================================= */
-
-  try {
-    renderCycle();
-  } catch (e) {
-    console.error(
-      "Expense Claim Cycle Error:",
-      e
-    );
-  }
-
-
-  try {
-    renderStats();
-  } catch (e) {
-    console.error(
-      "Expense Claim Stats Error:",
-      e
-    );
-  }
-
-
-  try {
-    renderQuickActions();
-  } catch (e) {
-    console.error(
-      "Expense Claim Quick Actions Error:",
-      e
-    );
-  }
-
-
-  try {
-    renderCards();
-  } catch (e) {
-    console.error(
-      "Expense Claim Cards Error:",
-      e
-    );
-  }
-
-
-  try {
-    renderFooter();
-  } catch (e) {
-    console.error(
-      "Expense Claim Footer Error:",
-      e
-    );
-  }
-
+(() => {
+  /*
+   * ══════════════════════════════════════════
+   *  لوحة تحكم مطالبات المصروفات — Expense Claims Workspace
+   * ══════════════════════════════════════════
+   */
+
+  const root = root_element.querySelector("[data-erp-dashboard]");
+  const content = root_element.querySelector("[data-dashboard-content]");
+  const statsSection = root_element.querySelector("[data-stats-section]");
+  const quickActions = root_element.querySelector("[data-quick-actions]");
+  const footerEl = root_element.querySelector("[data-dashboard-footer]");
+
+  if (!root || !content) return;
+
+  const langValue =
+    window.frappe?.boot?.lang ||
+    window.frappe?.boot?.user?.language ||
+    document.documentElement.lang || "en";
+
+  const isArabic = String(langValue).toLowerCase().startsWith("ar");
+
+  /* ─────────────────────────────────────────
+     ١. أزرار الوصول السريع (Your Shortcuts)
+  ───────────────────────────────────────── */
+
+  const quickActionButtons = [
+    { labelEn: "Expense Claim", labelAr: "مطالبات المصروفات", doctype: "Expense Claim", hasCount: true, countSuffixEn: "Pending", countSuffixAr: "معلق", color: "#f59e0b" },
+    { labelEn: "Employee Advance", labelAr: "سلف الموظفين", doctype: "Employee Advance", hasCount: true, countSuffixEn: "Unclaimed", countSuffixAr: "غير مسترد", color: "#10b981" },
+    { labelEn: "Dashboard", labelAr: "لوحة المصروفات", route: "expense-claims-dashboard", color: "#64748b" }
+  ];
+
+  /* ─────────────────────────────────────────
+     ٢. هيكل الأقسام والبطاقات (مطابق تماماً للصورة)
+  ───────────────────────────────────────── */
+
+  const sections = [
+    [
+      "Masters & Reports",
+      [
+        [
+          "Claims",
+          "💰",
+          [
+            "Expense Claim",
+            "Expense Claim Type"
+          ]
+        ],
+        [
+          "Advances",
+          "💵",
+          [
+            "Employee Advance",
+            "Payment Entry",
+            "Journal Entry",
+            "Additional Salary"
+          ]
+        ],
+        [
+          "Fleet Management",
+          "🚗",
+          [
+            "Vehicle",
+            "Driver",
+            "Vehicle Service Item",
+            "Vehicle Log",
+            "Vehicle Expenses"
+          ]
+        ],
+        [
+          "Travel",
+          "✈️",
+          [
+            "Travel Request",
+            "Purpose of Travel"
+          ]
+        ],
+        [
+          "Reports",
+          "📊",
+          [
+            "Employee Advance Summary",
+            "Unpaid Expense Claim",
+            "Vehicle Expenses"
+          ]
+        ],
+        [
+          "Accounting Reports",
+          "📑",
+          [
+            "Accounts Receivable",
+            "Accounts Payable",
+            "General Ledger"
+          ]
+        ]
+      ]
+    ]
+  ];
+
+  /* ─────────────────────────────────────────
+     ٣. أنواع المستندات الفردية والشجرية والتقارير
+  ───────────────────────────────────────── */
+
+  const singleDocs = new Set([]);
+
+  const treeDocs = new Set([]);
+
+  // التقارير المستثناة من زر التفاصيل
+  const reportNames = new Set([
+    "Employee Advance Summary",
+    "Unpaid Expense Claim",
+    "Vehicle Expenses",
+    "Accounts Receivable",
+    "Accounts Payable",
+    "General Ledger"
+  ]);
+
+  const customRoutes = {
+    "Dashboard": ["expense-claims-dashboard"]
+  };
+
+  /* ─────────────────────────────────────────
+     ٤. الترجمات العربية
+  ───────────────────────────────────────── */
+
+  const arabicFallback = {
+    "Your Shortcuts": "اختصاراتك السريعة",
+    "Masters & Reports": "البيانات والتقارير",
+
+    "Claims": "المطالبات والنفقات",
+    "Expense Claim": "مطالبة مصروفات",
+    "Expense Claim Type": "أنواع المصروفات والنفقات",
+
+    "Advances": "السلف والعهد المالية",
+    "Employee Advance": "سلفة موظف",
+    "Payment Entry": "سند صرف / دفع",
+    "Journal Entry": "قيد يومية",
+    "Additional Salary": "راتب إضافي / استقطاع",
+
+    "Fleet Management": "إدارة أسطول المركبات",
+    "Vehicle": "المركبة",
+    "Driver": "السائق",
+    "Vehicle Service Item": "منتج خدمة المركبة",
+    "Vehicle Log": "سجل رحلات ووقود المركبة",
+    "Vehicle Expenses": "مصروفات المركبات",
+
+    "Travel": "الانتدابات والسفر",
+    "Travel Request": "طلب انتداب وسفر",
+    "Purpose of Travel": "أغراض وأسباب السفر",
+
+    "Reports": "التقارير",
+    "Employee Advance Summary": "ملخص سلف الموظفين",
+    "Unpaid Expense Claim": "مطالبات المصروفات غير المسددة",
+
+    "Accounting Reports": "التقارير المحاسبية",
+    "Accounts Receivable": "أعمار الديون والمدينون",
+    "Accounts Payable": "مستحقات الموردين والدائنون",
+    "General Ledger": "دفتر الأستاذ العام",
+
+    "Dashboard": "لوحة المصروفات"
+  };
+
+  /* ─────────────────────────────────────────
+     ٥. أوصاف المستندات والإعدادات (مع خطوات تفصيلية)
+  ───────────────────────────────────────── */
+
+  const itemDescriptions = {
+    "Expense Claim": {
+      icon: "💰",
+      summaryAr: "تقديم ومراجعة مطالبات استرداد المصروفات النثرية ونفقات العمل التي دفعها الموظف.",
+      summaryEn: "Submit and process employee business expense claims for reimbursement with receipts.",
+      stepsAr: ["إنشاء مطالبة مصروفات جديدة وإرفاق فواتير الشراء والإيصالات", "تحديد بنود المصروفات والمبالغ المستحقة ومركز التكلفة", "اعتماد المطالبة وترحيل سند الصرف لتعويض الموظف"],
+      stepsEn: ["Create expense claim and attach receipts and invoices", "Itemize expense categories, amounts, and cost center", "Submit claim for approval and payment reimbursement entry"]
+    },
+    "Expense Claim Type": {
+      icon: "🏷️",
+      summaryAr: "تعريف وتصنيف أنواع المصروفات (ضيافة، وقود، قرطاسية، اتصالات) وربط كل نوع بالحساب المحاسبي المعتمد.",
+      summaryEn: "Configure expense categories (travel, meals, stationery) and link to default GL expense accounts.",
+      stepsAr: ["إدخال مسمى نوع المصروف بالعربية والإنجليزية", "تحديد حساب المصروف الافتراضي في شجرة الحسابات", "حفظ النوع لتمكين الموظفين من اختياره في المطالبات"],
+      stepsEn: ["Enter expense type name and code", "Map default expense account in Chart of Accounts", "Save type to make available in employee claim forms"]
+    },
+
+    "Employee Advance": {
+      icon: "💵",
+      summaryAr: "تسجيل وصرف السلف النقدية المؤقتة للموظفين وجدولة استقطاعها من الرواتب الشهرية.",
+      summaryEn: "Disburse employee cash advances and schedule automated salary deductions.",
+      stepsAr: ["إنشاء طلب سلفة للموظف وتحديد المبلغ والغرض", "تحديد الحساب المالي للصرف وطريقة الاسترداد من الراتب", "اعتماد السلفة وصرف المبلغ وجدولة أقساط السداد"],
+      stepsEn: ["Create advance request, entering amount and business purpose", "Select disbursing cash/bank account and repayment mode", "Approve advance to generate payment and deduction schedule"]
+    },
+    "Payment Entry": {
+      icon: "💳",
+      summaryAr: "سند صرف وسداد مبالغ المطالبات والسلف النقدية للموظفين من الخزينة أو الحساب البنكي.",
+      summaryEn: "Issue payment vouchers to settle employee claims and advance disbursements from bank/cash.",
+      stepsAr: ["إنشاء سند صرف واختيار الموظف والحساب المصرفي الدافع", "مطابقة السند مع مطالبة المصروفات أو السلفة المعتمدة", "اعتماد وترحيل السند لتسوية المستحق محاسبياً"],
+      stepsEn: ["Create Payment Entry selecting employee and paying bank account", "Allocate payment against approved expense claim or advance", "Submit voucher to update general ledger balances"]
+    },
+    "Journal Entry": {
+      icon: "📑",
+      summaryAr: "إجراء القيود المحاسبية اليدوية لتسوية العهد المالية ومصروفات الموظفين بين مراكز التكلفة والحسابات.",
+      summaryEn: "Manual journal entries to adjust, reclassify, or reconcile employee advances and expenses.",
+      stepsAr: ["تحديد تاريخ القيد وإدخال الحسابات المدينة والدائنة", "تحديد الموظف ومركز التكلفة وشرح القيد المحاسبي", "مراجعة توازن القيد واعتماده وترحيله لدفتر الأستاذ"],
+      stepsEn: ["Set voucher date and specify debit and credit accounts", "Tag employee and cost center with clear narration", "Verify balance and submit entry to General Ledger"]
+    },
+    "Additional Salary": {
+      icon: "➕",
+      summaryAr: "إضافة بدلات ومكافآت إضافية أو خصومات واستقطاعات سلف مباشرة على مسير الراتب القادم.",
+      summaryEn: "Inject recurring or one-time earning allowances or advance deductions into payroll.",
+      stepsAr: ["اختيار الموظف وعنصر الراتب (بدل إضافي أو استقطاع سلفة)", "تحديد المبلغ وشهر المسير المستهدف", "اعتماد السجل لدمجه تلقائياً عند توليد مسيرات الرواتب"],
+      stepsEn: ["Select employee and salary component (allowance or advance deduction)", "Set monetary amount and target payroll cycle month", "Submit record to reflect automatically on next salary slip"]
+    },
+
+    "Vehicle": {
+      icon: "🚗",
+      summaryAr: "سجل أسطول المركبات والسيارات؛ بيانات اللوحة، الموديل، السائق المسؤول، وتواريخ الفحص والتأمين.",
+      summaryEn: "Fleet vehicle register: license plate, chassis, assigned driver, inspection, and insurance.",
+      stepsAr: ["إدخال رقم لوحة المركبة والموديل وسنة الصنع", "تعيين السائق المسؤول وتحديد قراءة العداد الأولية", "حفظ المركبة لمتابعة مصاريف الوقود والصيانة دورياً"],
+      stepsEn: ["Register license plate number, vehicle make, and model", "Assign responsible driver and initial odometer reading", "Save vehicle to track fuel expenses and service history"]
+    },
+    "Driver": {
+      icon: "👤",
+      summaryAr: "سجل السائقين والمناديب؛ بيانات الاتصال، رقم رخصة القيادة، الفئة، وتاريخ الانتهاء.",
+      summaryEn: "Fleet drivers registry: driving license details, category, contact, and expiry dates.",
+      stepsAr: ["تسجيل بيانات السائق وربطه بملف الموظف إن وجد", "تسجيل رقم رخصة القيادة وفئتها وتاريخ انتهائها", "حفظ السائق لتعيينه على المركبات ورحلات العمل"],
+      stepsEn: ["Record driver profile and link to employee record if applicable", "Enter driving license number, category, and expiry date", "Save driver to assign across company vehicles and trips"]
+    },
+    "Vehicle Service Item": {
+      icon: "🔧",
+      summaryAr: "تعريف وتحديد المنتجات وقطع الغيار والزيوت المعتمدة لخدمة وصيانة أسطول المركبات.",
+      summaryEn: "Master catalog of approved vehicle maintenance service items, parts, and consumables.",
+      stepsAr: ["إدخال اسم منتج الخدمة (مثل: زيت محرك، فلاتر، إطارات)", "تحديد السعر الافتراضي وفترة التكرار بالكيلومتر", "حفظ منتج الخدمة لربطه بسجلات صيانة المركبات"],
+      stepsEn: ["Enter vehicle service item name (e.g. Engine Oil, Tires, Filters)", "Set standard baseline unit price and service interval km", "Save service item to track regular fleet maintenance"]
+    },
+    "Vehicle Log": {
+      icon: "⛽",
+      summaryAr: "سجل استهلاك الوقود ومصروفات التشغيل وقراءات العداد الدورية لكل رحلة مركبة.",
+      summaryEn: "Vehicle fuel log: record odometer readings, fuel liters, costs, and service logs.",
+      stepsAr: ["إنشاء سجل حركة للمركبة وتسجيل قراءة العداد الحالية", "تسجيل لترات وتكلفة الوقود المدفوعة وإرفاق الفاتورة", "حفظ السجل لاحتساب معدل استهلاك الوقود لكل كيلومتر"],
+      stepsEn: ["Create vehicle log entry and record current odometer value", "Log fuel volume liters, total cost, and receipt invoice", "Save log to calculate fuel consumption efficiency per km"]
+    },
+
+    "Travel Request": {
+      icon: "✈️",
+      summaryAr: "إدارة طلبات انتداب وسفر الموظفين؛ حجز التذاكر، بدلات السفر، ومصروفات الإقامة والتنقل.",
+      summaryEn: "Corporate business travel requests: itineraries, allowances, accommodation, and per diems.",
+      stepsAr: ["إنشاء طلب سفر وتحديد وجهة الانتداب وفترة السفر", "تحديد بدلات الانتداب المستحقة وتكاليف الإقامة والانتقال", "اعتماد الطلب وصرف البدلات وتوثيق تقرير المهمة عند العودة"],
+      stepsEn: ["Create travel request with destination and travel dates", "Calculate travel per diem allowance and accommodation costs", "Submit for authorization and disburse travel advance"]
+    },
+    "Purpose of Travel": {
+      icon: "🏷️",
+      summaryAr: "تعريف وتصنيف أغراض الانتداب والسفر (مهمة عمل، حضور مؤتمر، تدريب، زيارة عميل).",
+      summaryEn: "Define standardized travel justification reasons (conference, client visit, audit).",
+      stepsAr: ["إدخال مسمى غرض السفر وتوصيفه الإداري", "تحديد سياسة البدلات المصاحبة لهذا الغرض", "حفظ الغرض لتمكين الموظفين من اختياره في طلبات السفر"],
+      stepsEn: ["Enter travel purpose category title and policy context", "Define applicable allowance and per diem entitlement rules", "Save purpose to categorize employee travel applications"]
+    }
+  };
+
+  /* ─────────────────────────────────────────
+     ٦. دوال الترجمة والتهريب
+  ───────────────────────────────────────── */
+
+  function translate(key) {
+    if (!isArabic) return key;
+    return arabicFallback[key] || (typeof window.__ === "function" ? window.__(key) : key);
+  }
+
+  function escapeHtml(text) {
+    if (!text) return "";
+    return String(text)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function formatNumber(value) {
+    const num = Number(value) || 0;
+    return num.toLocaleString(isArabic ? "ar-SA" : "en-US");
+  }
+
+  /* ─────────────────────────────────────────
+     ٧. نافذة التفاصيل المنبثقة (Info Modal القياسية)
+  ───────────────────────────────────────── */
+
+  function showInfoModal(itemName) {
+    const desc = itemDescriptions[itemName];
+    const title = isArabic ? (translate(itemName) || itemName) : itemName;
+    const isSettingDoc = singleDocs.has(itemName) || itemName.toLowerCase().includes("settings");
+
+    const summary = desc
+      ? (isArabic ? desc.summaryAr : desc.summaryEn)
+      : (isArabic ? ("إدارة ومتابعة " + title + " وتنفيذ العمليات المرتبطة بها.") : ("Manage and track " + itemName + "."));
+    const rawSteps = desc ? (isArabic ? desc.stepsAr : desc.stepsEn) : null;
+    const steps = (Array.isArray(rawSteps) && rawSteps.length > 0)
+      ? rawSteps
+      : (isArabic
+          ? [
+              "فتح شاشة " + title,
+              "إدخال وتعبئة البيانات الأساسية المطلوبة",
+              "مراجعة وتدقيق الحقول والتحقق من صحتها",
+              "حفظ السجل واعتماد المستند"
+            ]
+          : [
+              "Open " + itemName,
+              "Fill in the required information and fields",
+              "Review and verify mandatory values",
+              "Save and submit the record"
+            ]);
+
+    const existing = root.querySelector(".erp-modal-overlay") || document.querySelector(".erp-modal-overlay");
+    if (existing) existing.remove();
+
+    const overlay = document.createElement("div");
+    overlay.className = "erp-modal-overlay";
+    overlay.setAttribute("dir", isArabic ? "rtl" : "ltr");
+
+    const launchLabel = isSettingDoc
+      ? (isArabic ? "فتح شاشة الإعدادات" : "Open Settings")
+      : (isArabic ? "فتح الشاشة" : "Open Screen");
+
+    overlay.innerHTML = `
+      <div class="erp-modal-box">
+        <button type="button" class="erp-modal-close" data-modal-close aria-label="${isArabic ? "إغلاق" : "Close"}">✕</button>
+        <div class="erp-modal-header">
+          <span class="erp-modal-icon">${desc?.icon || "⚙️"}</span>
+          <h3 class="erp-modal-title">${escapeHtml(title)}</h3>
+        </div>
+        <p class="erp-modal-summary">${escapeHtml(summary)}</p>
+
+        <div class="erp-modal-steps is-shown" data-modal-steps>
+          <ol class="erp-modal-steps-list">
+            ${steps.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
+          </ol>
+        </div>
+
+        <div style="margin-top: 18px;">
+          <button
+            type="button"
+            class="erp-quick-btn"
+            data-modal-launch
+            style="width: 100%; min-height: 42px;"
+          >
+            <span class="erp-quick-label">${escapeHtml(launchLabel)}</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    root.appendChild(overlay);
+    setTimeout(() => overlay.classList.add("is-visible"), 10);
+
+    const closeModal = () => {
+      overlay.classList.remove("is-visible");
+      setTimeout(() => overlay.remove(), 280);
+    };
+
+    const closeBtn = overlay.querySelector("[data-modal-close]");
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+
+    overlay.addEventListener("click", e => {
+      if (e.target === overlay) closeModal();
+    });
+
+    const launchBtn = overlay.querySelector("[data-modal-launch]");
+    if (launchBtn) {
+      launchBtn.addEventListener("click", () => {
+        closeModal();
+        openRoute(itemName);
+      });
+    }
+  }
+
+  /* ─────────────────────────────────────────
+     ٨. إنشاء أزرار الوصول السريع
+  ───────────────────────────────────────── */
+
+  function renderQuickActions() {
+    if (!quickActions) return;
+
+    const title = isArabic ? "اختصاراتك السريعة" : "Your Shortcuts";
+
+    quickActions.innerHTML = `
+      <h2 class="erp-section-title">${escapeHtml(title)}</h2>
+      <div class="erp-quick-grid">
+        ${quickActionButtons.map((btn, idx) => {
+          const label = isArabic ? btn.labelAr : btn.labelEn;
+          return `
+            <button
+              type="button"
+              class="erp-quick-btn"
+              data-shortcut-idx="${idx}"
+              style="display: flex; align-items: center; justify-content: space-between; padding: 12px 18px;"
+            >
+              <span class="erp-quick-label" style="display: flex; align-items: center; gap: 8px;">
+                <span>${escapeHtml(label)}</span>
+                <span class="erp-link-arrow" aria-hidden="true" style="font-size: 11px; opacity: 0.7;">↗</span>
+              </span>
+              ${btn.hasCount ? `<span class="erp-stat-badge" data-badge-for="${escapeHtml(btn.doctype)}" style="margin-left: 8px; margin-right: 8px; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: rgba(245, 158, 11, 0.12); color: #d97706;">...</span>` : ""}
+            </button>`;
+        }).join("")}
+      </div>
+    `;
+
+    // جلب أعداد المستندات للأزرار
+    quickActionButtons.forEach(btn => {
+      if (btn.hasCount && btn.doctype && window.frappe) {
+        frappe.call({
+          method: "frappe.client.get_count",
+          args: { doctype: btn.doctype },
+          callback: r => {
+            const el = quickActions.querySelector(`[data-badge-for="${btn.doctype}"]`);
+            if (el) {
+              const val = formatNumber(r.message || 0);
+              const suffix = btn.countSuffixEn ? (isArabic ? (" " + btn.countSuffixAr) : (" " + btn.countSuffixEn)) : "";
+              el.textContent = val + suffix;
+            }
+          },
+          error: () => {
+            const el = quickActions.querySelector(`[data-badge-for="${btn.doctype}"]`);
+            if (el) el.textContent = "0";
+          }
+        });
+      }
+    });
+
+    quickActions.addEventListener("click", event => {
+      const btnEl = event.target.closest("[data-shortcut-idx]");
+      if (!btnEl || !window.frappe) return;
+      const idx = Number(btnEl.dataset.shortcutIdx);
+      const item = quickActionButtons[idx];
+      if (!item) return;
+
+      if (item.route) {
+        frappe.set_route(item.route);
+        return;
+      }
+      if (item.doctype) {
+        openRoute(item.doctype);
+      }
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     ٩. إنشاء بطاقات الوحدات والمربعات
+  ───────────────────────────────────────── */
+
+  function renderSections() {
+    root.setAttribute("dir", isArabic ? "rtl" : "ltr");
+    root.classList.toggle("erp-dashboard-rtl", isArabic);
+
+    content.innerHTML = sections
+      .map((section, sectionIndex) => {
+        const sectionName = section[0];
+        const sectionCards = section[1];
+
+        const cardsHtml = sectionCards
+          .map((card, cardIndex) => {
+            const cardName = card[0];
+            const icon = card[1];
+            const items = card[2];
+
+            const linksHtml = items.map(itemName => {
+              const desc = itemDescriptions[itemName];
+              const isReport = reportNames.has(itemName);
+              const detailsLabel = isArabic ? "تفاصيل" : "Details";
+              const infoBtn = (!isReport && desc)
+                ? `<button type="button" class="erp-info-link" data-info-item="${escapeHtml(itemName)}">${detailsLabel}</button>`
+                : "";
+
+              return `
+                <div class="erp-link-row">
+                  <button type="button" class="erp-link" data-route-name="${escapeHtml(itemName)}">
+                    <span class="erp-link-text">${escapeHtml(translate(itemName))}</span>
+                    <span class="erp-link-arrow" aria-hidden="true">${isArabic ? "←" : "→"}</span>
+                  </button>
+                  ${infoBtn}
+                </div>`;
+            }).join("");
+
+            return `
+              <article class="erp-card tone-${(sectionIndex + cardIndex) % 5}" data-erp-card>
+                <button type="button" class="erp-card-heading" data-card-toggle aria-expanded="false">
+                  <span class="erp-icon" aria-hidden="true">${icon}</span>
+                  <span class="erp-card-title">${escapeHtml(translate(cardName))}</span>
+                  <span class="erp-card-chevron" aria-hidden="true">⌄</span>
+                </button>
+                <div class="erp-card-links">${linksHtml}</div>
+              </article>`;
+          }).join("");
+
+        return `
+          <section class="erp-module-section">
+            <h2 class="erp-section-title">${escapeHtml(translate(sectionName))}</h2>
+            <div class="erp-dashboard-grid">${cardsHtml}</div>
+          </section>`;
+      }).join("");
+  }
+
+  /* ─────────────────────────────────────────
+     ١٠. إنشاء الفوتر
+  ───────────────────────────────────────── */
+
+  const footerInfo = {
+    phone: "920033198",
+    email: "apps@mubtkir.com",
+    website: "www.mubtkir.com",
+    labels: {
+      phoneAr: "الهاتف الموحد",
+      phoneEn: "Support Phone",
+      emailAr: "البريد الإلكتروني",
+      emailEn: "Email Support",
+      websiteAr: "الموقع الإلكتروني",
+      websiteEn: "Official Website"
+    }
+  };
+
+  function renderFooter() {
+    if (!footerEl) return;
+    const labels = footerInfo.labels;
+    const phoneLabel = isArabic ? labels.phoneAr : labels.phoneEn;
+    const emailLabel = isArabic ? labels.emailAr : labels.emailEn;
+    const websiteLabel = isArabic ? labels.websiteAr : labels.websiteEn;
+
+    footerEl.innerHTML = `
+      <div class="erp-footer-inner">
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">📞</span>
+          <span class="erp-footer-label">${escapeHtml(phoneLabel)}:</span>
+          <a href="tel:${footerInfo.phone}" class="erp-footer-link" dir="ltr">${escapeHtml(footerInfo.phone)}</a>
+        </div>
+        <span class="erp-footer-sep">|</span>
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">✉️</span>
+          <span class="erp-footer-label">${escapeHtml(emailLabel)}:</span>
+          <a href="mailto:${footerInfo.email}" class="erp-footer-link">${escapeHtml(footerInfo.email)}</a>
+        </div>
+        <span class="erp-footer-sep">|</span>
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">🌐</span>
+          <span class="erp-footer-label">${escapeHtml(websiteLabel)}:</span>
+          <a href="https://${footerInfo.website}" class="erp-footer-link" target="_blank" rel="noopener">${escapeHtml(footerInfo.website)}</a>
+        </div>
+      </div>`;
+  }
+
+  /* ─────────────────────────────────────────
+     ١١. التوجيه وفتح الشاشات داخل النظام
+  ───────────────────────────────────────── */
+
+  function openRoute(name) {
+    if (!window.frappe || typeof frappe.set_route !== "function") return;
+    if (customRoutes[name]) {
+      frappe.set_route(customRoutes[name]);
+      return;
+    }
+    if (reportNames.has(name)) {
+      frappe.set_route("query-report", name);
+      return;
+    }
+    if (singleDocs.has(name)) {
+      frappe.set_route("Form", name);
+      return;
+    }
+    if (treeDocs.has(name)) {
+      frappe.set_route("Tree", name);
+      return;
+    }
+    frappe.set_route("List", name);
+  }
+
+  /* ─────────────────────────────────────────
+     ١٢. معالجة الأحداث والضغط
+  ───────────────────────────────────────── */
+
+  let lastToggleTime = 0;
+
+  content.addEventListener("click", event => {
+    const infoBtn = event.target.closest("[data-info-item]");
+    if (infoBtn) {
+      event.preventDefault();
+      event.stopPropagation();
+      showInfoModal(infoBtn.dataset.infoItem);
+      return;
+    }
+
+    const link = event.target.closest("[data-route-name]");
+    if (link) {
+      event.preventDefault();
+      openRoute(link.dataset.routeName);
+      return;
+    }
+
+    const toggle = event.target.closest("[data-card-toggle]");
+    if (toggle) {
+      const now = Date.now();
+      if (now - lastToggleTime < 300) return;
+      lastToggleTime = now;
+
+      const card = toggle.closest("[data-erp-card]");
+      const expanded = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", String(!expanded));
+      if (card) {
+        card.classList.toggle("is-collapsed", expanded);
+      }
+    }
+  });
+
+  /* ─────────────────────────────────────────
+     ١٣. بدء التشغيل
+  ───────────────────────────────────────── */
+
+  renderQuickActions();
+  renderSections();
+  renderFooter();
 })();
