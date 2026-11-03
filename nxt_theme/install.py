@@ -17,6 +17,18 @@ def ensure_role():
 			}
 		).insert(ignore_permissions=True)
 
+	# Auto-install mu_booking if present in bench apps but not yet installed on site
+	try:
+		all_apps = frappe.get_all_apps(with_internal_apps=False)
+		installed_apps = frappe.get_installed_apps()
+		if "mu_booking" in all_apps and "mu_booking" not in installed_apps:
+			from frappe.installer import install_app
+
+			install_app("mu_booking", verbose=True, set_as_patched=True)
+			frappe.db.commit()
+	except Exception:
+		frappe.log_error(frappe.get_traceback(), "nxt_theme: Auto-install mu_booking")
+
 
 def after_install():
 	ensure_role()
