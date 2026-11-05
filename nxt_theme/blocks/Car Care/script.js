@@ -2,7 +2,8 @@
 (() => {
 
   /* ═══════════════════════════════════════════════════
-     MUBTKIR ERP — HOME DASHBOARD
+     MUBTKIR ERP — CAR CARE WORKSPACE / HOME DASHBOARD
+     لوحة تحكم حماية السيارات — ERPNext Workspace
      جميع الألوان تأتي من CSS الرئيسي فقط
   ═══════════════════════════════════════════════════ */
 
@@ -882,6 +883,51 @@
             "Set valid till date",
             "Click «Save» then «Submit»",
             "Email or print for customer"
+          ]
+        },
+
+        {
+          doctype:
+            "Vehicle Reception",
+
+          icon:
+            "🚗",
+
+          labelAr:
+            "استلام السيارة",
+
+          labelEn:
+            "Vehicle Reception",
+
+          cf: {
+            docstatus: 0
+          },
+
+          sfx: {
+            ar: "مفتوح",
+            en: "Open"
+          },
+
+          dAr:
+            "تسجيل فحص واستلام سيارة العميل والخدمات المطلوبة وحالة المركبة ومتابعة الإنجاز.",
+
+          dEn:
+            "Record client vehicle inspection, reception details, requested services, and job status.",
+
+          sAr: [
+            "اضغط «استلام سيارة جديد»",
+            "اختر العميل وبيانات المركبة (رقم اللوحة، الموديل، اللون)",
+            "سجل قراءة العداد ومستوى الوقود وحالة الفحص الخارجي",
+            "حدد الخدمات وباقات الحماية المطلوبة",
+            "احفظ النموذج واطبع سند الاستلام للعميل"
+          ],
+
+          sEn: [
+            "Click «New Vehicle Reception»",
+            "Select customer and vehicle details (Plate, Model, Color)",
+            "Record odometer, fuel level and inspection marks",
+            "Select requested services and protection packages",
+            "Save and print reception receipt for customer"
           ]
         },
 
@@ -1782,7 +1828,51 @@
         : "📖 Hide";
 
 
-    let html = "";
+    const quickActionButtons = [
+      {
+        doctype: "Quotation",
+        labelEn: "Quotation",
+        labelAr: "عرض السعر"
+      },
+      {
+        doctype: "Vehicle Reception",
+        labelEn: "Vehicle Reception",
+        labelAr: "استلام السيارة"
+      },
+      {
+        doctype: "Sales Invoice",
+        labelEn: "Sales Invoice",
+        labelAr: "فاتورة مبيعات"
+      },
+      {
+        doctype: "Customer",
+        labelEn: "Customer",
+        labelAr: "العملاء"
+      }
+    ];
+
+    const quickTitle = isArabic ? "اختصارات سريعة" : "Quick Actions";
+
+    let html = `
+      <div class="erp-module-section" style="margin-bottom: 24px;">
+        <h2 class="erp-section-title">
+          ⚡ ${escapeHtml(quickTitle)}
+        </h2>
+        <div class="erp-quick-grid">
+          ${quickActionButtons
+            .map((btn) => {
+              const label = isArabic ? btn.labelAr : btn.labelEn;
+              return `
+                <button type="button" class="erp-quick-btn" data-new-doc="${escapeHtml(btn.doctype)}">
+                  <span class="erp-quick-icon" aria-hidden="true">+</span>
+                  <span class="erp-quick-label">${escapeHtml(label)}</span>
+                </button>
+              `;
+            })
+            .join("")}
+        </div>
+      </div>
+    `;
 
 
     shortcutSections.forEach((section) => {
@@ -2056,8 +2146,29 @@
       "click",
       (event) => {
 
-        /* خطوات */
+        /* زر إنشاء مستند جديد من الاختصارات السريعة */
+        const newDocBtn =
+          event.target.closest(
+            "[data-new-doc]"
+          );
 
+        if (newDocBtn) {
+          event.preventDefault();
+          event.stopPropagation();
+          const doctype =
+            newDocBtn.dataset.newDoc;
+          if (
+            window.frappe &&
+            typeof frappe.new_doc === "function"
+          ) {
+            frappe.new_doc(doctype);
+          } else if (window.frappe) {
+            frappe.set_route("Form", doctype);
+          }
+          return;
+        }
+
+        /* خطوات */
         const toggle =
           event.target.closest(
             "[data-stoggle]"
@@ -2302,8 +2413,8 @@
 
     welcomeText.textContent =
       isArabic
-        ? "مرحباً بك في مبتكر ERP"
-        : "Welcome to Mubtkir ERP";
+        ? "مرحباً بك في مبتكر ERP - حماية السيارات"
+        : "Welcome to Mubtkir ERP - Car Care";
 
   }
 
@@ -2312,8 +2423,8 @@
 
     welcomeSub.textContent =
       isArabic
-        ? "كل ما تحتاجه لإدارة أعمالك بذكاء وسهولة"
-        : "Everything you need to manage your business smartly and easily";
+        ? "لوحة تحكم وإدارة عمليات حماية وعناية السيارات المتكاملة"
+        : "Integrated vehicle protection and car care operations dashboard";
 
   }
 

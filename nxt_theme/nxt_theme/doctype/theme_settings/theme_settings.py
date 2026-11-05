@@ -170,35 +170,53 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			candidates.extend(["Leaves", "leaves", "الإجازات"])
 		elif block_name == "Party Bookings":
 			candidates.extend(["Party Bookings", "party-bookings", "Party Booking", "party_bookings", "حجوزات الحفلات", "حجوزات الحفلات والمناسبات"])
+		elif block_name == "Car Care":
+			candidates.extend(["Car Care", "car-care", "car_care", "حماية السيارات", "العناية بالسيارات"])
+			is_car_care_site = (
+				"mu_car_care" in frappe.get_installed_apps()
+				or frappe.db.exists("DocType", "Vehicle Reception")
+			)
+			if is_car_care_site:
+				candidates.extend(["Home", "home", "الرئيسية"])
+		elif block_name == "Home":
+			is_car_care_site = (
+				"mu_car_care" in frappe.get_installed_apps()
+				or frappe.db.exists("DocType", "Vehicle Reception")
+			)
+			if is_car_care_site:
+				# تخطي ربط الكتلة العامة بالرئيسية لعملاء حماية السيارات لأن كتلة Car Care مخصصة للرئيسية لديهم
+				continue
 
-		ws_name = None
+		target_workspaces = []
 		for c in candidates:
-			if frappe.db.exists("Workspace", c):
-				ws_name = c
-				break
+			if frappe.db.exists("Workspace", c) and c not in target_workspaces:
+				target_workspaces.append(c)
+				if block_name != "Car Care":
+					break
 
-		if not ws_name:
+		if not target_workspaces:
 			skipped_workspaces.append(block_name)
 			continue
 
-		try:
-			ws = frappe.get_doc("Workspace", ws_name)
-			content_data = [
-				{
-					"type": "custom_block",
-					"data": {
-						"custom_block_name": block_name,
-						"col": 12,
-					},
-				}
-			]
-			ws.content = json.dumps(content_data)
-			ws.set("custom_blocks", [{"custom_block_name": block_name}])
-			ws.flags.ignore_permissions = True
-			ws.save()
-			updated_workspaces.append(f"{ws_name} ➔ {block_name}")
-		except Exception as e:
-			frappe.log_error(f"Error linking workspace {ws_name} to block {block_name}: {str(e)}")
+		for ws_name in target_workspaces:
+			try:
+				ws = frappe.get_doc("Workspace", ws_name)
+				content_data = [
+					{
+						"type": "custom_block",
+						"data": {
+							"custom_block_name": block_name,
+							"col": 12,
+						},
+					}
+				]
+				ws.content = json.dumps(content_data)
+				ws.set("custom_blocks", [{"custom_block_name": block_name}])
+				ws.flags.ignore_permissions = True
+				ws.save()
+				updated_workspaces.append(f"{ws_name} ➔ {block_name}")
+			except Exception as e:
+				frappe.log_error(f"Error linking workspace {ws_name} to block {block_name}: {str(e)}")
 
 	frappe.db.commit()
 	frappe.clear_cache()

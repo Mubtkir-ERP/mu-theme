@@ -75,7 +75,7 @@ import { unlockBodyScrollIfNoModal } from "./modal_utils";
 								method: "frappe.client.set_value",
 								args: {
 									doctype: "Custom HTML Block",
-									name: b.name,
+									name: b.name || b.custom_block_name,
 									fieldname: {
 										html: b.html,
 										script: b.script,
