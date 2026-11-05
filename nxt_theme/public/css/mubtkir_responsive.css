@@ -189,3 +189,38 @@
   margin-top: 14px !important;
 }
 
+/* 7. Ensure stats cards are stacked vertically (1 column) on mobile to prevent overlapping */
+@media (max-width: 768px) {
+  .erp-dashboard-wrapper .erp-stats-grid,
+  .erp-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .erp-dashboard-wrapper .erp-stat-card,
+  .erp-stat-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 12px 14px !important;
+    box-sizing: border-box !important;
+  }
+
+  .erp-dashboard-wrapper .erp-stat-card .erp-stat-value,
+  .erp-stat-card .erp-stat-value,
+  .erp-stat-card .erp-stat-info .erp-stat-value {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 16px !important;
+  }
+
+  .erp-dashboard-wrapper .erp-stat-card .erp-stat-label,
+  .erp-stat-card .erp-stat-label,
+  .erp-stat-card .erp-stat-info .erp-stat-label {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: 12px !important;
+  }
+}
+
