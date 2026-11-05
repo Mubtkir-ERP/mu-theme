@@ -1809,6 +1809,89 @@
      لا يوجد Inline Color
   ========================================================= */
 
+  function showStepModal(doctype) {
+    let targetItem = null;
+    for (const section of shortcutSections) {
+      const found = section.items.find((i) => i.doctype === doctype);
+      if (found) {
+        targetItem = found;
+        break;
+      }
+    }
+    if (!targetItem) return;
+
+    const title = isArabic ? targetItem.labelAr : targetItem.labelEn;
+    const summary = isArabic ? targetItem.dAr : targetItem.dEn;
+    const steps = isArabic ? targetItem.sAr : targetItem.sEn;
+    const launchLabel = isArabic ? "فتح الشاشة" : "Open Screen";
+
+    const existing =
+      root.querySelector(".erp-modal-overlay") ||
+      document.querySelector(".erp-modal-overlay");
+    if (existing) existing.remove();
+
+    const overlay = document.createElement("div");
+    overlay.className = "erp-modal-overlay";
+    overlay.setAttribute("dir", isArabic ? "rtl" : "ltr");
+
+    overlay.innerHTML = `
+      <div class="erp-modal-box">
+        <button type="button" class="erp-modal-close" data-modal-close aria-label="${isArabic ? "إغلاق" : "Close"}">✕</button>
+        <div class="erp-modal-header">
+          <span class="erp-modal-icon">${targetItem.icon || "📋"}</span>
+          <h3 class="erp-modal-title">${escapeHtml(title)}</h3>
+        </div>
+        <p class="erp-modal-summary">${escapeHtml(summary)}</p>
+
+        <div class="erp-modal-steps is-shown" data-modal-steps>
+          <ol class="erp-modal-steps-list">
+            ${steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}
+          </ol>
+        </div>
+
+        <div style="margin-top: 18px;">
+          <button
+            type="button"
+            class="erp-quick-btn"
+            data-modal-launch
+            style="width: 100%; min-height: 42px;"
+          >
+            <span class="erp-quick-label">${escapeHtml(launchLabel)}</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    root.appendChild(overlay);
+    setTimeout(() => overlay.classList.add("is-visible"), 10);
+
+    const closeModal = () => {
+      overlay.classList.remove("is-visible");
+      setTimeout(() => overlay.remove(), 280);
+    };
+
+    const closeBtn = overlay.querySelector("[data-modal-close]");
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeModal();
+    });
+
+    const launchBtn = overlay.querySelector("[data-modal-launch]");
+    if (launchBtn) {
+      launchBtn.addEventListener("click", () => {
+        closeModal();
+        if (targetItem.isReport) {
+          frappe.set_route("query-report", targetItem.doctype);
+        } else if (targetItem.isTree) {
+          frappe.set_route("Tree", targetItem.doctype);
+        } else {
+          frappe.set_route("List", targetItem.doctype);
+        }
+      });
+    }
+  }
+
   function renderQuickActions() {
 
     if (!quickActions) {
@@ -1818,14 +1901,8 @@
 
     const showStepsText =
       isArabic
-        ? "📖 الخطوات"
-        : "📖 Steps";
-
-
-    const hideStepsText =
-      isArabic
-        ? "📖 إخفاء"
-        : "📖 Hide";
+        ? "📖 شرح الخطوات"
+        : "📖 View Steps";
 
 
     const quickActionButtons = [
@@ -1996,19 +2073,10 @@
             <button
               type="button"
               class="hm-sh-stepbtn"
-              data-stoggle
+              data-step-modal="${escapeHtml(item.doctype)}"
             >
               ${showStepsText}
             </button>
-
-
-            <div
-              class="hm-sh-steps"
-              style="display:none"
-              data-scontent
-            >
-              ${stepsHtml}
-            </div>
 
           </div>
 
@@ -2168,45 +2236,16 @@
           return;
         }
 
-        /* خطوات */
-        const toggle =
+        /* نافذة الخطوات المنبثقة */
+        const stepBtn =
           event.target.closest(
-            "[data-stoggle]"
+            "[data-step-modal]"
           );
 
-
-        if (toggle) {
-
+        if (stepBtn) {
           event.preventDefault();
           event.stopPropagation();
-
-
-          const stepsBox =
-            toggle.nextElementSibling;
-
-
-          if (!stepsBox) {
-            return;
-          }
-
-
-          const visible =
-            stepsBox.style.display !==
-            "none";
-
-
-          stepsBox.style.display =
-            visible
-              ? "none"
-              : "block";
-
-
-          toggle.textContent =
-            visible
-              ? showStepsText
-              : hideStepsText;
-
-
+          showStepModal(stepBtn.dataset.stepModal);
           return;
         }
 
