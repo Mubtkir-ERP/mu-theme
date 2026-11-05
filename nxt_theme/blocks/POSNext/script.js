@@ -892,8 +892,7 @@
             >
               <span class="erp-icon">${cardIcon}</span>
               <span class="erp-card-title">${escapeHtml(translate(cardTitle))}</span>
-              <span class="erp-card-chevron">⌄</span>
-            </button>
+</button>
             <div class="erp-card-links">
               ${linksHtml}
             </div>

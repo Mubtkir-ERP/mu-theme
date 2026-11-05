@@ -60,8 +60,15 @@
   border-bottom: 1px solid var(--brand-border, rgba(0, 0, 0, 0.08)) !important;
 }
 
-.erp-card .erp-card-chevron {
-  transform: rotate(180deg) !important;
+.erp-card-heading {
+  cursor: default !important;
+}
+
+.erp-card-chevron,
+.erp-card .erp-card-chevron,
+.erp-card-toggle .erp-card-chevron,
+[data-card-toggle] .erp-card-chevron {
+  display: none !important;
 }
 
 .erp-card .erp-card-links {
@@ -90,12 +97,13 @@
 }
 
 .erp-card.is-collapsed .erp-card-links {
-  max-height: 0 !important;
-  overflow: hidden !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  transform: translateY(-8px) !important;
+  display: grid !important;
+  max-height: none !important;
+  overflow: visible !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: none !important;
 }
 
 /* 3. Strictly cancel mouse-hover opening/expansion */

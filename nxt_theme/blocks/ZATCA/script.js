@@ -1982,18 +1982,7 @@
                         ${escapeHtml(translate(cardName))}
 
                       </span>
-
-
-
-                      <span class="erp-card-chevron">
-
-                        ⌄
-
-                      </span>
-
-
-
-                    </button>
+</button>
 
 
 

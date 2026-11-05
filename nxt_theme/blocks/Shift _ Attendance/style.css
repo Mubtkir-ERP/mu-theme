@@ -5206,8 +5206,13 @@ html[data-theme="dark"]
   border-bottom: 1px solid var(--brand-border) !important;
 }
 
+.erp-card-heading {
+  cursor: default !important;
+}
+
+.erp-card-chevron,
 .erp-card .erp-card-chevron {
-  transform: rotate(180deg) !important;
+  display: none !important;
 }
 
 .erp-card .erp-card-links {

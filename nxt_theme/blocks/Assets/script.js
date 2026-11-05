@@ -709,8 +709,7 @@
                 <button type="button" class="erp-card-heading" data-card-toggle aria-expanded="false">
                   <span class="erp-icon" aria-hidden="true">${icon}</span>
                   <span class="erp-card-title">${escapeHtml(translate(cardName))}</span>
-                  <span class="erp-card-chevron" aria-hidden="true">⌄</span>
-                </button>
+</button>
                 <div class="erp-card-links">${linksHtml}</div>
               </article>`;
           }).join("");

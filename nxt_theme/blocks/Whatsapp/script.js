@@ -3747,24 +3747,7 @@
                             ${escapeHtml(translate(card[0]))}
 
                           </span>
-
-
-
-
-
-                          <span
-
-                            class="erp-card-chevron"
-
-                          >
-
-                            ⌄
-
-                          </span>
-
-
-
-                        </button>
+</button>
 
 
 
