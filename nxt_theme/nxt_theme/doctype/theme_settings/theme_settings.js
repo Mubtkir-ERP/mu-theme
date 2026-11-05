@@ -34,13 +34,13 @@ frappe.ui.form.on("Theme Settings", {
 
 		frm.set_df_property("skin", "options", skin_options);
 
-		// Button to apply all 31 custom blocks to workspaces at once
+		// Button to apply all custom blocks to workspaces at once
 		frm.add_custom_button(
 			__("🚀 Apply All Blocks to Workspaces"),
 			function () {
 				frappe.confirm(
 					__(
-						"Are you sure you want to link and apply all 31 custom blocks automatically to their corresponding workspaces?"
+						"Are you sure you want to link and apply all custom blocks automatically to their corresponding workspaces?"
 					),
 					function () {
 						frappe.dom.freeze(__("Linking and updating all workspaces in the system..."));

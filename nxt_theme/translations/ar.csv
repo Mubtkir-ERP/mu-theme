@@ -18,6 +18,7 @@
 "Item Group","مجموعة المنتجات"
 "🚀 Apply All Blocks to Workspaces","🚀 تطبيق الكتل على كافة مساحات العمل دفعة واحدة"
 "Are you sure you want to link and apply all custom blocks automatically to their corresponding workspaces?","هل تريد ربط وتطبيق كافة الكتل المخصصة تلقائياً على جميع مساحات العمل المقابلة في النظام دفعة واحدة؟"
+"Are you sure you want to link and apply all 31 custom blocks automatically to their corresponding workspaces?","هل تريد ربط وتطبيق كافة الكتل المخصصة تلقائياً على جميع مساحات العمل المقابلة في النظام دفعة واحدة؟"
 "Linking and updating all workspaces in the system...","جاري ربط وتحديث كافة مساحات العمل في النظام..."
 "Success","تمت العملية بنجاح"
 "Applied custom blocks successfully to {0} workspaces!<br><br><b>Updated Workspaces:</b><br>{1}","تم تطبيق الكتل بنجاح على {0} مساحة عمل! <br><br><b>المساحات المحدثة:</b><br>{1}"
