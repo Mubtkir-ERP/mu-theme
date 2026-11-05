@@ -149,25 +149,40 @@
         [
           "Ledgers",
           "📒",
-          ["General Ledger", "Customer Ledger Summary", "Supplier Ledger Summary"]
+          [
+            "General Ledger",
+            "Customer Ledger Summary",
+            "Supplier Ledger Summary",
+            "Trial Balance for Party",
+            "Customer Credit Balance",
+            "Address And Contacts"
+          ]
         ],
 
         [
           "Financial Statements",
           "📊",
-          ["Trial Balance", "Profit and Loss Statement", "Balance Sheet", "Cash Flow", "Consolidated Financial Statement"]
+          [
+            "Trial Balance",
+            "Profit and Loss Statement",
+            "Balance Sheet",
+            "Cash Flow",
+            "Consolidated Financial Statement",
+            "Payment Period Based On Invoice Date"
+          ]
         ],
 
         [
           "Profitability",
           "💹",
-          ["Gross Profit", "Profitability Analysis", "Sales Invoice Trends", "Purchase Invoice Trends"]
-        ],
-
-        [
-          "Other Reports",
-          "📑",
-          ["Trial Balance for Party", "Payment Period Based On Invoice Date", "Sales Partners Commission", "Customer Credit Balance", "Sales Payment Summary", "Address And Contacts"]
+          [
+            "Gross Profit",
+            "Profitability Analysis",
+            "Sales Invoice Trends",
+            "Purchase Invoice Trends",
+            "Sales Partners Commission",
+            "Sales Payment Summary"
+          ]
         ]
       ]
     ]
@@ -193,7 +208,7 @@
     "Cash Flow": "التدفقات النقدية",
     "Consolidated Financial Statement": "القوائم المالية الموحدة",
 
-    "Profitability": "الربحية",
+    "Profitability": "الربحية والتحليلات",
     "Gross Profit": "إجمالي الربح",
     "Profitability Analysis": "تحليل الربحية",
     "Sales Invoice Trends": "اتجاهات فواتير المبيعات",
