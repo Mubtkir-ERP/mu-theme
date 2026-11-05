@@ -35,24 +35,35 @@ frappe.ui.form.on("Theme Settings", {
 		frm.set_df_property("skin", "options", skin_options);
 
 		// Button to apply all custom blocks to workspaces at once
+		const btnLabel = isAr ? "🚀 تطبيق الكتل على مساحات العمل" : "🚀 Apply All Blocks to Workspaces";
+		const confirmMsg = isAr
+			? "هل أنت متأكد من رغبتك في ربط وتطبيق كافة الكتل المخصصة تلقائياً على جميع مساحات العمل المقابلة في النظام؟"
+			: "Are you sure you want to link and apply all custom blocks automatically to their corresponding workspaces?";
+		const freezeMsg = isAr
+			? "جاري ربط وتحديث كافة مساحات العمل في النظام..."
+			: "Linking and updating all workspaces in the system...";
+		const successTitle = isAr ? "تم بنجاح" : "Success";
+		const errorPrefix = isAr ? "حدث خطأ أثناء تطبيق الكتل: " : "Error applying blocks: ";
+
 		frm.add_custom_button(
-			__("🚀 Apply All Blocks to Workspaces"),
+			btnLabel,
 			function () {
 				frappe.confirm(
-					__(
-						"Are you sure you want to link and apply all custom blocks automatically to their corresponding workspaces?"
-					),
+					confirmMsg,
 					function () {
-						frappe.dom.freeze(__("Linking and updating all workspaces in the system..."));
+						frappe.dom.freeze(freezeMsg);
 						frappe.call({
 							method: "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.apply_all_blocks_to_workspaces",
 							callback: function (r) {
 								frappe.dom.unfreeze();
 								if (r && r.message) {
+									const msgTemplate = isAr
+										? "تم تطبيق الكتل المخصصة بنجاح على {0} مساحة عمل!<br><br><b>مساحات العمل المحدثة:</b><br>{1}"
+										: "Applied custom blocks successfully to {0} workspaces!<br><br><b>Updated Workspaces:</b><br>{1}";
 									frappe.msgprint({
-										title: __("Success"),
+										title: successTitle,
 										message: __(
-											"Applied custom blocks successfully to {0} workspaces!<br><br><b>Updated Workspaces:</b><br>{1}",
+											msgTemplate,
 											[r.message.count, r.message.updated.join("<br>")]
 										),
 										indicator: "green",
@@ -61,7 +72,7 @@ frappe.ui.form.on("Theme Settings", {
 							},
 							error: function (err) {
 								frappe.dom.unfreeze();
-								frappe.msgprint(__("Error applying blocks: ") + ((err && err.message) ? err.message : ""));
+								frappe.msgprint(errorPrefix + ((err && err.message) ? err.message : ""));
 							},
 						});
 					}
