@@ -34,7 +34,7 @@
 
   const sections = [
     [
-      "Masters & Reports",
+      "Masters & Settings",
       [
         [
           "Jobs",
@@ -48,6 +48,7 @@
             "Employee Referral"
           ]
         ],
+
         [
           "Interviews",
           "🎙️",
@@ -58,6 +59,7 @@
             "Interview Feedback"
           ]
         ],
+
         [
           "Appointment",
           "📜",
@@ -65,7 +67,13 @@
             "Appointment Letter Template",
             "Appointment Letter"
           ]
-        ],
+        ]
+      ]
+    ],
+
+    [
+      "Reports",
+      [
         [
           "Reports",
           "📊",
@@ -97,6 +105,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Masters & Reports": "البيانات والتقارير",
     "Interviews (This Week)": "المقابلات (هذا الأسبوع)",
 

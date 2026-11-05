@@ -112,7 +112,7 @@
 
   const sections = [
     [
-      "Reports & Masters",
+      "Masters & Settings",
       [
         [
           "Issues",
@@ -123,6 +123,7 @@
             "Issue Priority"
           ]
         ],
+
         [
           "Maintenance",
           "🛠️",
@@ -131,6 +132,7 @@
             "Maintenance Visit"
           ]
         ],
+
         [
           "Service Level Agreement",
           "📜",
@@ -138,6 +140,7 @@
             "Service Level Agreement"
           ]
         ],
+
         [
           "Warranty",
           "🛡️",
@@ -146,13 +149,20 @@
             "Serial No"
           ]
         ],
+
         [
           "Settings",
           "⚙️",
           [
             "Support Settings"
           ]
-        ],
+        ]
+      ]
+    ],
+
+    [
+      "Reports",
+      [
         [
           "Reports",
           "📊",
@@ -396,6 +406,7 @@
     if (!statsSection) return;
 
     statsSection.innerHTML = `
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
         ${statsCards.map(c => `
           <div class="erp-stat-card" data-stat-id="${c.id}">
@@ -426,7 +437,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصارات سريعة" : "Quick Actions";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

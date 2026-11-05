@@ -35,7 +35,7 @@
 
   const sections = [
     [
-      "Payroll Operations",
+      "Masters & Settings",
       [
         [
           "Quick Links",
@@ -45,6 +45,7 @@
             "Salary Slip"
           ]
         ],
+
         [
           "Settings",
           "⚙️",
@@ -80,6 +81,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Your Shortcuts": "اختصاراتك السريعة",
     "Payroll Operations": "عمليات وإعدادات الرواتب",
 
@@ -245,7 +250,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصاراتك السريعة" : "Your Shortcuts";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

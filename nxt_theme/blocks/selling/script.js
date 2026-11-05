@@ -147,9 +147,8 @@
 
   const sections = [
     [
-      "Reports & Masters",
+      "Masters & Settings",
       [
-        // الصف الأول
         [
           "Selling",
           "💼",
@@ -163,7 +162,7 @@
             "Sales Person"
           ]
         ],
-        // تم استبدال مربع نقاط البيع بمربع العملاء
+
         [
           "Customer",
           "👥",
@@ -175,6 +174,7 @@
             "Territory"
           ]
         ],
+
         [
           "Items and Pricing",
           "🏷️",
@@ -191,7 +191,6 @@
           ]
         ],
 
-        // الصف الثاني
         [
           "Settings",
           "⚙️",
@@ -202,7 +201,13 @@
             "Lead Source",
             "Campaign"
           ]
-        ],
+        ]
+      ]
+    ],
+
+    [
+      "Reports",
+      [
         [
           "Key Reports",
           "📊",
@@ -218,6 +223,7 @@
             "Item-wise Sales History"
           ]
         ],
+
         [
           "Other Reports",
           "📑",
@@ -244,6 +250,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Reports & Masters": "التقارير والبيانات الرئيسية",
 
     // المربع ١: المبيعات
@@ -957,6 +967,7 @@
     if (!statsSection) return;
 
     statsSection.innerHTML = `
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
         ${statsCards.map(c => `
           <div class="erp-stat-card" data-stat-id="${escapeHtml(c.id)}">
@@ -987,7 +998,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصارات سريعة" : "Quick Actions";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

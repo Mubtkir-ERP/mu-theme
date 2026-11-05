@@ -159,7 +159,7 @@
 
   const sections = [
     [
-      "Reports & Masters",
+      "Masters & Settings",
       [
         [
           "Assets",
@@ -172,6 +172,7 @@
             "Department"
           ]
         ],
+
         [
           "Maintenance",
           "🛠️",
@@ -183,7 +184,13 @@
             "Asset Repair",
             "Asset Capitalization"
           ]
-        ],
+        ]
+      ]
+    ],
+
+    [
+      "Reports",
+      [
         [
           "Reports",
           "📊",
@@ -203,6 +210,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Reports & Masters": "التقارير والبيانات الرئيسية",
 
     // البطاقة ١: الأصول
@@ -611,6 +622,7 @@
     if (!statsSection) return;
 
     statsSection.innerHTML = `
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
         ${statsCards.map(c => `
           <div class="erp-stat-card" data-stat-id="${escapeHtml(c.id)}">
@@ -641,7 +653,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصارات سريعة" : "Quick Actions";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

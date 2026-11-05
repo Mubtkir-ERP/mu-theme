@@ -38,7 +38,7 @@
 
   const sections = [
     [
-      "Masters & Reports",
+      "Masters & Settings",
       [
         [
           "Shifts",
@@ -52,6 +52,7 @@
             "Shift Assignment Tool"
           ]
         ],
+
         [
           "Attendance",
           "⏱️",
@@ -63,6 +64,7 @@
             "Upload Attendance"
           ]
         ],
+
         [
           "Time",
           "⌛",
@@ -70,7 +72,13 @@
             "Timesheet",
             "Activity Type"
           ]
-        ],
+        ]
+      ]
+    ],
+
+    [
+      "Reports",
+      [
         [
           "Reports",
           "📊",
@@ -118,6 +126,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Your Shortcuts": "اختصاراتك السريعة",
     "Masters & Reports": "البيانات والتقارير",
 
@@ -373,7 +385,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصاراتك السريعة" : "Your Shortcuts";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

@@ -143,7 +143,7 @@
 
   const sections = [
     [
-      "Reports & Masters",
+      "Masters & Settings",
       [
         [
           "Users",
@@ -155,6 +155,7 @@
             "Module Profile"
           ]
         ],
+
         [
           "Logs",
           "📜",
@@ -163,6 +164,7 @@
             "Access Log"
           ]
         ],
+
         [
           "Permissions",
           "🛡️",
@@ -183,6 +185,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Reports & Masters": "التقارير والبيانات الرئيسية",
 
     // المربع ١: المستخدمين
@@ -522,6 +528,7 @@
     if (!statsSection) return;
 
     statsSection.innerHTML = `
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
         ${statsCards.map(c => `
           <div class="erp-stat-card" data-stat-id="${escapeHtml(c.id)}">
@@ -552,7 +559,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصاراتك" : "Your Shortcuts";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

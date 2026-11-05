@@ -144,7 +144,7 @@
 
   const sections = [
     [
-      "Financial Reports",
+      "Reports",
       [
         [
           "Ledgers",
@@ -194,6 +194,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Financial Reports": "التقارير المالية",
 
     "Ledgers": "دفاتر الأستاذ",
@@ -299,6 +303,7 @@
     if (!statsSection) return;
 
     statsSection.innerHTML = `
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
         ${statsCards.map((card) => {
           const label = isArabic ? card.labelAr : card.labelEn;

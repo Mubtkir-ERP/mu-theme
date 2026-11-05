@@ -171,9 +171,8 @@
 
   const sections = [
     [
-      "Reports & Masters",
+      "Masters & Settings",
       [
-        // الصف الأول
         [
           "Accounting Masters",
           "🏛️",
@@ -188,6 +187,7 @@
             "Payment Term"
           ]
         ],
+
         [
           "Payments",
           "💳",
@@ -199,6 +199,7 @@
             "Mode of Payment"
           ]
         ],
+
         [
           "Tax Masters",
           "🧾",
@@ -212,7 +213,6 @@
           ]
         ],
 
-        // الصف الثاني
         [
           "Cost Center and Budgeting",
           "📊",
@@ -225,6 +225,7 @@
             "Monthly Distribution"
           ]
         ],
+
         [
           "Multi Currency",
           "💱",
@@ -234,6 +235,7 @@
             "Exchange Rate Revaluation"
           ]
         ],
+
         [
           "Banking",
           "🏦",
@@ -247,7 +249,6 @@
           ]
         ],
 
-        // الصف الثالث
         [
           "Opening and Closing",
           "🔐",
@@ -257,6 +258,7 @@
             "Period Closing Voucher"
           ]
         ],
+
         [
           "Subscription Management",
           "🔄",
@@ -266,6 +268,7 @@
             "Subscription Settings"
           ]
         ],
+
         [
           "Share Management",
           "📈",
@@ -285,6 +288,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Reports & Masters": "التقارير والبيانات الرئيسية",
 
     // المربع ١: البيانات الرئيسية للمحاسبة
@@ -1279,6 +1286,7 @@
     if (!statsSection) return;
 
     statsSection.innerHTML = `
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
         ${statsCards.map(c => `
           <div class="erp-stat-card" data-stat-id="${escapeHtml(c.id)}">
@@ -1309,7 +1317,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصارات سريعة" : "Quick Actions";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

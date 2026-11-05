@@ -120,7 +120,7 @@
 
   const sections = [
     [
-      "Reports & Masters",
+      "Masters & Settings",
       [
         [
           "Production",
@@ -133,6 +133,7 @@
             "Downtime Entry"
           ]
         ],
+
         [
           "Bill of Materials",
           "📋",
@@ -145,6 +146,29 @@
             "Routing"
           ]
         ],
+
+        [
+          "Tools",
+          "🔧",
+          [
+            "BOM Update Tool",
+            "BOM Comparison Tool"
+          ]
+        ],
+
+        [
+          "Settings",
+          "⚙️",
+          [
+            "Manufacturing Settings"
+          ]
+        ]
+      ]
+    ],
+
+    [
+      "Reports",
+      [
         [
           "Reports",
           "📊",
@@ -159,21 +183,6 @@
             "Production Analytics",
             "BOM Operations Time",
             "Work Order Consumed Materials"
-          ]
-        ],
-        [
-          "Tools",
-          "🔧",
-          [
-            "BOM Update Tool",
-            "BOM Comparison Tool"
-          ]
-        ],
-        [
-          "Settings",
-          "⚙️",
-          [
-            "Manufacturing Settings"
           ]
         ]
       ]
@@ -471,6 +480,7 @@
     if (!statsSection) return;
 
     statsSection.innerHTML = `
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
         ${statsCards.map(c => `
           <div class="erp-stat-card" data-stat-id="${c.id}">
@@ -501,7 +511,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصارات سريعة" : "Quick Actions";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

@@ -147,9 +147,8 @@
 
   const sections = [
     [
-      "Reports & Masters",
+      "Masters & Settings",
       [
-        // الصف الأول
         [
           "Buying",
           "🛒",
@@ -161,6 +160,7 @@
             "Supplier Quotation"
           ]
         ],
+
         [
           "Items & Pricing",
           "🏷️",
@@ -174,6 +174,7 @@
             "Pricing Rule"
           ]
         ],
+
         [
           "Settings",
           "⚙️",
@@ -184,7 +185,6 @@
           ]
         ],
 
-        // الصف الثاني
         [
           "Supplier",
           "🏭",
@@ -195,6 +195,7 @@
             "Address"
           ]
         ],
+
         [
           "Supplier Scorecard",
           "🎯",
@@ -205,6 +206,20 @@
             "Supplier Scorecard Standing"
           ]
         ],
+
+        [
+          "Regional",
+          "🌐",
+          [
+            "Import Supplier Invoice"
+          ]
+        ]
+      ]
+    ],
+
+    [
+      "Reports",
+      [
         [
           "Key Reports",
           "📊",
@@ -218,7 +233,6 @@
           ]
         ],
 
-        // الصف الثالث
         [
           "Other Reports",
           "📑",
@@ -233,13 +247,6 @@
             "Material Requests for which Supplier Quotations are not created",
             "Supplier Addresses And Contacts"
           ]
-        ],
-        [
-          "Regional",
-          "🌐",
-          [
-            "Import Supplier Invoice"
-          ]
         ]
       ]
     ]
@@ -250,6 +257,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Reports & Masters": "التقارير والبيانات الرئيسية",
 
     // المربع ١: المشتريات
@@ -922,6 +933,7 @@
     if (!statsSection) return;
 
     statsSection.innerHTML = `
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
         ${statsCards.map(c => `
           <div class="erp-stat-card" data-stat-id="${escapeHtml(c.id)}">
@@ -952,7 +964,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصارات سريعة" : "Quick Actions";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

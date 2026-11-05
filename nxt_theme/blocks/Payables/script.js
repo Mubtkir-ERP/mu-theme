@@ -80,7 +80,7 @@
 
   const sections = [
     [
-      "Reports & Masters",
+      "Masters & Settings",
       [
         [
           "Invoicing",
@@ -92,8 +92,13 @@
           "Payments",
           "💳",
           ["Payment Entry", "Journal Entry", "Payment Reconciliation"]
-        ],
+        ]
+      ]
+    ],
 
+    [
+      "Reports",
+      [
         [
           "Reports",
           "📊",
@@ -117,6 +122,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Reports & Masters": "التقارير والبيانات الرئيسية",
 
     "Invoicing": "الفوترة",
@@ -417,7 +426,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصارات سريعة" : "Quick Actions";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

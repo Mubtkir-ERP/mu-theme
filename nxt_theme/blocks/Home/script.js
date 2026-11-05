@@ -1666,6 +1666,7 @@
 
     statsSection.innerHTML = `
 
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
 
         ${statsCards

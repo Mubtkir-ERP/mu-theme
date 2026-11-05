@@ -111,7 +111,7 @@
 
   const sections = [
     [
-      "Reports & Masters",
+      "Masters & Settings",
       [
         [
           "Sales Pipeline",
@@ -126,6 +126,7 @@
             "Communication"
           ]
         ],
+
         [
           "Masters",
           "📂",
@@ -139,6 +140,43 @@
             "Lead Source"
           ]
         ],
+
+        [
+          "Campaign",
+          "📢",
+          [
+            "Campaign",
+            "Email Campaign",
+            "SMS Center",
+            "SMS Log",
+            "Email Group"
+          ]
+        ],
+
+        [
+          "Settings",
+          "⚙️",
+          [
+            "CRM Settings",
+            "SMS Settings"
+          ]
+        ],
+
+        [
+          "Maintenance",
+          "🛠️",
+          [
+            "Maintenance Schedule",
+            "Maintenance Visit",
+            "Warranty Claim"
+          ]
+        ]
+      ]
+    ],
+
+    [
+      "Reports",
+      [
         [
           "Reports",
           "📊",
@@ -152,34 +190,6 @@
             "Inactive Customers",
             "Campaign Efficiency",
             "Lead Owner Efficiency"
-          ]
-        ],
-        [
-          "Campaign",
-          "📢",
-          [
-            "Campaign",
-            "Email Campaign",
-            "SMS Center",
-            "SMS Log",
-            "Email Group"
-          ]
-        ],
-        [
-          "Settings",
-          "⚙️",
-          [
-            "CRM Settings",
-            "SMS Settings"
-          ]
-        ],
-        [
-          "Maintenance",
-          "🛠️",
-          [
-            "Maintenance Schedule",
-            "Maintenance Visit",
-            "Warranty Claim"
           ]
         ]
       ]
@@ -563,6 +573,7 @@
     if (!statsSection) return;
 
     statsSection.innerHTML = `
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
         ${statsCards.map(c => `
           <div class="erp-stat-card" data-stat-id="${c.id}">
@@ -593,7 +604,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصارات سريعة" : "Quick Actions";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

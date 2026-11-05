@@ -26,7 +26,7 @@
 
   const sections = [
     [
-      "Reports & Masters",
+      "Masters & Settings",
       [
         [
           "Backup",
@@ -37,6 +37,7 @@
             "Google Drive"
           ]
         ],
+
         [
           "Google Services",
           "🔗",
@@ -47,6 +48,7 @@
             "Google Drive"
           ]
         ],
+
         [
           "Authentication",
           "🔐",
@@ -57,6 +59,7 @@
             "OAuth Provider Settings"
           ]
         ],
+
         [
           "Settings",
           "⚙️",
@@ -66,6 +69,7 @@
             "SMS Settings"
           ]
         ],
+
         [
           "Push Notifications",
           "🔔",
@@ -104,6 +108,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Reports & Masters": "التقارير والبيانات الرئيسية",
 
     "Backup": "النسخ الاحتياطي",

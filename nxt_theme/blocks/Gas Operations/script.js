@@ -113,6 +113,10 @@
      3. TRANSLATIONS DICTIONARY
   ========================================================= */
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     // Headers & Labels
     "Gas Operations": "إدارة عمليات الغاز",
     "Operations & Financials": "العمليات والتشغيل اليومي",
@@ -277,7 +281,7 @@
   ========================================================= */
   const sections = [
     [
-      "Operations & Daily Logistics",
+      "Masters & Settings",
       [
         [
           "Daily Operations & Financials",
@@ -288,6 +292,7 @@
             "Journal Entry"
           ]
         ],
+
         [
           "Branch Delivery & Logistics",
           "🚚",
@@ -297,6 +302,7 @@
             "Delivery Note"
           ]
         ],
+
         [
           "GASCO Ingestion & Invoices",
           "⛽",
@@ -655,7 +661,7 @@
 
     statsSection.innerHTML = `
       <section class="erp-overview-container">
-        <h2 class="erp-section-title">${isArabic ? "نظرة عامة" : "Overview"}</h2>
+        <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
         <div class="erp-stats-grid">${cardsHtml}</div>
       </section>
     `;

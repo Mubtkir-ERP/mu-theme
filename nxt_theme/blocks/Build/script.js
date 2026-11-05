@@ -40,7 +40,7 @@
 
   const sections = [
     [
-      "Components to build your app",
+      "Masters & Settings",
       [
         [
           "Models",
@@ -50,6 +50,7 @@
             "Workflow"
           ]
         ],
+
         [
           "Views",
           "👁️",
@@ -61,6 +62,7 @@
             "Dashboard Chart"
           ]
         ],
+
         [
           "Customization",
           "🎨",
@@ -71,6 +73,7 @@
             "Navbar Settings"
           ]
         ],
+
         [
           "Scripting",
           "💻",
@@ -80,6 +83,7 @@
             "Scheduled Job Type"
           ]
         ],
+
         [
           "Modules",
           "📦",
@@ -88,6 +92,7 @@
             "Module Onboarding"
           ]
         ],
+
         [
           "Packages",
           "📁",
@@ -96,6 +101,7 @@
             "Package Import"
           ]
         ],
+
         [
           "System Logs",
           "📋",
@@ -136,6 +142,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Get started": "ابدأ الآن",
     "Components to build your app": "مكونات بناء التطبيق",
 
@@ -492,7 +502,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "ابدأ الآن" : "Get started";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

@@ -1712,6 +1712,7 @@
 
     statsSection.innerHTML = `
 
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
 
         ${statsCards
@@ -1928,7 +1929,7 @@
       }
     ];
 
-    const quickTitle = isArabic ? "اختصارات سريعة" : "Quick Actions";
+    const quickTitle = isArabic ? "الاختصارات" : "Quick Actions";
 
     let html = `
       <div class="erp-module-section" style="margin-bottom: 24px;">

@@ -34,7 +34,7 @@
 
   const sections = [
     [
-      "Integrations",
+      "Masters & Settings",
       [
         [
           "Authentication",
@@ -46,6 +46,7 @@
             "OAuth Provider Settings"
           ]
         ],
+
         [
           "Backup",
           "💾",
@@ -55,6 +56,7 @@
             "Google Drive"
           ]
         ],
+
         [
           "Google Services",
           "🔗",
@@ -65,6 +67,7 @@
             "Google Drive"
           ]
         ],
+
         [
           "Communication Channels",
           "📡",
@@ -74,6 +77,7 @@
             "Slack Webhook URL"
           ]
         ],
+
         [
           "Payments",
           "💳",
@@ -114,6 +118,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Integrations": "التكاملات",
     "Browse Apps": "تصفح التطبيقات",
 

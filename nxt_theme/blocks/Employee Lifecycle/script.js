@@ -36,7 +36,7 @@
 
   const sections = [
     [
-      "Masters & Reports",
+      "Masters & Settings",
       [
         [
           "Onboarding",
@@ -47,6 +47,7 @@
             "Employee Skill Map"
           ]
         ],
+
         [
           "Grievance",
           "⚖️",
@@ -55,6 +56,7 @@
             "Employee Grievance"
           ]
         ],
+
         [
           "Training",
           "🎓",
@@ -65,6 +67,7 @@
             "Training Result"
           ]
         ],
+
         [
           "Daily Work Summary",
           "📝",
@@ -73,7 +76,13 @@
             "Daily Work Summary Group",
             "Daily Work Summary Replies"
           ]
-        ],
+        ]
+      ]
+    ],
+
+    [
+      "Reports",
+      [
         [
           "Reports",
           "📊",
@@ -111,6 +120,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Masters & Reports": "البيانات والتقارير",
     "New Hires (This Month)": "المعينون الجدد (هذا الشهر)",
     "Exits (This Month)": "المغادرون (هذا الشهر)",

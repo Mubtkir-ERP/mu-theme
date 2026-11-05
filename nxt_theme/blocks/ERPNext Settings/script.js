@@ -113,7 +113,7 @@
 
   const sections = [
     [
-      "Settings",
+      "Masters & Settings",
       [
         [
           "Module Settings",
@@ -129,6 +129,7 @@
             "Support Settings"
           ]
         ],
+
         [
           "Email / Notifications",
           "📧",
@@ -142,6 +143,7 @@
             "Notification Settings"
           ]
         ],
+
         [
           "Website",
           "🌐",
@@ -153,6 +155,7 @@
             "Contact Us Settings"
           ]
         ],
+
         [
           "Core",
           "⚙️",
@@ -162,6 +165,7 @@
             "Global Defaults"
           ]
         ],
+
         [
           "Printing",
           "🖨️",
@@ -172,6 +176,7 @@
             "Print Style"
           ]
         ],
+
         [
           "Workflow",
           "⚡",
@@ -602,6 +607,7 @@
     if (!statsSection) return;
 
     statsSection.innerHTML = `
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
         ${statsCards.map(c => `
           <div class="erp-stat-card" data-stat-id="${c.id}">
@@ -632,7 +638,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصارات سريعة" : "Quick Actions";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>

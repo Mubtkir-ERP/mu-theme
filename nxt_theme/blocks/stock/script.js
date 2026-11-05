@@ -152,9 +152,8 @@
 
   const sections = [
     [
-      "Masters & Reports",
+      "Masters & Settings",
       [
-        // الصف الأول
         [
           "Items Catalogue",
           "📦",
@@ -167,6 +166,7 @@
             "Item Manufacturer"
           ]
         ],
+
         [
           "Stock Transactions",
           "🔄",
@@ -179,6 +179,52 @@
             "Delivery Trip"
           ]
         ],
+
+        [
+          "Settings",
+          "⚙️",
+          [
+            "Stock Settings",
+            "Warehouse",
+            "Unit of Measure (UOM)",
+            "Item Variant Settings",
+            "Brand",
+            "Item Attribute",
+            "UOM Conversion Factor"
+          ]
+        ],
+
+        [
+          "Serial No and Batch",
+          "🔢",
+          [
+            "Serial No",
+            "Batch",
+            "Installation Note",
+            "Serial No Service Contract Expiry",
+            "Serial No Status",
+            "Serial No Warranty Expiry"
+          ]
+        ],
+
+        [
+          "Tools",
+          "🛠️",
+          [
+            "Stock Reconciliation",
+            "Landed Cost Voucher",
+            "Packing Slip",
+            "Quality Inspection",
+            "Quality Inspection Template",
+            "Quick Stock Balance"
+          ]
+        ]
+      ]
+    ],
+
+    [
+      "Reports",
+      [
         [
           "Stock Reports",
           "📊",
@@ -193,46 +239,6 @@
           ]
         ],
 
-        // الصف الثاني
-        [
-          "Settings",
-          "⚙️",
-          [
-            "Stock Settings",
-            "Warehouse",
-            "Unit of Measure (UOM)",
-            "Item Variant Settings",
-            "Brand",
-            "Item Attribute",
-            "UOM Conversion Factor"
-          ]
-        ],
-        [
-          "Serial No and Batch",
-          "🔢",
-          [
-            "Serial No",
-            "Batch",
-            "Installation Note",
-            "Serial No Service Contract Expiry",
-            "Serial No Status",
-            "Serial No Warranty Expiry"
-          ]
-        ],
-        [
-          "Tools",
-          "🛠️",
-          [
-            "Stock Reconciliation",
-            "Landed Cost Voucher",
-            "Packing Slip",
-            "Quality Inspection",
-            "Quality Inspection Template",
-            "Quick Stock Balance"
-          ]
-        ],
-
-        // الصف الثالث
         [
           "Key Reports",
           "📈",
@@ -246,6 +252,7 @@
             "Batch-Wise Balance History"
           ]
         ],
+
         [
           "Other Reports",
           "📑",
@@ -268,6 +275,10 @@
   ───────────────────────────────────────── */
 
   const arabicFallback = {
+    "Masters & Settings": "البيانات الأساسية والإعدادات",
+    "Reports": "التقارير",
+    "Statistics": "الإحصائيات",
+    "Quick Actions": "الاختصارات",
     "Masters & Reports": "البيانات الرئيسية والتقارير",
 
     // المربع ١: كتالوج المنتجات
@@ -1035,6 +1046,7 @@
     if (!statsSection) return;
 
     statsSection.innerHTML = `
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
         ${statsCards.map(c => `
           <div class="erp-stat-card" data-stat-id="${escapeHtml(c.id)}">
@@ -1065,7 +1077,7 @@
   function renderQuickActions() {
     if (!quickActions) return;
 
-    const title = isArabic ? "اختصارات سريعة" : "Quick Actions";
+    const title = isArabic ? "الاختصارات" : "Quick Actions";
 
     quickActions.innerHTML = `
       <h2 class="erp-section-title">${escapeHtml(title)}</h2>
