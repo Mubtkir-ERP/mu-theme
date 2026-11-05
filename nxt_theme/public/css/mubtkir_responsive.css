@@ -49,11 +49,21 @@
    MUBTKIR ERP — DASHBOARD CARDS & NUMERALS FIXES (ALL BLOCKS)
    ========================================================= */
 
-/* 1. All dashboard cards open automatically by default across all blocks */
+/* 1. All dashboard cards open automatically by default and stretch equally */
+.erp-dashboard-grid {
+  align-items: stretch !important;
+}
+
 .erp-card {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
   max-height: none !important;
   padding-bottom: 15px !important;
 }
+
+.erp-card .erp-card-links {
+  flex: 1 1 auto !important;
 
 .erp-card .erp-card-heading {
   margin-bottom: 10px !important;

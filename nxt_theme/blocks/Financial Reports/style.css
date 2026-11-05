@@ -950,7 +950,7 @@
 
 
 
-  align-items: start;
+  align-items: stretch !important;
 
 
 
@@ -3426,6 +3426,9 @@ html[data-theme="dark"]
 ========================================================= */
 
 .erp-card {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
   max-height: none !important;
   overflow: visible !important;
   padding-bottom: 15px !important;
@@ -3446,6 +3449,7 @@ html[data-theme="dark"]
 }
 
 .erp-card .erp-card-links {
+  flex: 1 1 auto !important;
   max-height: none !important;
   overflow: visible !important;
   opacity: 1 !important;
