@@ -60,6 +60,10 @@
           resolve(0);
           return;
         }
+        if (window.frappe?.boot?.user?.can_read && !window.frappe.boot.user.can_read.includes(doctype)) {
+          resolve(0);
+          return;
+        }
         frappe.call({
           method: "frappe.client.get_count",
           args: { doctype, filters: filters || {} },
@@ -208,11 +212,15 @@
         return new Promise(resolve => {
           try {
             if (!window.frappe?.call) { resolve(0); return; }
+            if (window.frappe?.boot?.user?.can_read && !window.frappe.boot.user.can_read.includes("Mada Settlement Entry")) {
+              resolve(0);
+              return;
+            }
             frappe.call({
               method: "frappe.client.get_list",
               args: {
                 doctype: "Mada Settlement Entry",
-                fields: ["sum(net_amount) as total"],
+                fields: ["sum(total_settlement_amount) as total"],
                 filters: { docstatus: 1 }
               },
               callback: r => {
@@ -244,7 +252,7 @@
       short: "TERM",
       labelAr: "أجهزة مدى النشطة",
       labelEn: "Active Terminals",
-      fetch: () => safeCount("Mada Terminal", { enabled: 1 })
+      fetch: () => safeCount("Mada Terminal", { status: "Active" })
     }
   ];
 
