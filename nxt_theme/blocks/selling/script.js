@@ -105,6 +105,11 @@
 
   const quickActionButtons = [
     {
+      doctype: "Customer",
+      labelEn: "New Customer",
+      labelAr: "عميل جديد"
+    },
+    {
       doctype: "Quotation",
       labelEn: "New Quotation",
       labelAr: "عرض سعر جديد"
@@ -118,11 +123,6 @@
       doctype: "Sales Invoice",
       labelEn: "New Sales Invoice",
       labelAr: "فاتورة مبيعات جديدة"
-    },
-    {
-      doctype: "Customer",
-      labelEn: "New Customer",
-      labelAr: "عميل جديد"
     }
   ];
 
