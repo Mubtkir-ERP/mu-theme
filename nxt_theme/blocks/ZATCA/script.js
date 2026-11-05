@@ -778,287 +778,245 @@
 
   const itemDescriptions = {
 
-
-
     "Company": {
-
       icon: "🏢",
-
-
-
-      summaryAr:
-
-        "إعداد بيانات الشركة الأساسية المطلوبة لربط زاتكا: الرقم الضريبي (VAT)، رقم السجل التجاري (CRN)، ونوع المنشأة.",
-
-
-
-      summaryEn:
-
-        "Configure company details required for ZATCA integration: VAT number, Commercial Registration Number (CRN), and business type."
-
+      summaryAr: "إعداد وتأكيد بيانات المنشأة الأساسية المطلوبة لربط منصة زاتكا (الفوترة الإلكترونية).",
+      summaryEn: "Configure company details required for ZATCA e-invoicing integration.",
+      stepsAr: [
+        "الدخول إلى شاشة بيانات الشركة واختيار الشركة المستهدفة",
+        "التحقق من صحة الاسم القانوني المسجل للمنشأة بالعربية والإنجليزية",
+        "إدخال وتأكيد الرقم الضريبي المعتمد (15 رقماً يبدأ وينتهي بـ 3)",
+        "إدخال رقم السجل التجاري (CRN) ونوع المنشأة ونشاطها التجاري",
+        "حفظ التعديلات والتأكد من مطابقتها لشهادة تسجيل ضريبة القيمة المضافة"
+      ],
+      stepsEn: [
+        "Open Company master and select the target company",
+        "Verify registered legal company name in Arabic and English",
+        "Enter and confirm the 15-digit VAT registration number",
+        "Enter Commercial Registration Number (CRN) and business type",
+        "Save changes and ensure match with VAT certificate"
+      ]
     },
-
-
 
     "Address": {
-
       icon: "📍",
-
-
-
-      summaryAr:
-
-        "إدارة عناوين الشركة والفروع بالتنسيق المطلوب من هيئة الزكاة والضريبة والجمارك.",
-
-
-
-      summaryEn:
-
-        "Manage company and branch addresses in ZATCA-required format."
-
+      summaryAr: "إدارة وتكوين العنوان الوطني للشركة وفروعها بالتنسيق القياسي الإلزامي لهيئة الزكاة والضريبة والجمارك.",
+      summaryEn: "Manage company and branch National Addresses in ZATCA-required standard format.",
+      stepsAr: [
+        "فتح شاشة العناوين واختيار عنوان المركز الرئيسي أو الفرع",
+        "تعبئة اسم الشارع ورقم المبنى المكون من 4 أرقام",
+        "إدخال اسم الحي والرمز البريدي والرقم الإضافي (4 أرقام)",
+        "تحديد المدينة واختيار الدولة (المملكة العربية السعودية - SA)",
+        "ربط العنوان بالشركة وتعيينه كعنوان رئيسي ثم حفظ السجل"
+      ],
+      stepsEn: [
+        "Open Address master and select main or branch address",
+        "Enter Street name and 4-digit Building Number",
+        "Enter District, Postal Code, and 4-digit Additional Number",
+        "Set City and Country code (Saudi Arabia - SA)",
+        "Link address to company as primary address and save"
+      ]
     },
-
-
 
     "ZATCA Tax Category": {
-
       icon: "🏷️",
-
-
-
-      summaryAr:
-
-        "تعريف فئات الضريبة المعتمدة من زاتكا وربطها بالفواتير.",
-
-
-
-      summaryEn:
-
-        "Define ZATCA-approved tax categories and link them to invoices."
-
+      summaryAr: "تعريف وتعيين فئات ضريبة القيمة المضافة المعتمدة من هيئة زاتكا وربطها بالفواتير والبنود.",
+      summaryEn: "Define ZATCA-approved VAT categories and associate them with items and invoice lines.",
+      stepsAr: [
+        "فتح شاشة فئات ضريبة زاتكا (النسبة الأساسية، الصفرية، المعفاة، خارج النطاق)",
+        "مراجعة وتأكيد نسبة الضريبة المحددة لكل فئة (15% للنسبة الأساسية)",
+        "تحديد كود سبب الإعفاء أو الصفر الضريبي بدقة إن وُجد",
+        "ربط فئة الضريبة بحساب الضريبة المقابل في شجرة الحسابات",
+        "حفظ الإعدادات لتطبيق الضريبة تلقائياً عند إنشاء الفواتير"
+      ],
+      stepsEn: [
+        "Open ZATCA Tax Category (Standard, Zero-rated, Exempt, Out of scope)",
+        "Review and confirm tax rate for each category (15% for standard)",
+        "Specify exact exemption reason code if zero-rated or exempt",
+        "Link tax category to corresponding account in Chart of Accounts",
+        "Save settings to apply automatically during invoicing"
+      ]
     },
-
-
 
     "ZATCA Phase 1 Business Settings": {
-
       icon: "1️⃣",
-
-
-
-      summaryAr:
-
-        "إعدادات المرحلة الأولى من الفوترة الإلكترونية.",
-
-
-
-      summaryEn:
-
-        "Phase 1 electronic invoicing settings."
-
+      summaryAr: "إعداد متطلبات المرحلة الأولى (الإصدار والحفظ) للفواتير الإلكترونية وتوليد رمز الاستجابة السريع (QR Code).",
+      summaryEn: "Configure Phase 1 (generation & storage) requirements and QR code settings.",
+      stepsAr: [
+        "فتح شاشة إعدادات المرحلة الأولى للفوترة الإلكترونية",
+        "تفعيل خيار إنشاء وحفظ الفواتير الإلكترونية بصيغة مشفرة",
+        "التحقق من إعدادات توليد رمز الـ QR Code وفق المواصفات الفنية لزاتكا",
+        "تأكيد منع التعديل أو الحذف بعد اعتماد الفواتير",
+        "حفظ الإعدادات وتجربة إصدار فاتورة للتأكد من ظهور الـ QR بدقة"
+      ],
+      stepsEn: [
+        "Open ZATCA Phase 1 Settings",
+        "Enable electronic invoice generation and encrypted archiving",
+        "Verify QR code generation settings per ZATCA technical guidelines",
+        "Confirm restrictions against editing or deleting submitted invoices",
+        "Save settings and test an invoice to verify compliant QR code"
+      ]
     },
-
-
 
     "ZATCA Phase 2 Business Settings": {
-
       icon: "2️⃣",
-
-
-
-      summaryAr:
-
-        "إعدادات المرحلة الثانية للربط والتكامل مع منصة فاتورة.",
-
-
-
-      summaryEn:
-
-        "Phase 2 integration settings for the FATOORA platform."
-
+      summaryAr: "إعدادات المرحلة الثانية للربط والتكامل المباشر مع منصة فاتورة (FATOORA).",
+      summaryEn: "Configure Phase 2 integration settings for real-time clearance and reporting with FATOORA.",
+      stepsAr: [
+        "فتح شاشة إعدادات المرحلة الثانية واختيار الشركة المستهدفة",
+        "تحديد بيئة العمل (بيئة تجريبية Sandbox أو بيئة الإنتاج الفعلي Production)",
+        "إدخال رمز المصادقة السري لمرة واحدة (OTP) الصادر من بوابة فاتورة",
+        "تفعيل خيارات الربط للفوترة الضريبية القياسية والفوترة المبسطة",
+        "حفظ الإعدادات واختبار الاتصال للتحقق من نجاح الربط مع خوادم الهيئة"
+      ],
+      stepsEn: [
+        "Open ZATCA Phase 2 Business Settings and select target company",
+        "Choose environment mode (Sandbox testing or Production live)",
+        "Enter One-Time Password (OTP) generated from FATOORA portal",
+        "Enable integration options for Standard and Simplified tax invoices",
+        "Save and run connectivity test to verify active link with ZATCA servers"
+      ]
     },
-
-
 
     "ZATCA EGS": {
-
       icon: "🔌",
-
-
-
-      summaryAr:
-
-        "إعداد جهاز توليد الفواتير الإلكترونية مع شهادات التوقيع ومفاتيح التشفير.",
-
-
-
-      summaryEn:
-
-        "Configure the electronic invoice generation solution and certificates."
-
+      summaryAr: "إعداد وحدة الحل التقني (EGS) وتوليد المفاتيح التشفيرية وشهادة الامتثال الرقمية (CSID).",
+      summaryEn: "Configure Electronic Generation Solution (EGS) unit and issue cryptographic security certificates.",
+      stepsAr: [
+        "الضغط على «جهاز ربط جديد (New ZATCA EGS)»",
+        "إدخال المعرف الفريد للجهاز (UUID) والرقم التسلسلي وموقع الوحدة",
+        "توليد المفتاح الخاص (Private Key) وملف طلب الشهادة (CSR)",
+        "طلب شهادة الامتثال والإنتاج (CSID) عبر رمز الـ OTP",
+        "حفظ وتنشيط الجهاز ليصبح معتمداً ومسجلاً لإرسال الفواتير تشفيرياً"
+      ],
+      stepsEn: [
+        "Click «New ZATCA EGS» unit",
+        "Enter device UUID, serial number, and unit branch location",
+        "Generate cryptographic Private Key and CSR request file",
+        "Request Compliance and Production CSID certificate using portal OTP",
+        "Save and activate unit for cryptographic invoice signing and submission"
+      ]
     },
-
-
 
     "ZATCA Invoice Counting Settings": {
-
       icon: "🔢",
-
-
-
-      summaryAr:
-
-        "إعداد تسلسل عداد الفواتير الإلكترونية.",
-
-
-
-      summaryEn:
-
-        "Configure electronic invoice sequential counter."
-
+      summaryAr: "إدارة وضبط العداد التسلسلي المستمر غير القابل للتكرار (ICV) وتجزئة التشفير التراكمي (PIH).",
+      summaryEn: "Manage sequential tamper-proof invoice counter (ICV) and previous invoice cryptographic hash (PIH).",
+      stepsAr: [
+        "فتح شاشة إعدادات عداد الفواتير واختيار الشركة وجهاز الربط EGS",
+        "التحقق من رقم البداية للعداد التسلسلي المتزايد (Invoice Counter Value)",
+        "التأكد من حفظ قيمة التشفير التراكمي للفاتورة السابقة (Previous Invoice Hash)",
+        "تأكيد عدم إمكانية تصفير أو تخطي أرقام العداد لضمان الامتثال التام",
+        "حفظ الإعدادات وتثبيتها"
+      ],
+      stepsEn: [
+        "Open Invoice Counting Settings and select company and EGS unit",
+        "Verify starting sequence for Invoice Counter Value (ICV)",
+        "Ensure chaining integrity with Previous Invoice Hash (PIH)",
+        "Confirm counter cannot be reset or skipped to ensure compliance",
+        "Save and commit settings"
+      ]
     },
-
-
 
     "Customer": {
-
       icon: "👤",
-
-
-
-      summaryAr:
-
-        "بيانات العميل المطلوبة للفوترة الإلكترونية مثل الرقم الضريبي والعنوان وبيانات الهوية.",
-
-
-
-      summaryEn:
-
-        "Customer information required for electronic invoicing."
-
+      summaryAr: "إعداد وتحديث بيانات العميل الإلزامية للفوترة الضريبية مثل العنوان الوطني والرقم الضريبي.",
+      summaryEn: "Manage customer master data required for tax invoices (VAT number and National Address).",
+      stepsAr: [
+        "فتح ملف العميل والتأكد من الاسم التجاري أو الشخصي الصحيح",
+        "تحديد تصنيف العميل (منشأة تجارية B2B أو فرد نهائي B2C)",
+        "إدخال الرقم الضريبي للعميل المكون من 15 رقماً للفواتير الضريبية",
+        "ربط وتعبئة العنوان الوطني التفصيلي للعميل (المبنى، الشارع، الحي، الرمز البريدي)",
+        "حفظ السجل ليتم إدراجه تلقائياً في الفواتير الصادرة له"
+      ],
+      stepsEn: [
+        "Open Customer profile and verify correct legal/individual name",
+        "Select customer classification (Business B2B or Individual Consumer B2C)",
+        "Enter customer's 15-digit VAT registration number for B2B tax invoices",
+        "Link detailed National Address (Building, Street, District, Postal Code)",
+        "Save record to auto-populate on issued invoices"
+      ]
     },
-
-
 
     "Sales Invoice": {
-
       icon: "🧾",
-
-
-
-      summaryAr:
-
-        "فاتورة المبيعات الإلكترونية التي يتم إرسالها وربطها مع زاتكا.",
-
-
-
-      summaryEn:
-
-        "Electronic Sales Invoice submitted and integrated with ZATCA."
-
+      summaryAr: "إصدار واعتماد فاتورة المبيعات وتوقيعها تشفيرياً وإرسالها لمنصة زاتكا بشكل لحظي.",
+      summaryEn: "Issue, submit, cryptographically sign, and transmit sales invoices to ZATCA platform.",
+      stepsAr: [
+        "الضغط على «فاتورة مبيعات جديدة» واختيار العميل وتاريخ الفاتورة",
+        "إضافة المنتجات والكميات والأسعار والتحقق من احتساب ضريبة 15%",
+        "تحديد نوع الفاتورة (ضريبية قياسية B2B أو ضريبية مبسطة B2C)",
+        "الضغط على «حفظ» ثم «تسجيل (Submit)» لتوليد التوقيع الرقمي والـ QR والهاش",
+        "إرسال الفاتورة لمنصة زاتكا ومراجعة حالة الاعتماد والتخليص المباشر"
+      ],
+      stepsEn: [
+        "Click «New Sales Invoice» and select customer and posting date",
+        "Add items, quantities, rates and verify 15% VAT calculation",
+        "Select invoice subtype (Standard B2B or Simplified B2C)",
+        "Click «Save» then «Submit» to generate digital signature, QR, and hash",
+        "Transmit invoice to ZATCA and verify live clearance / reporting status"
+      ]
     },
-
-
 
     "Sales Invoice Additional Fields": {
-
       icon: "📝",
-
-
-
-      summaryAr:
-
-        "الحقول الإضافية الخاصة بمتطلبات زاتكا على فاتورة المبيعات.",
-
-
-
-      summaryEn:
-
-        "Additional Sales Invoice fields required for ZATCA."
-
+      summaryAr: "تحديد الحقول الإضافية المخصصة لمتطلبات هيئة زاتكا كأسباب التعديل وطرق الدفع الخاصة.",
+      summaryEn: "Manage additional sales invoice fields required by ZATCA compliance rules.",
+      stepsAr: [
+        "فتح شاشة الحقول الإضافية لفاتورة المبيعات",
+        "تحديد نوع المعاملة الخاصة (تصدير، توريد ذاتي، طرف ثالث، إلخ)",
+        "في حال إشعار دائن أو مدين: إدخال سبب التعديل ورقم الفاتورة المرجعية",
+        "تحديد كود وسيلة الدفع المعتمدة وفق مواصفات هيئة الزكاة والضريبة",
+        "حفظ البيانات وربطها بالفاتورة المصدرة"
+      ],
+      stepsEn: [
+        "Open Sales Invoice Additional Fields",
+        "Specify special transaction type (Export, Self-billing, Third-party)",
+        "For Credit/Debit notes: enter amendment reason and reference invoice",
+        "Select payment means code according to ZATCA standards",
+        "Save details and associate with the invoice"
+      ]
     },
-
-
-
-    "Zatca Integration Details": {
-
-      icon: "📊",
-
-
-
-      summaryAr:
-
-        "تقرير تفصيلي يعرض حالة ربط كل فاتورة مع زاتكا.",
-
-
-
-      summaryEn:
-
-        "Detailed report showing each invoice's ZATCA integration status."
-
-    },
-
-
-
-    "Zatca Integration Summary": {
-
-      icon: "📈",
-
-
-
-      summaryAr:
-
-        "ملخص إحصائي لعمليات الربط مع زاتكا.",
-
-
-
-      summaryEn:
-
-        "Statistical summary of ZATCA integration."
-
-    },
-
-
 
     "ZATCA Integration Log": {
-
       icon: "📋",
-
-
-
-      summaryAr:
-
-        "سجل تفصيلي لكل عملية إرسال وربط مع زاتكا.",
-
-
-
-      summaryEn:
-
-        "Detailed log of each ZATCA integration operation."
-
+      summaryAr: "سجل تفصيلي لمتابعة عمليات الإرسال والاستجابة وأكواد الأخطاء والتحذيرات الصادرة من زاتكا.",
+      summaryEn: "Detailed log to track submission status, API response payloads, and clearance warnings.",
+      stepsAr: [
+        "فتح شاشة سجل ربط زاتكا (ZATCA Integration Log)",
+        "فلترة السجلات حسب الحالة (مقبولة REPORTED، تم التخليص CLEARED، مرفوضة REJECTED)",
+        "الضغط على السجل للاطلاع على كود استجابة الهيئة وملف الـ XML المعتمد",
+        "في حال وجود تحذيرات أو أخطاء: قراءة تفاصيل رسالة الخطأ لمعالجتها",
+        "إعادة إرسال الفاتورة بعد تصحيح البيانات إن تطلب الأمر"
+      ],
+      stepsEn: [
+        "Open ZATCA Integration Log",
+        "Filter logs by status (CLEARED, REPORTED, REJECTED, WARNINGS)",
+        "Click any log entry to view ZATCA response code and signed XML payload",
+        "If warnings or errors exist: inspect error message details to resolve",
+        "Re-submit invoice after correcting data if required"
+      ]
     },
 
-
-
     "e-invoicing-sync": {
-
       icon: "🔄",
-
-
-
-      summaryAr:
-
-        "سجل عمليات مزامنة الفوترة الإلكترونية مع منصة زاتكا.",
-
-
-
-      summaryEn:
-
-        "Electronic invoicing synchronization log."
-
+      summaryAr: "إدارة ومزامنة الفواتير غير المرسلة أو المعلقة دفعة واحدة مع منصة زاتكا.",
+      summaryEn: "Batch synchronization tool for queued and pending invoices with ZATCA.",
+      stepsAr: [
+        "فتح شاشة مزامنة الفوترة الإلكترونية",
+        "الاطلاع على عدد الفواتير المعلقة بانتظار الإرسال أو التدقيق",
+        "الضغط على «بدء المزامنة (Start Sync)» لمعالجة الفواتير دفعة واحدة",
+        "مراجعة النتائج والتأكد من إرسال كافة الفواتير بنجاح",
+        "التحقق من عمل المهمة المجدولة (Background Job) بشكل منتظم"
+      ],
+      stepsEn: [
+        "Open Electronic Invoicing Sync dashboard",
+        "Check count of pending or queued invoices awaiting transmission",
+        "Click «Start Sync» to batch process and transmit invoices",
+        "Review results and confirm all invoices transmitted successfully",
+        "Verify background scheduled task runs periodically without errors"
+      ]
     }
-
-
 
   };
 
@@ -1638,131 +1596,109 @@
 
   function showInfoModal(data) {
 
-
-
     const title =
-
       isArabic
-
         ? data.labelAr
-
         : data.labelEn;
 
-
-
     const summary =
-
       isArabic
-
         ? data.summaryAr
-
         : data.summaryEn;
 
+    const rawSteps = isArabic ? data.stepsAr : data.stepsEn;
+    const steps = (Array.isArray(rawSteps) && rawSteps.length > 0)
+      ? rawSteps
+      : (isArabic
+          ? [
+              "فتح شاشة " + title,
+              "إدخال وتعبئة البيانات الأساسية المطلوبة",
+              "مراجعة وتدقيق الحقول والتحقق من صحتها",
+              "حفظ السجل واعتماد المستند"
+            ]
+          : [
+              "Open " + title,
+              "Fill in the required information and fields",
+              "Review and verify mandatory values",
+              "Save and submit the record"
+            ]);
 
-
-
+    const existing = root.querySelector(".erp-modal-overlay") || document.querySelector(".erp-modal-overlay");
+    if (existing) existing.remove();
 
     const overlay =
-
       document.createElement("div");
 
-
-
     overlay.className =
-
       "erp-modal-overlay";
 
-
-
     overlay.setAttribute(
-
       "dir",
-
       isArabic ? "rtl" : "ltr"
-
     );
-
-
-
-
 
     overlay.innerHTML = `
 
-
-
       <div class="erp-modal-box">
 
-
-
         <button
-
           type="button"
-
           class="erp-modal-close"
-
           data-modal-close
-
+          aria-label="${isArabic ? "إغلاق" : "Close"}"
         >
-
           ✕
-
         </button>
-
-
 
         <div class="erp-modal-header">
 
-
-
           <span class="erp-modal-icon">
-
-            ${data.icon}
-
+            ${data.icon || "📄"}
           </span>
 
-
-
           <h3 class="erp-modal-title">
-
             ${escapeHtml(title)}
-
           </h3>
-
-
 
         </div>
 
-
-
         <p class="erp-modal-summary">
-
           ${escapeHtml(summary)}
-
         </p>
 
+        <div class="erp-modal-steps is-shown" data-modal-steps>
+          <ol class="erp-modal-steps-list">
+            ${steps.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
+          </ol>
+        </div>
 
+        <div style="margin-top: 18px;">
+          <button
+            type="button"
+            class="erp-quick-btn"
+            data-modal-launch
+            style="width: 100%; min-height: 42px;"
+          >
+            <span class="erp-quick-label">${isArabic ? "فتح الشاشة" : "Open Screen"}</span>
+          </button>
+        </div>
 
       </div>
-
     `;
-
-
-
-
 
     root.appendChild(overlay);
 
-
-
     requestAnimationFrame(() =>
-
       overlay.classList.add("is-visible")
-
     );
 
-
-
-
+    const launchBtn = overlay.querySelector("[data-modal-launch]");
+    if (launchBtn) {
+      launchBtn.addEventListener("click", () => {
+        closeModal();
+        if (data.itemName) openRoute(data.itemName);
+      });
+    }
 
     function closeModal() {
 
@@ -1924,29 +1860,18 @@
 
 
 
-                      const infoBtn =
-
-                        desc
-
-                          ? `
-
-                            <button
-
-                              type="button"
-
-                              class="erp-info-link"
-
-                              data-info-item="${escapeHtml(itemName)}"
-
-                            >
-
-                              ${detailsLabel}
-
-                            </button>
-
-                          `
-
-                          : "";
+                      const isReport = reportNames.has(itemName) || /report|تقرير|تقارير/i.test(cardName) || /report|تقرير/i.test(itemName);
+                      const infoBtn = (!isReport && desc)
+                        ? `
+                          <button
+                            type="button"
+                            class="erp-info-link"
+                            data-info-item="${escapeHtml(itemName)}"
+                          >
+                            ${detailsLabel}
+                          </button>
+                        `
+                        : "";
 
 
 
@@ -2513,39 +2438,14 @@
 
 
           showInfoModal({
-
-
-
-            icon:
-
-              desc.icon || "📄",
-
-
-
-            labelAr:
-
-              translate(itemName),
-
-
-
-            labelEn:
-
-              itemName,
-
-
-
-            summaryAr:
-
-              desc.summaryAr,
-
-
-
-            summaryEn:
-
-              desc.summaryEn
-
-
-
+            itemName: itemName,
+            icon: desc.icon || "📄",
+            labelAr: translate(itemName),
+            labelEn: itemName,
+            summaryAr: desc.summaryAr,
+            summaryEn: desc.summaryEn,
+            stepsAr: desc.stepsAr,
+            stepsEn: desc.stepsEn
           });
 
 

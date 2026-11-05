@@ -689,7 +689,8 @@
             const linksHtml = items.map(itemName => {
               const desc = itemDescriptions[itemName];
               const detailsLabel = isArabic ? "تفاصيل" : "Details";
-              const infoBtn = desc
+            const isReport = (typeof reportNames !== "undefined" && reportNames.has(itemName)) || /report|تقرير|تقارير/i.test(itemName);
+            const infoBtn = (!isReport && desc)
                 ? `<button type="button" class="erp-info-link" data-info-item="${escapeHtml(itemName)}">${detailsLabel}</button>`
                 : "";
 
