@@ -189,19 +189,21 @@
   margin-top: 14px !important;
 }
 
-/* 7. Ensure stats cards are stacked vertically (1 column) on mobile to prevent overlapping */
+/* 7. Ensure stats cards and cycle step boxes are stacked vertically (1 column) on mobile */
 @media (max-width: 768px) {
+  /* مربعات الإحصائيات (Stats Grid) */
   .erp-dashboard-wrapper .erp-stats-grid,
   .erp-stats-grid {
     grid-template-columns: 1fr !important;
-    gap: 10px !important;
+    gap: 12px !important;
+    width: 100% !important;
   }
 
   .erp-dashboard-wrapper .erp-stat-card,
   .erp-stat-card {
     width: 100% !important;
     min-width: 0 !important;
-    padding: 12px 14px !important;
+    padding: 13px 15px !important;
     box-sizing: border-box !important;
   }
 
@@ -211,16 +213,65 @@
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    font-size: 16px !important;
+    font-size: 16.5px !important;
   }
 
   .erp-dashboard-wrapper .erp-stat-card .erp-stat-label,
   .erp-stat-card .erp-stat-label,
   .erp-stat-card .erp-stat-info .erp-stat-label {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    white-space: normal !important;
     font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+
+  /* مربعات خطوات التنفيذ (Cycle Grid / Steps) */
+  .erp-dashboard-wrapper .erp-cycle-grid,
+  .erp-cycle-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  .erp-dashboard-wrapper .erp-cycle-item,
+  .erp-cycle-item,
+  .erp-dashboard-wrapper .erp-cycle-card,
+  .erp-cycle-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: auto !important;
+    padding: 16px 14px !important;
+    box-sizing: border-box !important;
+  }
+
+  .erp-cycle-arrow,
+  .erp-dashboard-wrapper .erp-cycle-arrow {
+    display: none !important;
+  }
+
+  .erp-cycle-card-title,
+  .erp-dashboard-wrapper .erp-cycle-card-title {
+    font-size: 14.5px !important;
+    margin: 8px 0 5px !important;
+  }
+
+  .erp-cycle-description,
+  .erp-dashboard-wrapper .erp-cycle-description {
+    font-size: 12px !important;
+    line-height: 1.55 !important;
+  }
+
+  /* مربعات الأقسام والماسترز (Dashboard Grid) */
+  .erp-dashboard-wrapper .erp-dashboard-grid,
+  .erp-dashboard-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  .erp-dashboard-wrapper .erp-card,
+  .erp-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 }
 
