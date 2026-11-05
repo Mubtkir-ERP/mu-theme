@@ -105,7 +105,7 @@
         [
           "Payments",
           "💳",
-          ["Payment Entry", "Payment Request", "Payment Reconciliation", "Payment Gateway Account"]
+          ["Payment Entry", "Payment Request", "Payment Reconciliation"]
         ],
 
         [
@@ -146,7 +146,6 @@
     "Payment Entry": "سند قبض او صرف",
     "Payment Request": "طلب دفع",
     "Payment Reconciliation": "تسوية المدفوعات",
-    "Payment Gateway Account": "حساب بوابة الدفع",
 
     "Dunning": "المطالبات",
     "Dunning Type": "نوع المطالبة",
@@ -315,28 +314,6 @@
         "Click «Get Unreconciled Entries» and «Get Outstanding Invoices»",
         "Match each payment with the appropriate invoice",
         "Click «Reconcile» to apply the matching"
-      ]
-    },
-
-    "Payment Gateway Account": {
-      icon: "🌐",
-      summaryAr:
-        "إعداد حسابات بوابات الدفع الإلكتروني (مثل PayPal، Stripe) وربطها بالحسابات المحاسبية.",
-      summaryEn:
-        "Configure payment gateway accounts (e.g., PayPal, Stripe) and link them to accounting accounts.",
-      stepsAr: [
-        "اضغط «حساب بوابة دفع جديد»",
-        "اختر بوابة الدفع (PayPal، Stripe، إلخ)",
-        "حدد حساب الدفع المحاسبي",
-        "حدد العملة الافتراضية",
-        "اضغط «حفظ»"
-      ],
-      stepsEn: [
-        "Click «New Payment Gateway Account»",
-        "Select payment gateway (PayPal, Stripe, etc.)",
-        "Set the payment accounting account",
-        "Set default currency",
-        "Click «Save»"
       ]
     },
 
