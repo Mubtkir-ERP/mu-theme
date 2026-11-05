@@ -205,14 +205,6 @@
             "Supplier Scorecard Criteria",
             "Supplier Scorecard Standing"
           ]
-        ],
-
-        [
-          "Regional",
-          "🌐",
-          [
-            "Import Supplier Invoice"
-          ]
         ]
       ]
     ],
@@ -318,11 +310,7 @@
     "Subcontracted Item To Be Received": "منتجات التعاقد من الباطن بانتظار الاستلام",
     "Supplier Quotation Comparison": "مقارنة عروض أسعار الموردين",
     "Material Requests for which Supplier Quotations are not created": "طلبات مواد بدون عروض أسعار موردين",
-    "Supplier Addresses And Contacts": "عناوين وجهات اتصال الموردين",
-
-    // المربع ٨: إقليمي
-    "Regional": "إقليمي",
-    "Import Supplier Invoice": "استيراد فاتورة المورد"
+    "Supplier Addresses And Contacts": "عناوين وجهات اتصال الموردين"
   };
 
   /* ─────────────────────────────────────────
@@ -353,8 +341,7 @@
   ]);
 
   const singleDocs = new Set([
-    "Buying Settings",
-    "Import Supplier Invoice"
+    "Buying Settings"
   ]);
 
   /* ─────────────────────────────────────────
@@ -784,25 +771,6 @@
         "Click «New Supplier Scorecard Standing»",
         "Enter standing level and minimum qualifying score",
         "Click «Save»"
-      ]
-    },
-
-    // ═══ إقليمي ═══
-    "Import Supplier Invoice": {
-      icon: "📥",
-      summaryAr: "أداة استيراد فواتير الموردين من ملفات إلكترونية (XML / JSON / Excel) ومطابقتها آلياً مع أوامر الشراء.",
-      summaryEn: "Tool to import vendor e-invoices from XML, JSON, or Excel files and auto-match with Purchase Orders.",
-      stepsAr: [
-        "افتح «استيراد فاتورة المورد»",
-        "ارفع ملف الفاتورة الإلكترونية المستلمة من المورد",
-        "راجع البيانات المستخلصة وتطابق المنتجات والمبالغ",
-        "اضغط «إنشاء فاتورة الشراء» لتسجيلها بالنظام"
-      ],
-      stepsEn: [
-        "Open «Import Supplier Invoice»",
-        "Upload supplier invoice electronic file",
-        "Review parsed fields, items, and tax amounts",
-        "Click «Create Purchase Invoice» to post"
       ]
     }
   };
