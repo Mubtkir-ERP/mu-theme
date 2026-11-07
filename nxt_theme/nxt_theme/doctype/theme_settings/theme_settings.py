@@ -65,11 +65,6 @@ def after_migrate():
 	except Exception:
 		frappe.log_error(title="Theme after_migrate defaults error", message=frappe.get_traceback())
 
-	try:
-		apply_all_blocks_to_workspaces(auto_run=True)
-	except Exception:
-		frappe.log_error(title="Theme after_migrate blocks sync error", message=frappe.get_traceback())
-
 
 @frappe.whitelist()
 def apply_all_blocks_to_workspaces(auto_run=False):
