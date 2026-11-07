@@ -32,7 +32,7 @@ def ensure_role():
 			install_app("mu_car_care", verbose=True, set_as_patched=True)
 			frappe.db.commit()
 	except Exception:
-		frappe.log_error(frappe.get_traceback(), "nxt_theme: Auto-install apps")
+		frappe.log_error(title="nxt_theme: Auto-install apps", message=frappe.get_traceback())
 
 
 def after_install():

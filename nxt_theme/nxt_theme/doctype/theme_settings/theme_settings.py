@@ -61,18 +61,24 @@ def setup_theme_defaults():
 			changed = True
 		if changed:
 			doc.flags.ignore_permissions = True
+			doc.flags.ignore_links = True
+			doc.flags.ignore_validate = True
 			doc.save()
 			frappe.db.commit()
-	except Exception as e:
-		frappe.log_error(f"Error setting Theme Settings defaults: {str(e)}")
+	except Exception:
+		frappe.log_error(title="Theme Settings defaults error", message=frappe.get_traceback())
 
 
 def after_migrate():
-	setup_theme_defaults()
+	try:
+		setup_theme_defaults()
+	except Exception:
+		frappe.log_error(title="Theme after_migrate defaults error", message=frappe.get_traceback())
+
 	try:
 		apply_all_blocks_to_workspaces(auto_run=True)
-	except Exception as e:
-		frappe.log_error(f"Error in after_migrate theme blocks sync: {str(e)}")
+	except Exception:
+		frappe.log_error(title="Theme after_migrate blocks sync error", message=frappe.get_traceback())
 
 
 @frappe.whitelist()
@@ -124,10 +130,15 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 					chb.style = item.get("style", "")
 					chb.script = item.get("script", "")
 					chb.flags.ignore_permissions = True
+					chb.flags.ignore_links = True
+					chb.flags.ignore_validate = True
 					chb.save()
 				created_or_updated_blocks.append(block_name)
-			except Exception as e:
-				frappe.log_error(f"Error creating Custom HTML Block {block_name}: {str(e)}")
+			except Exception:
+				frappe.log_error(
+					title=f"Theme CHB save error: {block_name}"[:140],
+					message=frappe.get_traceback(),
+				)
 
 		# 2. Link block to the corresponding workspace
 		candidates = [
@@ -199,24 +210,50 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			continue
 
 		for ws_name in target_workspaces:
+			content_data = [
+				{
+					"type": "custom_block",
+					"data": {
+						"custom_block_name": block_name,
+						"col": 12,
+					},
+				}
+			]
 			try:
 				ws = frappe.get_doc("Workspace", ws_name)
-				content_data = [
-					{
-						"type": "custom_block",
-						"data": {
-							"custom_block_name": block_name,
-							"col": 12,
-						},
-					}
-				]
 				ws.content = json.dumps(content_data)
 				ws.set("custom_blocks", [{"custom_block_name": block_name}])
 				ws.flags.ignore_permissions = True
+				ws.flags.ignore_links = True
+				ws.flags.ignore_validate = True
 				ws.save()
 				updated_workspaces.append(f"{ws_name} ➔ {block_name}")
-			except Exception as e:
-				frappe.log_error(f"Error linking workspace {ws_name} to block {block_name}: {str(e)}")
+			except Exception:
+				# Fallback to direct DB update to bypass LinkValidationError on missing payment integrations
+				try:
+					frappe.db.set_value(
+						"Workspace", ws_name, "content", json.dumps(content_data), update_modified=False
+					)
+					if frappe.db.exists("DocType", "Workspace Custom Block"):
+						if not frappe.db.exists(
+							"Workspace Custom Block",
+							{"parent": ws_name, "custom_block_name": block_name},
+						):
+							frappe.get_doc(
+								{
+									"doctype": "Workspace Custom Block",
+									"parent": ws_name,
+									"parenttype": "Workspace",
+									"parentfield": "custom_blocks",
+									"custom_block_name": block_name,
+								}
+							).insert(ignore_permissions=True, ignore_links=True)
+					updated_workspaces.append(f"{ws_name} ➔ {block_name} (db)")
+				except Exception:
+					frappe.log_error(
+						title=f"Theme WS link error: {ws_name}"[:140],
+						message=frappe.get_traceback(),
+					)
 
 	frappe.db.commit()
 	frappe.clear_cache()
