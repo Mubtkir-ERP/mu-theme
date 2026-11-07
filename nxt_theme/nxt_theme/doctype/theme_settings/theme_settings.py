@@ -172,6 +172,8 @@ def get_default_workspace_mappings():
 		("POSNext", "POSNext"),
 		("Whatsapp", "Whatsapp"),
 		("ZATCA", "ZATCA"),
+		("Gold Management", "Gold Management"),
+		("Healthcare", "Healthcare"),
 	]
 
 	# التحقق من نشاط العميل بالنسبة للرئيسية Home
@@ -185,6 +187,10 @@ def get_default_workspace_mappings():
 		default_pairs[0] = ("Home", "Container Rental System")
 	elif frappe.db.exists("DocType", "Party Booking"):
 		default_pairs[0] = ("Home", "Party Bookings")
+	elif frappe.db.exists("DocType", "Gold Workmanship Invoice") or frappe.db.exists("DocType", "Gold Receipt"):
+		default_pairs[0] = ("Home", "Gold Management")
+	elif frappe.db.exists("DocType", "Patient Appointment") or frappe.db.exists("DocType", "Healthcare Practitioner"):
+		default_pairs[0] = ("Home", "Healthcare")
 
 	mappings = []
 	for ws, block in default_pairs:

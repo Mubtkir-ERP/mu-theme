@@ -21,7 +21,82 @@
   const isArabic = String(langValue).toLowerCase().startsWith("ar");
 
   /* ─────────────────────────────────────────
-     ١. أزرار الوصول السريع (Quick Access)
+     ١. البطاقات الإحصائية (Statistics)
+  ───────────────────────────────────────── */
+
+  const statsCards = [
+    {
+      id: "container-orders",
+      icon: "📋",
+      labelEn: "Container Orders",
+      labelAr: "أوامر الحاويات",
+      doctype: "Container Order"
+    },
+    {
+      id: "container-rentals",
+      icon: "🚛",
+      labelEn: "Active Rentals",
+      labelAr: "الحاويات المؤجرة",
+      doctype: "Container Rental"
+    },
+    {
+      id: "container-contracts",
+      icon: "📝",
+      labelEn: "Contracts",
+      labelAr: "عقود التأجير",
+      doctype: "Container Contract"
+    },
+    {
+      id: "containers-total",
+      icon: "📦",
+      labelEn: "Total Containers",
+      labelAr: "إجمالي الحاويات",
+      doctype: "Container"
+    }
+  ];
+
+  function renderStats() {
+    if (!statsSection) return;
+
+    const title = isArabic ? "الإحصائيات" : "Statistics";
+
+    statsSection.innerHTML = `
+      <h2 class="erp-section-title">${escapeHtml(title)}</h2>
+      <div class="erp-stats-grid">
+        ${statsCards.map(card => {
+          const label = isArabic ? card.labelAr : card.labelEn;
+          return `
+            <div class="erp-stat-card">
+              <div class="erp-stat-icon">${card.icon}</div>
+              <div class="erp-stat-info">
+                <span class="erp-stat-value" data-stat-id="${card.id}">...</span>
+                <span class="erp-stat-label">${escapeHtml(label)}</span>
+              </div>
+            </div>`;
+        }).join("")}
+      </div>
+    `;
+
+    if (!window.frappe) return;
+
+    statsCards.forEach(card => {
+      frappe.call({
+        method: "frappe.client.get_count",
+        args: { doctype: card.doctype },
+        callback: r => {
+          const el = statsSection.querySelector(`[data-stat-id="${card.id}"]`);
+          if (el) el.textContent = formatNumber(r.message || 0);
+        },
+        error: () => {
+          const el = statsSection.querySelector(`[data-stat-id="${card.id}"]`);
+          if (el) el.textContent = "0";
+        }
+      });
+    });
+  }
+
+  /* ─────────────────────────────────────────
+     ٢. أزرار الوصول السريع (Quick Access)
   ───────────────────────────────────────── */
 
   const quickActionButtons = [
@@ -684,6 +759,7 @@
      ١٣. بدء التشغيل
   ───────────────────────────────────────── */
 
+  renderStats();
   renderQuickActions();
   renderSections();
   renderFooter();
