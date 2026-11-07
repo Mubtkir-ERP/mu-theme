@@ -15,7 +15,9 @@
   "phone",
   "email",
   "column_break_contact",
-  "website"
+  "website",
+  "section_break_workspaces",
+  "workspace_mappings"
  ],
  "fields": [
   {
@@ -76,6 +78,17 @@
    "fieldtype": "Data",
    "label": "Website URL",
    "default": "www.mubtkir.com"
+  },
+  {
+   "fieldname": "section_break_workspaces",
+   "fieldtype": "Section Break",
+   "label": "Workspace Blocks Mapping"
+  },
+  {
+   "fieldname": "workspace_mappings",
+   "fieldtype": "Table",
+   "label": "Workspace Blocks",
+   "options": "Theme Workspace Mapping"
   }
  ],
  "index_web_pages_for_search": 1,
