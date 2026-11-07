@@ -6,6 +6,11 @@ frappe.ui.form.on("Theme Settings", {
 		if (!frm.doc.phone) frm.set_value("phone", "0115110455");
 		if (!frm.doc.email) frm.set_value("email", "sales@mubtkir.com");
 		if (!frm.doc.website) frm.set_value("website", "www.mubtkir.com");
+
+		// Sync all custom HTML blocks into database so they always exist and appear in dropdown
+		frappe.call({
+			method: "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.sync_custom_html_blocks",
+		});
 	},
 	refresh: function (frm) {
 		if (!frm.doc.phone) frm.set_value("phone", "0115110455");

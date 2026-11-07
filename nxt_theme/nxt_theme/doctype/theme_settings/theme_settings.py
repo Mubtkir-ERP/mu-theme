@@ -67,10 +67,71 @@ def after_migrate():
 
 
 @frappe.whitelist()
+def sync_custom_html_blocks():
+	"""إنشاء وتحديث كافة كتل Custom HTML Block في قاعدة البيانات من all_blocks.json"""
+	blocks_json_path = os.path.join(
+		frappe.get_app_path("nxt_theme"), "public", "blocks", "all_blocks.json"
+	)
+	if not os.path.exists(blocks_json_path):
+		blocks_json_path = os.path.join(
+			frappe.get_app_path("nxt_theme"), "blocks", "all_blocks.json"
+		)
+
+	if not os.path.exists(blocks_json_path):
+		return []
+
+	with open(blocks_json_path, "r", encoding="utf-8") as f:
+		blocks_data = json.load(f)
+
+	if not frappe.db.exists("DocType", "Custom HTML Block"):
+		return []
+
+	created_or_updated = []
+	for item in blocks_data:
+		block_name = item.get("custom_block_name") or item.get("name") or item.get("label")
+		if not block_name:
+			continue
+
+		try:
+			if not frappe.db.exists("Custom HTML Block", block_name):
+				chb = frappe.get_doc({
+					"doctype": "Custom HTML Block",
+					"name": block_name,
+					"html": item.get("html", ""),
+					"style": item.get("style", ""),
+					"script": item.get("script", ""),
+				})
+				chb.flags.ignore_permissions = True
+				chb.flags.ignore_links = True
+				chb.flags.ignore_validate = True
+				chb.insert()
+			else:
+				frappe.db.set_value(
+					"Custom HTML Block",
+					block_name,
+					{
+						"html": item.get("html", ""),
+						"style": item.get("style", ""),
+						"script": item.get("script", ""),
+					},
+					update_modified=False,
+				)
+			created_or_updated.append(block_name)
+		except Exception:
+			pass
+
+	frappe.db.commit()
+	return created_or_updated
+
+
+@frappe.whitelist()
 def get_default_workspace_mappings():
 	"""إرجاع التوزيع الافتراضي للكتل على مساحات العمل لملء الجدول يدوياً"""
 	if frappe.session.user != "Administrator":
 		frappe.throw(_("Only Administrator can perform this action"), frappe.PermissionError)
+
+	# التأكد أولاً من إنشاء ومزامنة كافة كتل Custom HTML Block في قاعدة البيانات
+	sync_custom_html_blocks()
 
 	default_pairs = [
 		("Home", "Home"),
@@ -171,45 +232,10 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 	with open(blocks_json_path, "r", encoding="utf-8") as f:
 		blocks_data = json.load(f)
 
-	created_or_updated_blocks = []
+	# 1. إنشاء وتحديث كافة كتل Custom HTML Block في قاعدة البيانات
+	created_or_updated_blocks = sync_custom_html_blocks()
 	updated_workspaces = []
 	skipped_workspaces = []
-
-	has_chb_doctype = frappe.db.exists("DocType", "Custom HTML Block")
-
-	for item in blocks_data:
-		block_name = item.get("custom_block_name") or item.get("name") or item.get("label")
-		if not block_name:
-			continue
-
-		# 1. Create or update Custom HTML Block document
-		if has_chb_doctype:
-			try:
-				if not frappe.db.exists("Custom HTML Block", block_name):
-					chb = frappe.get_doc({
-						"doctype": "Custom HTML Block",
-						"name": block_name,
-						"html": item.get("html", ""),
-						"style": item.get("style", ""),
-						"script": item.get("script", ""),
-					})
-					chb.flags.ignore_permissions = True
-					chb.insert()
-				else:
-					chb = frappe.get_doc("Custom HTML Block", block_name)
-					chb.html = item.get("html", "")
-					chb.style = item.get("style", "")
-					chb.script = item.get("script", "")
-					chb.flags.ignore_permissions = True
-					chb.flags.ignore_links = True
-					chb.flags.ignore_validate = True
-					chb.save()
-				created_or_updated_blocks.append(block_name)
-			except Exception:
-				frappe.log_error(
-					title=f"Theme CHB save error: {block_name}"[:140],
-					message=frappe.get_traceback(),
-				)
 
 	# 2. Check if custom table mappings exist in Theme Settings
 	table_mappings = []
