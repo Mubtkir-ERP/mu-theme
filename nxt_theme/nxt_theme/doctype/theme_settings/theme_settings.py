@@ -6,6 +6,7 @@ import os
 import frappe
 from frappe import _
 from frappe.model.document import Document
+from nxt_theme.events.sidebar import DEFAULT_WORKSPACE_ICONS
 
 
 DEFAULT_PHONE = "0115110455"
@@ -62,8 +63,22 @@ def setup_theme_defaults():
 def after_migrate():
 	try:
 		setup_theme_defaults()
+		restore_default_workspace_icons()
 	except Exception:
 		frappe.log_error(title="Theme after_migrate defaults error", message=frappe.get_traceback())
+
+
+@frappe.whitelist()
+def restore_default_workspace_icons():
+	"""استعادة وتعيين الأيقونات الافتراضية لكافة مساحات العمل في النظام"""
+	try:
+		from nxt_theme.patches.restore_workspace_icons import execute as run_restore
+		run_restore()
+		frappe.clear_cache()
+		return {"success": True}
+	except Exception:
+		frappe.log_error(title="Restore workspace icons error", message=frappe.get_traceback())
+		return {"success": False}
 
 
 @frappe.whitelist()
@@ -213,6 +228,7 @@ def get_default_workspace_mappings():
 		mappings.append({
 			"workspace": target_ws,
 			"custom_block_name": block,
+			"icon": DEFAULT_WORKSPACE_ICONS.get(ws, ""),
 			"enabled": 1,
 		})
 
@@ -250,7 +266,7 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			table_mappings = frappe.get_all(
 				"Theme Workspace Mapping",
 				filters={"parent": "Theme Settings", "enabled": 1},
-				fields=["workspace", "custom_block_name"],
+				fields=["workspace", "custom_block_name", "icon"],
 			)
 	except Exception:
 		table_mappings = []
@@ -260,11 +276,21 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 		for row in table_mappings:
 			ws_name = row.get("workspace")
 			block_name = row.get("custom_block_name")
+			ws_icon = row.get("icon")
 			if not (ws_name and block_name):
 				continue
 			if not frappe.db.exists("Workspace", ws_name):
 				skipped_workspaces.append(f"{ws_name} (غير موجود)")
 				continue
+
+			# تحديث الأيقونة إذا كانت محددة أو فارغة
+			if ws_icon:
+				frappe.db.set_value("Workspace", ws_name, "icon", ws_icon.strip(), update_modified=False)
+			else:
+				curr_icon = frappe.db.get_value("Workspace", ws_name, "icon")
+				if not curr_icon:
+					default_icon = DEFAULT_WORKSPACE_ICONS.get(ws_name, "folder")
+					frappe.db.set_value("Workspace", ws_name, "icon", default_icon, update_modified=False)
 
 			content_data = [
 				{

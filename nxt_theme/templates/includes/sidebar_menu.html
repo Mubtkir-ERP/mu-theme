@@ -5,11 +5,17 @@
     </li>
     {% for page in pages %}
     <li>
-        <a  href="javascript:;" data-title="{{ page.title }}" data-is_public="{{ page.public }}" class="link_to_page side-menu__link d-flex align-items-center">
-            <i data-tw-merge="" class="stroke-[1] w-5 h-5 side-menu__link__icon">
-                <svg class="icon icon-md" style="">
-                    <use class="" href="#icon-{{ page.icon }}"></use>
-                </svg>
+        <a href="javascript:;" data-title="{{ page.title }}" data-is_public="{{ page.public }}" class="link_to_page side-menu__link d-flex align-items-center">
+            <i data-tw-merge="" class="stroke-[1] w-5 h-5 side-menu__link__icon flex items-center justify-center">
+                {% if page.icon_type == 'lucide' %}
+                    <i data-lucide="{{ page.icon }}" class="w-5 h-5 stroke-[1.4] flex-shrink-0"></i>
+                {% elif page.icon_type == 'fa' %}
+                    <i class="{{ page.icon }} text-base flex-shrink-0"></i>
+                {% else %}
+                    <svg class="icon icon-md flex-shrink-0">
+                        <use href="#icon-{{ page.icon }}"></use>
+                    </svg>
+                {% endif %}
             </i>
             <div class="side-menu__link__title">{{ _(page.title) }}</div>
             
@@ -23,11 +29,17 @@
             {% for child_page in page.child_workspace %}
             <li>
                 <div class=" ">
-                    <a  href="javascript:;" data-title="{{ child_page.title }}" data-is_public="{{ child_page.public }}" class="link_to_page side-menu__link d-flex align-items-center">
-                        <i data-tw-merge="" class="stroke-[1] w-5 h-5 side-menu__link__icon">
-                            <svg class="icon icon-md" style="">
-                                <use class="" href="#icon-{{ child_page.icon }}"></use>
-                            </svg>
+                    <a href="javascript:;" data-title="{{ child_page.title }}" data-is_public="{{ child_page.public }}" class="link_to_page side-menu__link d-flex align-items-center">
+                        <i data-tw-merge="" class="stroke-[1] w-5 h-5 side-menu__link__icon flex items-center justify-center">
+                            {% if child_page.icon_type == 'lucide' %}
+                                <i data-lucide="{{ child_page.icon }}" class="w-5 h-5 stroke-[1.4] flex-shrink-0"></i>
+                            {% elif child_page.icon_type == 'fa' %}
+                                <i class="{{ child_page.icon }} text-base flex-shrink-0"></i>
+                            {% else %}
+                                <svg class="icon icon-md flex-shrink-0">
+                                    <use href="#icon-{{ child_page.icon }}"></use>
+                                </svg>
+                            {% endif %}
                         </i>
                         <div class="side-menu__link__title">{{ _(child_page.title) }}</div>
                     </a>
@@ -39,3 +51,11 @@
     </li>
     {% endfor %}
 </ul>
+
+<script>
+    if (window.lucide && typeof window.lucide.createIcons === "function") {
+        window.lucide.createIcons();
+    } else if (typeof window.createIcons === "function") {
+        window.createIcons();
+    }
+</script>

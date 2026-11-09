@@ -65,6 +65,25 @@ frappe.ui.form.on("Theme Settings", {
 			});
 		});
 
+		// Button to restore and sync workspace icons
+		const restoreIconsLabel = isAr ? "🎨 استعادة أيقونات مساحات العمل" : "🎨 Restore Workspace Icons";
+		frm.add_custom_button(restoreIconsLabel, function () {
+			frappe.call({
+				method: "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.restore_default_workspace_icons",
+				freeze: true,
+				freeze_message: isAr ? "جاري استعادة وتحديث أيقونات مساحات العمل..." : "Restoring workspace icons...",
+				callback: function (r) {
+					frappe.show_alert({
+						message: isAr
+							? "تم استعادة وتحديث كافة أيقونات مساحات العمل بنجاح!"
+							: "Workspace icons restored successfully!",
+						indicator: "green",
+					});
+					frappe.ui.toolbar.clear_cache();
+				},
+			});
+		});
+
 		// Button to apply all custom blocks to workspaces at once
 		const btnLabel = isAr ? "🚀 تطبيق الكتل على مساحات العمل" : "🚀 Apply All Blocks to Workspaces";
 		const confirmMsg = isAr
