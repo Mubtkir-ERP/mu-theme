@@ -357,16 +357,29 @@
   color: inherit !important;
 }
 
+/* Sub-menu items (Child workspaces like المدفوعات, المقبوضات, التقارير المالية) */
+.side-menu ul.scrollable > li ul .side-menu__link,
+.side-menu ul.scrollable > li ul .side-menu__link .side-menu__link__title,
+.side-menu ul.scrollable > li ul .side-menu__link .side-menu__link__icon {
+  color: rgba(255, 255, 255, 0.75) !important;
+  stroke: rgba(255, 255, 255, 0.75) !important;
+  opacity: 1 !important;
+}
+
 /* Hover & Active States: Pure Crisp White for BOTH text and icon */
 .side-menu__link:hover,
 .side-menu__link--active,
-.side-menu ul.scrollable > li > .side-menu__link--active {
+.side-menu__link--active-dropdown,
+.side-menu ul.scrollable > li > .side-menu__link--active,
+.side-menu ul.scrollable > li ul .side-menu__link:hover {
   color: #ffffff !important;
 }
 
 .side-menu__link:hover .side-menu__link__title,
 .side-menu__link--active .side-menu__link__title,
-.side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__title {
+.side-menu__link--active-dropdown .side-menu__link__title,
+.side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__title,
+.side-menu ul.scrollable > li ul .side-menu__link:hover .side-menu__link__title {
   color: #ffffff !important;
   font-weight: 500 !important;
   opacity: 1 !important;
@@ -374,7 +387,9 @@
 
 .side-menu__link:hover .side-menu__link__icon,
 .side-menu__link--active .side-menu__link__icon,
-.side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__icon {
+.side-menu__link--active-dropdown .side-menu__link__icon,
+.side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__icon,
+.side-menu ul.scrollable > li ul .side-menu__link:hover .side-menu__link__icon {
   color: #ffffff !important;
   stroke: #ffffff !important;
   opacity: 1 !important;
@@ -382,7 +397,10 @@
 
 .side-menu__link:hover .side-menu__link__icon svg,
 .side-menu__link--active .side-menu__link__icon svg,
-.side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__icon svg {
+.side-menu__link--active-dropdown .side-menu__link__icon svg,
+.side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__icon svg,
+.side-menu ul.scrollable > li ul .side-menu__link:hover .side-menu__link__icon svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
+  stroke-width: 1.8 !important;
 }
