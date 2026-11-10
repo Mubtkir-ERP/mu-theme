@@ -296,20 +296,22 @@
 
 
 /* =========================================================
-   MUBTKIR — SIDEBAR ICONS CONTRAST & COLOR UNIFICATION
+   MUBTKIR — SIDEBAR ICONS MATCH TEXT COLOR 100%
    ========================================================= */
 
-/* Ensure all sidebar icons use native theme color and opacity */
+/* All sidebar icons inherit the exact same color and opacity as text */
 .side-menu__link__icon {
-  color: rgb(255 255 255 / 70%) !important;
-  stroke: rgb(255 255 255 / 70%) !important;
+  color: inherit !important;
+  stroke: currentColor !important;
+  fill: none !important;
+  opacity: 1 !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  opacity: 0.9 !important;
 }
 
-/* Lucide SVGs: inherit clean native stroke */
+/* Lucide SVGs & All Icons: match text stroke, color and full opacity */
+.side-menu__link__icon svg,
 .side-menu__link__icon svg.lucide,
 .side-menu__link__icon [data-lucide],
 .side-menu__link__icon i[data-lucide] {
@@ -318,23 +320,33 @@
   fill: none !important;
   width: 1.25rem !important;
   height: 1.25rem !important;
-  stroke-width: 1.6 !important;
+  stroke-width: 1.8 !important;
   opacity: 1 !important;
 }
 
-/* Frappe SVG icons: match stroke and subtle fill */
-.side-menu__link__icon svg.icon-md {
-  width: 1.25rem !important;
-  height: 1.25rem !important;
+/* Base text and icon color matching in skins */
+.razor .side-menu__link,
+.exort .side-menu__link,
+.shuriken .side-menu__link,
+.viper .side-menu__link {
+  color: rgb(255 255 255 / 75%) !important;
+}
+
+.razor .side-menu__link .side-menu__link__title,
+.exort .side-menu__link .side-menu__link__title,
+.shuriken .side-menu__link .side-menu__link__title,
+.viper .side-menu__link .side-menu__link__title {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+.razor .side-menu__link .side-menu__link__icon,
+.exort .side-menu__link .side-menu__link__icon,
+.shuriken .side-menu__link .side-menu__link__icon,
+.viper .side-menu__link .side-menu__link__icon {
   color: inherit !important;
   stroke: currentColor !important;
-  fill: rgb(255 255 255 / 10%) !important;
   opacity: 1 !important;
-}
-
-.side-menu__link__icon svg.icon-md use {
-  color: inherit !important;
-  stroke: inherit !important;
 }
 
 /* FontAwesome icons if any */
@@ -345,16 +357,32 @@
   color: inherit !important;
 }
 
-/* Hover & Active States — 100% crisp pure white */
+/* Hover & Active States: Pure Crisp White for BOTH text and icon */
+.side-menu__link:hover,
+.side-menu__link--active,
+.side-menu ul.scrollable > li > .side-menu__link--active {
+  color: #ffffff !important;
+}
+
+.side-menu__link:hover .side-menu__link__title,
+.side-menu__link--active .side-menu__link__title,
+.side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__title {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
+}
+
 .side-menu__link:hover .side-menu__link__icon,
-.side-menu__link--active .side-menu__link__icon {
+.side-menu__link--active .side-menu__link__icon,
+.side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__icon {
   color: #ffffff !important;
   stroke: #ffffff !important;
   opacity: 1 !important;
 }
 
 .side-menu__link:hover .side-menu__link__icon svg,
-.side-menu__link--active .side-menu__link__icon svg {
+.side-menu__link--active .side-menu__link__icon svg,
+.side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__icon svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
 }

@@ -89,3 +89,4 @@ def execute():
 			frappe.clear_cache()
 	except Exception:
 		pass
+

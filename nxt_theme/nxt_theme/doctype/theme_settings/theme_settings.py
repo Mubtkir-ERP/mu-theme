@@ -14,10 +14,15 @@ DEFAULT_EMAIL = "sales@mubtkir.com"
 DEFAULT_WEBSITE = "www.mubtkir.com"
 
 
+def check_admin_permission():
+	if frappe.session.user == "Administrator" or "System Manager" in frappe.get_roles():
+		return
+	frappe.throw(_("Only Administrator or System Manager can perform this action"), frappe.PermissionError)
+
+
 class ThemeSettings(Document):
 	def validate(self):
-		if frappe.session.user != "Administrator":
-			frappe.throw(_("Only Administrator can modify Theme Settings"), frappe.PermissionError)
+		check_admin_permission()
 
 		if not self.phone or self.phone == "0115110455":
 			self.phone = DEFAULT_PHONE
@@ -55,11 +60,14 @@ def setup_theme_defaults():
 		curr_phone = frappe.db.get_single_value("Theme Settings", "phone")
 		if not curr_phone or curr_phone in ("0115110455", ""):
 			frappe.db.set_single_value("Theme Settings", "phone", DEFAULT_PHONE)
-			frappe.db.sql("""
-				UPDATE `tabSingles`
-				SET value = %s
-				WHERE doctype = 'Theme Settings' AND field = 'phone'
-			""", (DEFAULT_PHONE,))
+			try:
+				frappe.db.sql("""
+					UPDATE `tabSingles`
+					SET value = %s
+					WHERE doctype = 'Theme Settings' AND field = 'phone'
+				""", (DEFAULT_PHONE,))
+			except Exception:
+				pass
 		if not frappe.db.get_single_value("Theme Settings", "email"):
 			frappe.db.set_single_value("Theme Settings", "email", DEFAULT_EMAIL)
 		if not frappe.db.get_single_value("Theme Settings", "website"):
@@ -346,16 +354,14 @@ def get_default_workspace_mappings_data():
 
 @frappe.whitelist()
 def get_default_workspace_mappings():
-	if frappe.session.user != "Administrator":
-		frappe.throw(_("Only Administrator can perform this action"), frappe.PermissionError)
+	check_admin_permission()
 	return get_default_workspace_mappings_data()
 
 
 @frappe.whitelist()
 def reload_default_workspace_mappings():
 	"""إعادة ملء وحفظ التوزيع الافتراضي للكتل على مساحات العمل في قاعدة البيانات وتحديث النموذج"""
-	if frappe.session.user != "Administrator":
-		frappe.throw(_("Only Administrator can perform this action"), frappe.PermissionError)
+	check_admin_permission()
 
 	sync_custom_html_blocks()
 	doc = frappe.get_doc("Theme Settings")
@@ -374,8 +380,8 @@ def reload_default_workspace_mappings():
 
 @frappe.whitelist()
 def apply_all_blocks_to_workspaces(auto_run=False):
-	if not auto_run and frappe.session.user != "Administrator":
-		frappe.throw(_("Only Administrator can perform this action"), frappe.PermissionError)
+	if not auto_run:
+		check_admin_permission()
 
 	blocks_json_path = os.path.join(
 		frappe.get_app_path("nxt_theme"), "public", "blocks", "all_blocks.json"
@@ -434,48 +440,51 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 				skipped_workspaces.append(f"{ws_name} (غير موجود)")
 				continue
 
-			# تحديث الأيقونة في مساحة العمل
-			if ws_icon:
-				clean_icon = ICON_MAP.get(ws_icon.strip(), ws_icon.strip())
-				frappe.db.set_value("Workspace", actual_ws, "icon", clean_icon, update_modified=True)
-			else:
-				curr_icon = frappe.db.get_value("Workspace", actual_ws, "icon")
-				if not curr_icon:
-					default_icon = (
-						DEFAULT_WORKSPACE_ICONS.get(actual_ws)
-						or ARABIC_WORKSPACE_ICONS.get(ws_name)
-						or "layout-grid"
-					)
-					frappe.db.set_value("Workspace", actual_ws, "icon", default_icon, update_modified=True)
-
-			content_data = [
-				{
-					"type": "custom_block",
-					"data": {
-						"custom_block_name": block_name,
-						"col": 12,
-					},
-				}
-			]
 			try:
+				# تحديث الأيقونة في مساحة العمل
+				if ws_icon:
+					clean_icon = ICON_MAP.get(ws_icon.strip(), ws_icon.strip())
+					frappe.db.set_value("Workspace", actual_ws, "icon", clean_icon, update_modified=False)
+				else:
+					curr_icon = frappe.db.get_value("Workspace", actual_ws, "icon")
+					if not curr_icon:
+						default_icon = (
+							DEFAULT_WORKSPACE_ICONS.get(actual_ws)
+							or ARABIC_WORKSPACE_ICONS.get(ws_name)
+							or "layout-grid"
+						)
+						frappe.db.set_value("Workspace", actual_ws, "icon", default_icon, update_modified=False)
+
+				content_data = [
+					{
+						"type": "custom_block",
+						"data": {
+							"custom_block_name": block_name,
+							"col": 12,
+						},
+					}
+				]
 				frappe.db.set_value(
-					"Workspace", actual_ws, "content", json.dumps(content_data), update_modified=True
+					"Workspace", actual_ws, "content", json.dumps(content_data), update_modified=False
 				)
 				if frappe.db.exists("DocType", "Workspace Custom Block"):
 					if not frappe.db.exists(
 						"Workspace Custom Block",
 						{"parent": actual_ws, "custom_block_name": block_name},
 					):
-						frappe.db.sql(
-							"""
-							INSERT INTO `tabWorkspace Custom Block`
-							(name, parent, parenttype, parentfield, custom_block_name, creation, modified, modified_by, owner)
-							VALUES (%s, %s, 'Workspace', 'custom_blocks', %s, NOW(), NOW(), 'Administrator', 'Administrator')
-							""",
-							(frappe.generate_hash(length=10), actual_ws, block_name),
-						)
+						try:
+							frappe.db.sql(
+								"""
+								INSERT INTO `tabWorkspace Custom Block`
+								(name, parent, parenttype, parentfield, custom_block_name, idx, creation, modified, modified_by, owner)
+								VALUES (%s, %s, 'Workspace', 'custom_blocks', %s, 1, NOW(), NOW(), 'Administrator', 'Administrator')
+								""",
+								(frappe.generate_hash(length=10), actual_ws, block_name),
+							)
+						except Exception:
+							pass
 				updated_workspaces.append(f"{actual_ws} ➔ {block_name}")
-			except Exception:
+			except Exception as ws_err:
 				frappe.log_error(
 					title=f"Theme WS link error: {actual_ws}"[:140],
 					message=frappe.get_traceback(),
@@ -503,15 +512,17 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			]
 			try:
 				frappe.db.set_value(
-					"Workspace", target_ws, "content", json.dumps(content_data), update_modified=True
+					"Workspace", target_ws, "content", json.dumps(content_data), update_modified=False
 				)
 				updated_workspaces.append(f"{target_ws} ➔ {block_name}")
 			except Exception:
 				pass
 
 	frappe.db.commit()
-	frappe.clear_cache(doctype="Workspace")
-	frappe.clear_cache()
+	try:
+		frappe.clear_cache()
+	except Exception:
+		pass
 
 	return {
 		"blocks_synced": len(created_or_updated_blocks),

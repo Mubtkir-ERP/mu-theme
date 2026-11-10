@@ -6,7 +6,7 @@
     {% for page in pages %}
     <li>
         <a href="javascript:;" data-title="{{ page.title }}" data-is_public="{{ page.public }}" class="link_to_page side-menu__link d-flex align-items-center">
-            <i data-tw-merge="" class="stroke-[1] w-5 h-5 side-menu__link__icon flex items-center justify-center">
+            <i data-tw-merge="" class="w-5 h-5 side-menu__link__icon flex items-center justify-center">
                 {% if page.icon_type == 'fa' %}
                     <i class="{{ page.icon }} text-base flex-shrink-0"></i>
                 {% else %}
@@ -26,7 +26,7 @@
             <li>
                 <div class=" ">
                     <a href="javascript:;" data-title="{{ child_page.title }}" data-is_public="{{ child_page.public }}" class="link_to_page side-menu__link d-flex align-items-center">
-                        <i data-tw-merge="" class="stroke-[1] w-5 h-5 side-menu__link__icon flex items-center justify-center">
+                        <i data-tw-merge="" class="w-5 h-5 side-menu__link__icon flex items-center justify-center">
                             {% if child_page.icon_type == 'fa' %}
                                 <i class="{{ child_page.icon }} text-base flex-shrink-0"></i>
                             {% else %}

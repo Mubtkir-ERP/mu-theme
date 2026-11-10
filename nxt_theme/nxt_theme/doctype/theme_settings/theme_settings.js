@@ -88,6 +88,14 @@ frappe.ui.form.on("Theme Settings", {
 								callback: function (r) {
 									frappe.dom.unfreeze();
 									if (r && r.message) {
+										if (r.message.error) {
+											frappe.msgprint({
+												title: isAr ? "تنبيه" : "Notice",
+												message: r.message.error,
+												indicator: "orange",
+											});
+											return;
+										}
 										const msgTemplate = isAr
 											? "تم تطبيق الكتل المخصصة بنجاح على {0} مساحة عمل!<br><br><b>مساحات العمل المحدثة:</b><br>{1}"
 											: "Applied custom blocks successfully to {0} workspaces!<br><br><b>Updated Workspaces:</b><br>{1}";
@@ -104,7 +112,21 @@ frappe.ui.form.on("Theme Settings", {
 								},
 								error: function (err) {
 									frappe.dom.unfreeze();
-									frappe.msgprint(errorPrefix + ((err && err.message) ? err.message : ""));
+									let msg = "";
+									if (err) {
+										if (err.message) msg = err.message;
+										else if (err._server_messages) {
+											try {
+												let msgs = JSON.parse(err._server_messages);
+												msg = msgs.map(m => JSON.parse(m).message).join("<br>");
+											} catch(e) {}
+										}
+									}
+									frappe.msgprint({
+										title: isAr ? "خطأ" : "Error",
+										message: errorPrefix + (msg || (isAr ? "يرجى مراجعة سجل الأخطاء (Error Log)" : "Please check Error Log")),
+										indicator: "red",
+									});
 								},
 							});
 						}
