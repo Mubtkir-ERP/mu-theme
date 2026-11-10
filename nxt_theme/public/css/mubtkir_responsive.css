@@ -299,16 +299,17 @@
    MUBTKIR — SIDEBAR ICONS CONTRAST & COLOR UNIFICATION
    ========================================================= */
 
-/* Ensure all sidebar icons are bright, high-contrast white by default */
+/* Ensure all sidebar icons use native theme color and opacity */
 .side-menu__link__icon {
-  color: rgba(255, 255, 255, 0.90) !important;
+  color: rgb(255 255 255 / 70%) !important;
+  stroke: rgb(255 255 255 / 70%) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  opacity: 1 !important;
+  opacity: 0.9 !important;
 }
 
-/* Lucide SVGs: inherit white stroke and crisp 1.6 stroke-width */
+/* Lucide SVGs: inherit clean native stroke */
 .side-menu__link__icon svg.lucide,
 .side-menu__link__icon [data-lucide],
 .side-menu__link__icon i[data-lucide] {
@@ -321,27 +322,39 @@
   opacity: 1 !important;
 }
 
-/* Frappe SVG icons: ensure high-contrast white fill/stroke */
+/* Frappe SVG icons: match stroke and subtle fill */
 .side-menu__link__icon svg.icon-md {
   width: 1.25rem !important;
   height: 1.25rem !important;
   color: inherit !important;
-  fill: currentColor !important;
+  stroke: currentColor !important;
+  fill: rgb(255 255 255 / 10%) !important;
   opacity: 1 !important;
 }
 
-/* Specific line-based SVG symbols in Frappe */
 .side-menu__link__icon svg.icon-md use {
+  color: inherit !important;
+  stroke: inherit !important;
+}
+
+/* FontAwesome icons if any */
+.side-menu__link__icon i.fa,
+.side-menu__link__icon i.fas,
+.side-menu__link__icon i.far,
+.side-menu__link__icon i.fal {
   color: inherit !important;
 }
 
-/* Hover & Active States */
+/* Hover & Active States — 100% crisp pure white */
 .side-menu__link:hover .side-menu__link__icon,
 .side-menu__link--active .side-menu__link__icon {
   color: #ffffff !important;
+  stroke: #ffffff !important;
+  opacity: 1 !important;
 }
 
-.side-menu__link:hover .side-menu__link__icon svg.lucide,
-.side-menu__link--active .side-menu__link__icon svg.lucide {
+.side-menu__link:hover .side-menu__link__icon svg,
+.side-menu__link--active .side-menu__link__icon svg {
+  color: #ffffff !important;
   stroke: #ffffff !important;
 }

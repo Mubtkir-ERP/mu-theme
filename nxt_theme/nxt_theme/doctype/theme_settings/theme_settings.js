@@ -39,47 +39,23 @@ frappe.ui.form.on("Theme Settings", {
 
 		frm.set_df_property("skin", "options", skin_options);
 
-		// Button to load default workspace block mappings into table
-		const loadDefaultsLabel = isAr ? "📥 ملء الجدول بالتوزيع الافتراضي" : "📥 Load Default Mappings";
+		// Button to load and persist default workspace block mappings into table
+		const loadDefaultsLabel = isAr ? "📥 ملء وحفظ التوزيع الافتراضي" : "📥 Load Default Mappings";
 		frm.add_custom_button(loadDefaultsLabel, function () {
 			frappe.call({
-				method: "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.get_default_workspace_mappings",
+				method: "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.reload_default_workspace_mappings",
 				freeze: true,
-				freeze_message: isAr ? "جاري جلب التوزيع الافتراضي للكتل..." : "Fetching default workspace mappings...",
+				freeze_message: isAr ? "جاري ملء وحفظ التوزيع الافتراضي للكتل..." : "Populating and saving default mappings...",
 				callback: function (r) {
-					if (r && r.message) {
-						frm.clear_table("workspace_mappings");
-						r.message.forEach(function (row) {
-							frm.add_child("workspace_mappings", row);
-						});
-						frm.refresh_field("workspace_mappings");
-						frm.dirty();
+					if (!r.exc) {
+						frm.reload_doc();
 						frappe.show_alert({
 							message: isAr
-								? "تم ملء الجدول بنجاح! يمكنك تخصيص أي كتلة (مثل الرئيسية) ثم الحفظ والضغط على تطبيق الكتل."
-								: "Table populated! Customize blocks as needed, then save and click Apply.",
+								? "تم ملء وحفظ جدول التوزيع بنجاح في قاعدة البيانات!"
+								: "Default workspace mappings saved successfully!",
 							indicator: "green",
 						});
 					}
-				},
-			});
-		});
-
-		// Button to restore and sync workspace icons
-		const restoreIconsLabel = isAr ? "🎨 استعادة أيقونات مساحات العمل" : "🎨 Restore Workspace Icons";
-		frm.add_custom_button(restoreIconsLabel, function () {
-			frappe.call({
-				method: "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.restore_default_workspace_icons",
-				freeze: true,
-				freeze_message: isAr ? "جاري استعادة وتحديث أيقونات مساحات العمل..." : "Restoring workspace icons...",
-				callback: function (r) {
-					frappe.show_alert({
-						message: isAr
-							? "تم استعادة وتحديث كافة أيقونات مساحات العمل بنجاح!"
-							: "Workspace icons restored successfully!",
-						indicator: "green",
-					});
-					frappe.ui.toolbar.clear_cache();
 				},
 			});
 		});
@@ -98,35 +74,47 @@ frappe.ui.form.on("Theme Settings", {
 		frm.add_custom_button(
 			btnLabel,
 			function () {
-				frappe.confirm(
-					confirmMsg,
-					function () {
-						frappe.dom.freeze(freezeMsg);
-						frappe.call({
-							method: "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.apply_all_blocks_to_workspaces",
-							callback: function (r) {
-								frappe.dom.unfreeze();
-								if (r && r.message) {
-									const msgTemplate = isAr
-										? "تم تطبيق الكتل المخصصة بنجاح على {0} مساحة عمل!<br><br><b>مساحات العمل المحدثة:</b><br>{1}"
-										: "Applied custom blocks successfully to {0} workspaces!<br><br><b>Updated Workspaces:</b><br>{1}";
-									frappe.msgprint({
-										title: successTitle,
-										message: __(
-											msgTemplate,
-											[r.message.count, r.message.updated.join("<br>")]
-										),
-										indicator: "green",
-									});
-								}
-							},
-							error: function (err) {
-								frappe.dom.unfreeze();
-								frappe.msgprint(errorPrefix + ((err && err.message) ? err.message : ""));
-							},
-						});
-					}
-				);
+				const executeApply = function () {
+					frappe.confirm(
+						confirmMsg,
+						function () {
+							frappe.dom.freeze(freezeMsg);
+							frappe.call({
+								method: "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.apply_all_blocks_to_workspaces",
+								callback: function (r) {
+									frappe.dom.unfreeze();
+									if (r && r.message) {
+										const msgTemplate = isAr
+											? "تم تطبيق الكتل المخصصة بنجاح على {0} مساحة عمل!<br><br><b>مساحات العمل المحدثة:</b><br>{1}"
+											: "Applied custom blocks successfully to {0} workspaces!<br><br><b>Updated Workspaces:</b><br>{1}";
+										frappe.msgprint({
+											title: successTitle,
+											message: __(
+												msgTemplate,
+												[r.message.count, r.message.updated.join("<br>")]
+											),
+											indicator: "green",
+										});
+										frappe.ui.toolbar.clear_cache();
+									}
+								},
+								error: function (err) {
+									frappe.dom.unfreeze();
+									frappe.msgprint(errorPrefix + ((err && err.message) ? err.message : ""));
+								},
+							});
+						}
+					);
+				};
+
+				// إذا كانت هناك تعديلات غير محفوظة في الجدول، حفظها أولاً قبل التطبيق
+				if (frm.is_dirty()) {
+					frm.save().then(function () {
+						executeApply();
+					});
+				} else {
+					executeApply();
+				}
 			}
 		).addClass("btn-primary");
 	},

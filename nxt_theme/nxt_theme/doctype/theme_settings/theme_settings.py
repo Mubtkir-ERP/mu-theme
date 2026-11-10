@@ -56,8 +56,35 @@ def setup_theme_defaults():
 		if not frappe.db.get_single_value("Theme Settings", "website"):
 			frappe.db.set_single_value("Theme Settings", "website", DEFAULT_WEBSITE)
 		frappe.db.commit()
+
+		# التأكد من ملء جدول التوزيع الافتراضي وحفظه في قاعدة البيانات إذا كان فارغاً
+		populate_default_workspace_mappings_if_empty()
 	except Exception:
 		frappe.log_error(title="Theme Settings defaults error", message=frappe.get_traceback())
+
+
+def populate_default_workspace_mappings_if_empty():
+	"""حفظ التوزيع الافتراضي للكتل في جدول Theme Settings إذا كان فارغاً لضمان بقائه محفوظاً دائماً"""
+	try:
+		if not frappe.db.exists("DocType", "Theme Settings") or not frappe.db.exists("DocType", "Theme Workspace Mapping"):
+			return
+
+		existing_count = frappe.db.count("Theme Workspace Mapping", {"parent": "Theme Settings"})
+		if existing_count > 0:
+			return
+
+		sync_custom_html_blocks()
+		doc = frappe.get_doc("Theme Settings")
+		defaults = get_default_workspace_mappings_data()
+		for row in defaults:
+			doc.append("workspace_mappings", row)
+
+		doc.flags.ignore_permissions = True
+		doc.flags.ignore_validate = True
+		doc.save()
+		frappe.db.commit()
+	except Exception:
+		frappe.log_error(title="Populate default mappings error", message=frappe.get_traceback())
 
 
 def after_migrate():
@@ -139,12 +166,8 @@ def sync_custom_html_blocks():
 	return created_or_updated
 
 
-@frappe.whitelist()
-def get_default_workspace_mappings():
-	"""إرجاع التوزيع الافتراضي للكتل على مساحات العمل لملء الجدول يدوياً"""
-	if frappe.session.user != "Administrator":
-		frappe.throw(_("Only Administrator can perform this action"), frappe.PermissionError)
-
+def get_default_workspace_mappings_data():
+	"""إرجاع بيانات التوزيع الافتراضي للكتل على مساحات العمل وفق النشاط"""
 	# التأكد أولاً من إنشاء ومزامنة كافة كتل Custom HTML Block في قاعدة البيانات
 	sync_custom_html_blocks()
 
@@ -236,6 +259,34 @@ def get_default_workspace_mappings():
 
 
 @frappe.whitelist()
+def get_default_workspace_mappings():
+	if frappe.session.user != "Administrator":
+		frappe.throw(_("Only Administrator can perform this action"), frappe.PermissionError)
+	return get_default_workspace_mappings_data()
+
+
+@frappe.whitelist()
+def reload_default_workspace_mappings():
+	"""إعادة ملء وحفظ التوزيع الافتراضي للكتل على مساحات العمل في قاعدة البيانات وتحديث النموذج"""
+	if frappe.session.user != "Administrator":
+		frappe.throw(_("Only Administrator can perform this action"), frappe.PermissionError)
+
+	sync_custom_html_blocks()
+	doc = frappe.get_doc("Theme Settings")
+	doc.set("workspace_mappings", [])
+	default_mappings = get_default_workspace_mappings_data()
+	for row in default_mappings:
+		doc.append("workspace_mappings", row)
+
+	doc.flags.ignore_permissions = True
+	doc.flags.ignore_validate = True
+	doc.save()
+	frappe.db.commit()
+	frappe.clear_cache()
+	return len(default_mappings)
+
+
+@frappe.whitelist()
 def apply_all_blocks_to_workspaces(auto_run=False):
 	if not auto_run and frappe.session.user != "Administrator":
 		frappe.throw(_("Only Administrator can perform this action"), frappe.PermissionError)
@@ -271,6 +322,18 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 	except Exception:
 		table_mappings = []
 
+	# إذا كان الجدول فارغاً، ملؤه تلقائياً وحفظه في قاعدة البيانات
+	if not table_mappings:
+		populate_default_workspace_mappings_if_empty()
+		try:
+			table_mappings = frappe.get_all(
+				"Theme Workspace Mapping",
+				filters={"parent": "Theme Settings", "enabled": 1},
+				fields=["workspace", "custom_block_name", "icon"],
+			)
+		except Exception:
+			table_mappings = []
+
 	if table_mappings:
 		# تطبيق التوزيع اليدوي المحدد في الجدول
 		for row in table_mappings:
@@ -291,10 +354,6 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 				if not curr_icon:
 					default_icon = DEFAULT_WORKSPACE_ICONS.get(ws_name, "folder")
 					frappe.db.set_value("Workspace", ws_name, "icon", default_icon, update_modified=False)
-
-			ws_icon_color = row.get("icon_color")
-			if ws_icon_color:
-				frappe.db.set_value("Workspace", ws_name, "indicator_color", ws_icon_color.strip(), update_modified=False)
 
 			content_data = [
 				{

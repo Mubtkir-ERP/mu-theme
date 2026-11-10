@@ -4,16 +4,15 @@
        Public
     </li>
     {% for page in pages %}
-    {% set custom_color = 'color: ' + page.icon_color + ' !important; stroke: ' + page.icon_color + ' !important;' if page.icon_color else '' %}
     <li>
         <a href="javascript:;" data-title="{{ page.title }}" data-is_public="{{ page.public }}" class="link_to_page side-menu__link d-flex align-items-center">
-            <i data-tw-merge="" class="stroke-[1] w-5 h-5 side-menu__link__icon flex items-center justify-center" {% if page.icon_color %}style="{{ custom_color }}"{% endif %}>
+            <i data-tw-merge="" class="stroke-[1] w-5 h-5 side-menu__link__icon flex items-center justify-center">
                 {% if page.icon_type == 'lucide' %}
-                    <i data-lucide="{{ page.icon }}" class="w-5 h-5 stroke-[1.6] flex-shrink-0" {% if page.icon_color %}style="{{ custom_color }}"{% endif %}></i>
+                    <i data-lucide="{{ page.icon }}" class="w-5 h-5 stroke-[1.6] flex-shrink-0"></i>
                 {% elif page.icon_type == 'fa' %}
-                    <i class="{{ page.icon }} text-base flex-shrink-0" {% if page.icon_color %}style="{{ custom_color }}"{% endif %}></i>
+                    <i class="{{ page.icon }} text-base flex-shrink-0"></i>
                 {% else %}
-                    <svg class="icon icon-md flex-shrink-0" {% if page.icon_color %}style="{{ custom_color }}"{% endif %}>
+                    <svg class="icon icon-md flex-shrink-0">
                         <use href="#icon-{{ page.icon }}"></use>
                     </svg>
                 {% endif %}
@@ -28,17 +27,16 @@
         {% if page.child_workspace %}
         <ul class="">
             {% for child_page in page.child_workspace %}
-            {% set child_color = 'color: ' + child_page.icon_color + ' !important; stroke: ' + child_page.icon_color + ' !important;' if child_page.icon_color else '' %}
             <li>
                 <div class=" ">
                     <a href="javascript:;" data-title="{{ child_page.title }}" data-is_public="{{ child_page.public }}" class="link_to_page side-menu__link d-flex align-items-center">
-                        <i data-tw-merge="" class="stroke-[1] w-5 h-5 side-menu__link__icon flex items-center justify-center" {% if child_page.icon_color %}style="{{ child_color }}"{% endif %}>
+                        <i data-tw-merge="" class="stroke-[1] w-5 h-5 side-menu__link__icon flex items-center justify-center">
                             {% if child_page.icon_type == 'lucide' %}
-                                <i data-lucide="{{ child_page.icon }}" class="w-5 h-5 stroke-[1.6] flex-shrink-0" {% if child_page.icon_color %}style="{{ child_color }}"{% endif %}></i>
+                                <i data-lucide="{{ child_page.icon }}" class="w-5 h-5 stroke-[1.6] flex-shrink-0"></i>
                             {% elif child_page.icon_type == 'fa' %}
-                                <i class="{{ child_page.icon }} text-base flex-shrink-0" {% if child_page.icon_color %}style="{{ child_color }}"{% endif %}></i>
+                                <i class="{{ child_page.icon }} text-base flex-shrink-0"></i>
                             {% else %}
-                                <svg class="icon icon-md flex-shrink-0" {% if child_page.icon_color %}style="{{ child_color }}"{% endif %}>
+                                <svg class="icon icon-md flex-shrink-0">
                                     <use href="#icon-{{ child_page.icon }}"></use>
                                 </svg>
                             {% endif %}

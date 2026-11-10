@@ -57,7 +57,7 @@ FRAPPE_SVG_ICONS = {
 }
 
 def resolve_page_icon(page_dict, overrides=None):
-	"""معالجة وتحديد أيقونة مساحة العمل ولونها لضمان وضوحها العالي ودعم الألوان المخصصة"""
+	"""معالجة وتحديد أيقونة مساحة العمل لضمان وضوحها وتطابقها مع الثيم الأساسي"""
 	name = page_dict.get("name") or page_dict.get("title") or ""
 	override = (overrides or {}).get(name, {})
 
@@ -66,14 +66,6 @@ def resolve_page_icon(page_dict, overrides=None):
 		icon = override.get("icon").strip()
 	else:
 		icon = (page_dict.get("icon") or "").strip()
-
-	# أخذ لون الأيقونة المخصص من إعدادات الثيم أو مساحة العمل
-	icon_color = (
-		override.get("icon_color")
-		or page_dict.get("icon_color")
-		or page_dict.get("indicator_color")
-		or ""
-	).strip()
 
 	# إذا كانت الأيقونة فارغة، استخدام الافتراضي المعتمد
 	if not icon:
@@ -103,7 +95,6 @@ def resolve_page_icon(page_dict, overrides=None):
 
 	page_dict["icon"] = icon
 	page_dict["icon_type"] = icon_type
-	page_dict["icon_color"] = icon_color
 
 
 @frappe.whitelist()
@@ -120,7 +111,7 @@ def get_desktop_pages():
 			mappings = frappe.get_all(
 				"Theme Workspace Mapping",
 				filters={"parent": "Theme Settings", "enabled": 1},
-				fields=["workspace", "icon", "icon_color"],
+				fields=["workspace", "icon"],
 			)
 			for m in mappings:
 				ws = m.get("workspace")
