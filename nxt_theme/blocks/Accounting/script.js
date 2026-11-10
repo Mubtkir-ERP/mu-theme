@@ -155,7 +155,7 @@
   ───────────────────────────────────────── */
 
   const footerInfo = {
-    phone: "0115110455",
+    phone: "+966126810486",
     email: "sales@mubtkir.com",
     website: "www.mubtkir.com",
     labels: {

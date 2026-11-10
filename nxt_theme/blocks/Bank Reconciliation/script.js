@@ -405,7 +405,7 @@
      11. FOOTER INFO
   ========================================================= */
   const footerInfo = {
-    phone: (window.frappe?.boot?.theme_settings?.phone) || "0115110455",
+    phone: (window.frappe?.boot?.theme_settings?.phone) || "+966126810486",
     email: (window.frappe?.boot?.theme_settings?.email) || "sales@mubtkir.com",
     website: (window.frappe?.boot?.theme_settings?.website) || "www.mubtkir.com",
     labels: {

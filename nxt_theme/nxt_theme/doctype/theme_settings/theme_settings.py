@@ -9,7 +9,7 @@ from frappe.model.document import Document
 from nxt_theme.events.sidebar import DEFAULT_WORKSPACE_ICONS
 
 
-DEFAULT_PHONE = "0115110455"
+DEFAULT_PHONE = "+966126810486"
 DEFAULT_EMAIL = "sales@mubtkir.com"
 DEFAULT_WEBSITE = "www.mubtkir.com"
 
@@ -49,7 +49,8 @@ def setup_theme_defaults():
 	try:
 		if not frappe.db.exists("DocType", "Theme Settings"):
 			return
-		if not frappe.db.get_single_value("Theme Settings", "phone"):
+		curr_phone = frappe.db.get_single_value("Theme Settings", "phone")
+		if not curr_phone or curr_phone == "+966126810486":
 			frappe.db.set_single_value("Theme Settings", "phone", DEFAULT_PHONE)
 		if not frappe.db.get_single_value("Theme Settings", "email"):
 			frappe.db.set_single_value("Theme Settings", "email", DEFAULT_EMAIL)

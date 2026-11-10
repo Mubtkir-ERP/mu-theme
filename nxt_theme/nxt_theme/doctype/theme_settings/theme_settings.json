@@ -60,7 +60,7 @@
    "fieldname": "phone",
    "fieldtype": "Data",
    "label": "Phone Number",
-   "default": "0115110455"
+   "default": "+966126810486"
   },
   {
    "fieldname": "email",

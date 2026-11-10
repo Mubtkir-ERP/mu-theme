@@ -1623,7 +1623,7 @@
   const footerInfo = {
 
     phone:
-      "0115110455",
+      "+966126810486",
 
     email:
       "sales@mubtkir.com",

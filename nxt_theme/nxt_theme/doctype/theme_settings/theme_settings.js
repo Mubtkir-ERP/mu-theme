@@ -3,7 +3,7 @@
 
 frappe.ui.form.on("Theme Settings", {
 	onload: function (frm) {
-		if (!frm.doc.phone) frm.set_value("phone", "0115110455");
+		if (!frm.doc.phone) frm.set_value("phone", "+966126810486");
 		if (!frm.doc.email) frm.set_value("email", "sales@mubtkir.com");
 		if (!frm.doc.website) frm.set_value("website", "www.mubtkir.com");
 
@@ -13,7 +13,7 @@ frappe.ui.form.on("Theme Settings", {
 		});
 	},
 	refresh: function (frm) {
-		if (!frm.doc.phone) frm.set_value("phone", "0115110455");
+		if (!frm.doc.phone) frm.set_value("phone", "+966126810486");
 		if (!frm.doc.email) frm.set_value("email", "sales@mubtkir.com");
 		if (!frm.doc.website) frm.set_value("website", "www.mubtkir.com");
 
