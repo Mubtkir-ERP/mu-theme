@@ -292,6 +292,10 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 					default_icon = DEFAULT_WORKSPACE_ICONS.get(ws_name, "folder")
 					frappe.db.set_value("Workspace", ws_name, "icon", default_icon, update_modified=False)
 
+			ws_icon_color = row.get("icon_color")
+			if ws_icon_color:
+				frappe.db.set_value("Workspace", ws_name, "indicator_color", ws_icon_color.strip(), update_modified=False)
+
 			content_data = [
 				{
 					"type": "custom_block",

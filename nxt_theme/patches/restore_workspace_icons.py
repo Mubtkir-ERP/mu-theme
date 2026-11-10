@@ -5,7 +5,7 @@ DEFAULT_WORKSPACE_ICONS = {
 	"Accounting": "accounting",
 	"Payables": "arrow-left",
 	"Receivables": "arrow-right",
-	"Financial Reports": "small-file",
+	"Financial Reports": "file-text",
 	"Buying": "buying",
 	"Selling": "selling",
 	"Stock": "stock",
@@ -60,8 +60,9 @@ def execute():
 				continue
 
 		current_icon = frappe.db.get_value("Workspace", target_ws, "icon")
-		# إذا كانت الأيقونة فارغة أو تحتوي على كلاس قديم fal fa-
-		if not current_icon or current_icon.startswith("fal fa-") or current_icon.startswith("fa fa-"):
+		# إذا كانت الأيقونة فارغة أو تحتوي على كلاس قديم fal fa- أو كانت small-file المعتمة
+		if not current_icon or current_icon.startswith("fal fa-") or current_icon.startswith("fa fa-") or current_icon in ("small-file", "file"):
 			frappe.db.set_value("Workspace", target_ws, "icon", default_icon, update_modified=False)
 
 	frappe.db.commit()
+
