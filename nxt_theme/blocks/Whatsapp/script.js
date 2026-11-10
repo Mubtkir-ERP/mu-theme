@@ -660,7 +660,7 @@
 
       phoneAr:
 
-        "الهاتف الموحد",
+        "واتساب",
 
 
 
@@ -3905,7 +3905,7 @@
 
           <a
 
-            href="tel:${footerInfo.phone}"
+            href="https://wa.me/${String(footerInfo.phone || '+966126810486').replace(/\D/g, '')}"
 
             class="erp-footer-link"
 

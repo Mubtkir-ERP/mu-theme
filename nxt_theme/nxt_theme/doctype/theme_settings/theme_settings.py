@@ -6,7 +6,7 @@ import os
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from nxt_theme.events.sidebar import DEFAULT_WORKSPACE_ICONS
+from nxt_theme.events.sidebar import DEFAULT_WORKSPACE_ICONS, ARABIC_WORKSPACE_ICONS, ICON_MAP
 
 
 DEFAULT_PHONE = "+966126810486"
@@ -19,7 +19,7 @@ class ThemeSettings(Document):
 		if frappe.session.user != "Administrator":
 			frappe.throw(_("Only Administrator can modify Theme Settings"), frappe.PermissionError)
 
-		if not self.phone:
+		if not self.phone or self.phone == "0115110455":
 			self.phone = DEFAULT_PHONE
 		if not self.email:
 			self.email = DEFAULT_EMAIL
@@ -30,8 +30,11 @@ class ThemeSettings(Document):
 def boot_session(bootinfo):
 	try:
 		doc = frappe.get_cached_doc("Theme Settings")
+		phone_val = doc.phone
+		if not phone_val or phone_val == "0115110455":
+			phone_val = DEFAULT_PHONE
 		bootinfo.theme_settings = {
-			"phone": doc.phone or DEFAULT_PHONE,
+			"phone": phone_val,
 			"email": doc.email or DEFAULT_EMAIL,
 			"website": doc.website or DEFAULT_WEBSITE,
 			"skin": doc.skin or "razor",
@@ -50,8 +53,13 @@ def setup_theme_defaults():
 		if not frappe.db.exists("DocType", "Theme Settings"):
 			return
 		curr_phone = frappe.db.get_single_value("Theme Settings", "phone")
-		if not curr_phone or curr_phone == "+966126810486":
+		if not curr_phone or curr_phone in ("0115110455", ""):
 			frappe.db.set_single_value("Theme Settings", "phone", DEFAULT_PHONE)
+			frappe.db.sql("""
+				UPDATE `tabSingles`
+				SET value = %s
+				WHERE doctype = 'Theme Settings' AND field = 'phone'
+			""", (DEFAULT_PHONE,))
 		if not frappe.db.get_single_value("Theme Settings", "email"):
 			frappe.db.set_single_value("Theme Settings", "email", DEFAULT_EMAIL)
 		if not frappe.db.get_single_value("Theme Settings", "website"):
@@ -100,7 +108,7 @@ def after_migrate():
 def restore_default_workspace_icons():
 	"""استعادة وتعيين الأيقونات الافتراضية لكافة مساحات العمل في النظام"""
 	try:
-		from nxt_theme.patches.restore_workspace_icons import execute as run_restore
+		from nxt_theme.patches.update_default_phone_and_icons import execute as run_restore
 		run_restore()
 		frappe.clear_cache()
 		return {"success": True}
@@ -167,9 +175,98 @@ def sync_custom_html_blocks():
 	return created_or_updated
 
 
+ARABIC_TO_ENGLISH_WS = {
+	"الصفحة الرئيسية": "Home",
+	"الرئيسية": "Home",
+	"المبيعات": "Selling",
+	"المخزون": "Stock",
+	"المشتريات": "Buying",
+	"الحسابات": "Accounting",
+	"الأصول": "Assets",
+	"المستخدمين": "Users",
+	"المستخدمون": "Users",
+	"التصنيع": "Manufacturing",
+	"الجودة": "Quality",
+	"المشاريع": "Projects",
+	"إدارة علاقات العملاء": "CRM",
+	"الدعم": "Support",
+	"الدعم الفني": "Support",
+	"الموارد البشرية": "HR",
+	"الإجازات": "Leaves",
+	"الرواتب": "Payroll",
+	"مسير الرواتب": "Payroll",
+	"صرف الرواتب": "Salary Payout",
+	"مطالبات المصاريف": "Expense Claims",
+	"التوظيف": "Recruitment",
+	"الأداء": "Performance",
+	"دورة حياة الموظف": "Employee Lifecycle",
+	"الورديات والحضور": "Shift & Attendance",
+	"الوردية والحضور": "Shift & Attendance",
+	"الحضور والغياب": "Shift & Attendance",
+	"الموقع": "Website",
+	"الموقع الإلكتروني": "Website",
+	"الأدوات": "Tools",
+	"الإعدادات": "ERPNext Settings",
+	"إعدادات ERPNext": "ERPNext Settings",
+	"التكامل": "ERPNext Integrations",
+	"التكاملات": "ERPNext Integrations",
+	"التقارير المالية": "Financial Reports",
+	"تقارير المحاسبة": "Financial Reports",
+	"الذمم الدائنة": "Payables",
+	"الذمم المدينة": "Receivables",
+	"الضرائب والمزايا": "Tax & Benefits",
+	"مطابقة البنك": "Bank Reconciliation",
+	"التسوية البنكية": "Bank Reconciliation",
+	"عمليات الغاز": "Gas Operations",
+	"إدارة عمليات الغاز": "Gas Operations",
+	"نظام تأجير الحاويات": "Container Rental System",
+	"تأجير الحاويات": "Container Rental System",
+	"حماية السيارات": "Car Care",
+	"العناية بالسيارات": "Car Care",
+	"حجوزات الحفلات": "Party Bookings",
+	"نقاط البيع": "POSNext",
+	"نقطة البيع": "POSNext",
+	"واتساب": "Whatsapp",
+	"الواتس": "Whatsapp",
+	"الواتساب": "Whatsapp",
+	"الذهب": "Gold Management",
+	"إدارة الذهب": "Gold Management",
+	"الرعاية الصحية": "Healthcare",
+	"الصحة": "Healthcare",
+}
+
+
+def get_actual_workspace_name(ws_identifier):
+	"""البحث عن اسم مساحة العمل الفعلي في قاعدة البيانات سواء كان المدخل باللغة الإنجليزية أو العربية"""
+	if not ws_identifier:
+		return None
+	ws_identifier = str(ws_identifier).strip()
+	if frappe.db.exists("Workspace", ws_identifier):
+		return ws_identifier
+
+	by_title = frappe.db.get_value("Workspace", {"title": ws_identifier}, "name")
+	if by_title:
+		return by_title
+
+	by_label = frappe.db.get_value("Workspace", {"label": ws_identifier}, "name")
+	if by_label:
+		return by_label
+
+	mapped = ARABIC_TO_ENGLISH_WS.get(ws_identifier)
+	if mapped and frappe.db.exists("Workspace", mapped):
+		return mapped
+
+	alt = ws_identifier.replace("&", "and")
+	if frappe.db.exists("Workspace", alt):
+		return alt
+	if frappe.db.exists("Workspace", ws_identifier.lower()):
+		return ws_identifier.lower()
+
+	return None
+
+
 def get_default_workspace_mappings_data():
-	"""إرجاع بيانات التوزيع الافتراضي للكتل على مساحات العمل وفق النشاط"""
-	# التأكد أولاً من إنشاء ومزامنة كافة كتل Custom HTML Block في قاعدة البيانات
+	"""إرجاع بيانات التوزيع الافتراضي للكتل على مساحات العمل وفق النشاط بأيقونات Lucide الحديثة"""
 	sync_custom_html_blocks()
 
 	default_pairs = [
@@ -233,26 +330,14 @@ def get_default_workspace_mappings_data():
 
 	mappings = []
 	for ws, block in default_pairs:
-		target_ws = ws
-		if not frappe.db.exists("Workspace", target_ws):
-			alt = ws.replace("&", "and")
-			if frappe.db.exists("Workspace", alt):
-				target_ws = alt
-			elif frappe.db.exists("Workspace", ws.lower()):
-				target_ws = ws.lower()
-			elif ws == "Settings" and frappe.db.exists("Workspace", "ERPNext Settings"):
-				target_ws = "ERPNext Settings"
-			elif ws == "Integrations" and frappe.db.exists("Workspace", "ERPNext Integrations"):
-				target_ws = "ERPNext Integrations"
-			elif ws == "Accounting Reports" and frappe.db.exists("Workspace", "Financial Reports"):
-				target_ws = "Financial Reports"
-			else:
-				continue
+		target_ws = get_actual_workspace_name(ws)
+		if not target_ws:
+			continue
 
 		mappings.append({
 			"workspace": target_ws,
 			"custom_block_name": block,
-			"icon": DEFAULT_WORKSPACE_ICONS.get(ws, ""),
+			"icon": DEFAULT_WORKSPACE_ICONS.get(ws, "layout-grid"),
 			"enabled": 1,
 		})
 
@@ -343,18 +428,25 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			ws_icon = row.get("icon")
 			if not (ws_name and block_name):
 				continue
-			if not frappe.db.exists("Workspace", ws_name):
+
+			actual_ws = get_actual_workspace_name(ws_name)
+			if not actual_ws:
 				skipped_workspaces.append(f"{ws_name} (غير موجود)")
 				continue
 
-			# تحديث الأيقونة إذا كانت محددة أو فارغة
+			# تحديث الأيقونة في مساحة العمل
 			if ws_icon:
-				frappe.db.set_value("Workspace", ws_name, "icon", ws_icon.strip(), update_modified=False)
+				clean_icon = ICON_MAP.get(ws_icon.strip(), ws_icon.strip())
+				frappe.db.set_value("Workspace", actual_ws, "icon", clean_icon, update_modified=True)
 			else:
-				curr_icon = frappe.db.get_value("Workspace", ws_name, "icon")
+				curr_icon = frappe.db.get_value("Workspace", actual_ws, "icon")
 				if not curr_icon:
-					default_icon = DEFAULT_WORKSPACE_ICONS.get(ws_name, "folder")
-					frappe.db.set_value("Workspace", ws_name, "icon", default_icon, update_modified=False)
+					default_icon = (
+						DEFAULT_WORKSPACE_ICONS.get(actual_ws)
+						or ARABIC_WORKSPACE_ICONS.get(ws_name)
+						or "layout-grid"
+					)
+					frappe.db.set_value("Workspace", actual_ws, "icon", default_icon, update_modified=True)
 
 			content_data = [
 				{
@@ -367,12 +459,12 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			]
 			try:
 				frappe.db.set_value(
-					"Workspace", ws_name, "content", json.dumps(content_data), update_modified=False
+					"Workspace", actual_ws, "content", json.dumps(content_data), update_modified=True
 				)
 				if frappe.db.exists("DocType", "Workspace Custom Block"):
 					if not frappe.db.exists(
 						"Workspace Custom Block",
-						{"parent": ws_name, "custom_block_name": block_name},
+						{"parent": actual_ws, "custom_block_name": block_name},
 					):
 						frappe.db.sql(
 							"""
@@ -380,12 +472,12 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 							(name, parent, parenttype, parentfield, custom_block_name, creation, modified, modified_by, owner)
 							VALUES (%s, %s, 'Workspace', 'custom_blocks', %s, NOW(), NOW(), 'Administrator', 'Administrator')
 							""",
-							(frappe.generate_hash(length=10), ws_name, block_name),
+							(frappe.generate_hash(length=10), actual_ws, block_name),
 						)
-				updated_workspaces.append(f"{ws_name} ➔ {block_name}")
+				updated_workspaces.append(f"{actual_ws} ➔ {block_name}")
 			except Exception:
 				frappe.log_error(
-					title=f"Theme WS link error: {ws_name}"[:140],
+					title=f"Theme WS link error: {actual_ws}"[:140],
 					message=frappe.get_traceback(),
 				)
 	else:
@@ -395,108 +487,30 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			if not block_name:
 				continue
 
-			candidates = [
-				block_name,
-				block_name.capitalize(),
-				block_name.lower(),
-				block_name.replace(" ", "-"),
-				block_name.replace(" _ ", " & "),
-				block_name.replace(" _ ", " and "),
-			]
-			if block_name.lower() == "selling":
-				candidates.extend(["Selling", "Sales", "sales"])
-			elif block_name.lower() == "stock":
-				candidates.extend(["Stock", "Inventory"])
-			elif block_name.lower() == "hr":
-				candidates.extend(["HR", "Human Resources", "hr"])
-			elif block_name == "Shift _ Attendance":
-				candidates.extend(["Shift & Attendance", "Shift and Attendance", "Attendance"])
-			elif block_name == "ERPNext Settings":
-				candidates.extend(["Settings", "ERPNext Settings"])
-			elif block_name == "ERPNext Integrations":
-				candidates.extend(["Integrations", "ERPNext Integrations"])
-			elif block_name == "Financial Reports":
-				candidates.extend(["Accounting Reports", "Financial Reports"])
-			elif block_name == "Bank Reconciliation":
-				candidates.extend(["Bank Reconciliation", "Bank-Reconciliation", "Bank reconciliation", "مطابقة البنك"])
-			elif block_name == "Gas Operations":
-				candidates.extend(["Gas Operations", "Gas-Operations", "Gas operations", "إدارة عمليات الغاز", "عمليات الغاز"])
-			elif block_name == "Container Rental System":
-				candidates.extend(["Container Rental System", "container_rental_system", "Container Rental", "نظام تأجير الحاويات", "تأجير الحاويات"])
-			elif block_name == "Tax & Benefits":
-				candidates.extend(["Tax & Benefits", "Tax and Benefits", "tax-and-benefits", "الضرائب والمزايا"])
-			elif block_name == "Salary Payout":
-				candidates.extend(["Salary Payout", "salary-payout", "صرف الرواتب"])
-			elif block_name == "Payroll":
-				candidates.extend(["Payroll", "payroll", "الرواتب", "مسير الرواتب"])
-			elif block_name == "Expense Claims":
-				candidates.extend(["Expense Claims", "expense-claims", "مطالبات المصاريف"])
-			elif block_name == "Leaves":
-				candidates.extend(["Leaves", "leaves", "الإجازات"])
-			elif block_name == "Party Bookings":
-				candidates.extend(["Party Bookings", "party-bookings", "Party Booking", "party_bookings", "حجوزات الحفلات", "حجوزات الحفلات والمناسبات"])
-			elif block_name == "Car Care":
-				candidates.extend(["Car Care", "car-care", "car_care", "حماية السيارات", "العناية بالسيارات"])
-				is_car_care_site = (
-					"mu_car_care" in frappe.get_installed_apps()
-					or frappe.db.exists("DocType", "Vehicle Reception")
-				)
-				if is_car_care_site:
-					candidates.extend(["Home", "home", "الرئيسية"])
-			elif block_name == "Home":
-				is_car_care_site = (
-					"mu_car_care" in frappe.get_installed_apps()
-					or frappe.db.exists("DocType", "Vehicle Reception")
-				)
-				if is_car_care_site:
-					continue
-
-			target_workspaces = []
-			for c in candidates:
-				if frappe.db.exists("Workspace", c) and c not in target_workspaces:
-					target_workspaces.append(c)
-					if block_name != "Car Care":
-						break
-
-			if not target_workspaces:
+			target_ws = get_actual_workspace_name(block_name)
+			if not target_ws:
 				skipped_workspaces.append(block_name)
 				continue
 
-			for ws_name in target_workspaces:
-				content_data = [
-					{
-						"type": "custom_block",
-						"data": {
-							"custom_block_name": block_name,
-							"col": 12,
-						},
-					}
-				]
-				try:
-					frappe.db.set_value(
-						"Workspace", ws_name, "content", json.dumps(content_data), update_modified=False
-					)
-					if frappe.db.exists("DocType", "Workspace Custom Block"):
-						if not frappe.db.exists(
-							"Workspace Custom Block",
-							{"parent": ws_name, "custom_block_name": block_name},
-						):
-							frappe.db.sql(
-								"""
-								INSERT INTO `tabWorkspace Custom Block`
-								(name, parent, parenttype, parentfield, custom_block_name, creation, modified, modified_by, owner)
-								VALUES (%s, %s, 'Workspace', 'custom_blocks', %s, NOW(), NOW(), 'Administrator', 'Administrator')
-								""",
-								(frappe.generate_hash(length=10), ws_name, block_name),
-							)
-					updated_workspaces.append(f"{ws_name} ➔ {block_name}")
-				except Exception:
-					frappe.log_error(
-						title=f"Theme WS link error: {ws_name}"[:140],
-						message=frappe.get_traceback(),
-					)
+			content_data = [
+				{
+					"type": "custom_block",
+					"data": {
+						"custom_block_name": block_name,
+						"col": 12,
+					},
+				}
+			]
+			try:
+				frappe.db.set_value(
+					"Workspace", target_ws, "content", json.dumps(content_data), update_modified=True
+				)
+				updated_workspaces.append(f"{target_ws} ➔ {block_name}")
+			except Exception:
+				pass
 
 	frappe.db.commit()
+	frappe.clear_cache(doctype="Workspace")
 	frappe.clear_cache()
 
 	return {

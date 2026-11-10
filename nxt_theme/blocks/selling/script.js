@@ -135,7 +135,7 @@
     email: "sales@mubtkir.com",
     website: "www.mubtkir.com",
     labels: {
-      phoneEn: "Phone", phoneAr: "الهاتف الموحد",
+      phoneEn: "WhatsApp", phoneAr: "واتساب",
       emailEn: "Email", emailAr: "البريد الإلكتروني",
       websiteEn: "Website", websiteAr: "الموقع"
     }
@@ -523,7 +523,7 @@
     },
 
     "Contact": {
-      icon: "📞",
+      icon: "💬",
       summaryAr: "سجل بيانات مسؤولي التواصل وأرقام الهواتف والبريد الإلكتروني للعملاء والموردين والشركاء.",
       summaryEn: "Directory of contact persons, phone numbers, and email addresses for business partners.",
       stepsAr: [
@@ -1093,9 +1093,9 @@
     footerEl.innerHTML = `
       <div class="erp-footer-inner">
         <div class="erp-footer-item">
-          <span class="erp-footer-icon">📞</span>
+          <span class="erp-footer-icon">💬</span>
           <span class="erp-footer-label">${escapeHtml(phoneLabel)}:</span>
-          <a href="tel:${footerInfo.phone}" class="erp-footer-link" dir="ltr">${escapeHtml(footerInfo.phone)}</a>
+          <a href="https://wa.me/${String(footerInfo.phone || '+966126810486').replace(/\D/g, '')}" class="erp-footer-link" target="_blank" rel="noopener" dir="ltr">${escapeHtml(footerInfo.phone)}</a>
         </div>
         <span class="erp-footer-sep">|</span>
         <div class="erp-footer-item">

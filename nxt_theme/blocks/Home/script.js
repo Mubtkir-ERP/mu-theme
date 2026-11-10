@@ -2220,7 +2220,7 @@
 
     const phoneLabel =
       isArabic
-        ? "الهاتف الموحد"
+        ? "واتساب"
         : "Phone";
 
 
@@ -2244,7 +2244,7 @@
         <div class="erp-footer-item">
 
           <span class="erp-footer-icon">
-            📞
+            💬
           </span>
 
           <span class="erp-footer-label">
@@ -2252,10 +2252,8 @@
           </span>
 
           <a
-            href="tel:${footerInfo.phone}"
-            class="erp-footer-link"
-            dir="ltr"
-          >
+            href="https://wa.me/${String(footerInfo.phone || '+966126810486').replace(/\D/g, '')}"
+            class="erp-footer-link" target="_blank" rel="noopener" dir="ltr">
             ${escapeHtml(footerInfo.phone)}
           </a>
 

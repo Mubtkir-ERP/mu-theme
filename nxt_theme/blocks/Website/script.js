@@ -253,7 +253,7 @@
       stepsEn: ["Compose company bio, vision, and mission statement", "Add team member profiles and photographs", "Save settings to reflect changes on public /about page"]
     },
     "Contact Us Settings": {
-      icon: "📞",
+      icon: "💬",
       summaryAr: "ضبط صفحة «اتصل بنا»؛ تشمل خريطة الموقع الجغرافي، أرقام التواصل، البريد الإلكتروني، وتوجيه رسائل الزوار.",
       summaryEn: "Manage Contact Us page: physical office addresses, Google maps embed, email, and visitor lead generation.",
       stepsAr: ["إدخال بيانات التواصل والعنوان الفعلي ورابط الخريطة", "تفعيل نموذج المراسلة الفوري لإنشاء عملاء محتملين آلياً", "حفظ الإعدادات لتحديث صفحة اتصل بنا بالموقع"],
@@ -582,7 +582,7 @@
     email: "apps@mubtkir.com",
     website: "www.mubtkir.com",
     labels: {
-      phoneAr: "الهاتف الموحد",
+      phoneAr: "واتساب",
       phoneEn: "Support Phone",
       emailAr: "البريد الإلكتروني",
       emailEn: "Email Support",
@@ -601,9 +601,9 @@
     footerEl.innerHTML = `
       <div class="erp-footer-inner">
         <div class="erp-footer-item">
-          <span class="erp-footer-icon">📞</span>
+          <span class="erp-footer-icon">💬</span>
           <span class="erp-footer-label">${escapeHtml(phoneLabel)}:</span>
-          <a href="tel:${footerInfo.phone}" class="erp-footer-link" dir="ltr">${escapeHtml(footerInfo.phone)}</a>
+          <a href="https://wa.me/${String(footerInfo.phone || '+966126810486').replace(/\D/g, '')}" class="erp-footer-link" target="_blank" rel="noopener" dir="ltr">${escapeHtml(footerInfo.phone)}</a>
         </div>
         <span class="erp-footer-sep">|</span>
         <div class="erp-footer-item">

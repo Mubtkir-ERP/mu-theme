@@ -776,16 +776,16 @@
 
   function renderFooter() {
     if (!footerEl) return;
-    const phoneLabel = isArabic ? "الهاتف الموحد" : "Support Phone";
+    const phoneLabel = isArabic ? "واتساب" : "Support Phone";
     const emailLabel = isArabic ? "البريد الإلكتروني" : "Email Support";
     const websiteLabel = isArabic ? "الموقع الإلكتروني" : "Official Website";
 
     footerEl.innerHTML = `
       <div class="erp-footer-inner">
         <div class="erp-footer-col">
-          <span class="erp-footer-icon">📞</span>
+          <span class="erp-footer-icon">💬</span>
           <span class="erp-footer-label">${escapeHtml(phoneLabel)}:</span>
-          <a href="tel:${footerInfo.phone}" class="erp-footer-value" dir="ltr">${escapeHtml(footerInfo.phone)}</a>
+          <a href="https://wa.me/${String(footerInfo.phone || '+966126810486').replace(/\D/g, '')}" class="erp-footer-value" dir="ltr">${escapeHtml(footerInfo.phone)}</a>
         </div>
         <div class="erp-footer-col">
           <span class="erp-footer-icon">✉️</span>

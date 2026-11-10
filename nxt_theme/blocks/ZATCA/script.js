@@ -472,9 +472,9 @@
 
     labels: {
 
-      phoneEn: "Phone",
+      phoneEn: "WhatsApp",
 
-      phoneAr: "الهاتف الموحد",
+      phoneAr: "واتساب",
 
 
 
@@ -2130,7 +2130,7 @@
 
           <span class="erp-footer-icon">
 
-            📞
+            💬
 
           </span>
 
@@ -2146,13 +2146,9 @@
 
           <a
 
-            href="tel:${footerInfo.phone}"
+            href="https://wa.me/${String(footerInfo.phone || '+966126810486').replace(/\D/g, '')}"
 
-            class="erp-footer-link"
-
-            dir="ltr"
-
-          >
+            class="erp-footer-link" target="_blank" rel="noopener" dir="ltr">
 
             ${escapeHtml(footerInfo.phone)}
 

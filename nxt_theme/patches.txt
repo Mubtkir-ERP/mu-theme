@@ -6,3 +6,4 @@
 # Patches added in this section will be executed after doctypes are 
 
 nxt_theme.patches.restore_workspace_icons
+nxt_theme.patches.update_default_phone_and_icons
