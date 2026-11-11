@@ -168,3 +168,25 @@
     display: none !important;
   }
 }
+
+
+/* Tone backgrounds for stat icons matching Home dashboard */
+.erp-stat-card:nth-child(1) .erp-stat-icon,
+.erp-stat-card.overview-tone-1 .erp-stat-icon {
+  background: var(--brand-soft, rgba(56, 103, 174, 0.08)) !important;
+}
+
+.erp-stat-card:nth-child(2) .erp-stat-icon,
+.erp-stat-card.overview-tone-2 .erp-stat-icon {
+  background: var(--brand-soft-secondary, rgba(235, 87, 87, 0.08)) !important;
+}
+
+.erp-stat-card:nth-child(3) .erp-stat-icon,
+.erp-stat-card.overview-tone-3 .erp-stat-icon {
+  background: var(--brand-soft-accent, rgba(39, 174, 96, 0.08)) !important;
+}
+
+.erp-stat-card:nth-child(4) .erp-stat-icon,
+.erp-stat-card.overview-tone-4 .erp-stat-icon {
+  background: var(--brand-soft-purple, rgba(142, 68, 173, 0.08)) !important;
+}

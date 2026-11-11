@@ -204,6 +204,7 @@
   const statsCards = [
     {
       id: "settlements-total",
+      icon: "💳",
       short: "SAR",
       labelAr: "إجمالي التسويات",
       labelEn: "Total Settlements",
@@ -235,6 +236,7 @@
     },
     {
       id: "settlements-count",
+      icon: "📑",
       short: "SETTLE",
       labelAr: "عدد التسويات",
       labelEn: "Settlements Count",
@@ -242,6 +244,7 @@
     },
     {
       id: "reconciliations-count",
+      icon: "🔄",
       short: "RECON",
       labelAr: "المطابقات البنكية",
       labelEn: "Reconciliations",
@@ -249,6 +252,7 @@
     },
     {
       id: "terminals-count",
+      icon: "📟",
       short: "TERM",
       labelAr: "أجهزة مدى النشطة",
       labelEn: "Active Terminals",
@@ -560,7 +564,7 @@
     const cardsHtml = statsCards.map((card, index) => {
       return `
         <div class="erp-stat-card overview-tone-${index + 1}">
-          <div class="erp-stat-icon">${escapeHtml(card.short)}</div>
+          <div class="erp-stat-icon">${card.icon || "📊"}</div>
           <div class="erp-stat-info">
             <span class="erp-stat-value" data-recon-stat="${card.id}">0</span>
             <span class="erp-stat-label">${escapeHtml(isArabic ? card.labelAr : card.labelEn)}</span>

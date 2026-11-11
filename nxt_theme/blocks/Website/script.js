@@ -27,6 +27,7 @@
   const statsCards = [
     {
       id: "published-pages",
+      icon: "🌐",
       short: "PAGE",
       labelEn: "Web Pages",
       labelAr: "صفحات الويب المنشورة",
@@ -45,6 +46,7 @@
     },
     {
       id: "blog-posts",
+      icon: "✍️",
       short: "BLOG",
       labelEn: "Blog Posts",
       labelAr: "المقالات المنشورة",
@@ -63,6 +65,7 @@
     },
     {
       id: "web-forms",
+      icon: "📝",
       short: "FORM",
       labelEn: "Web Forms",
       labelAr: "نماذج الويب النشطة",
@@ -78,6 +81,7 @@
     },
     {
       id: "help-articles",
+      icon: "📚",
       short: "KB",
       labelEn: "Knowledge Base",
       labelAr: "مقالات قاعدة المعرفة",
@@ -461,27 +465,32 @@
     statsSection.innerHTML = `
       <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
-        ${statsCards.map(c => `
-          <div class="erp-stat-card" data-stat-id="${c.id}">
-            <div class="erp-stat-icon">${c.short}</div>
-            <div class="erp-stat-info">
-              <span class="erp-stat-label">${escapeHtml(isArabic ? c.labelAr : c.labelEn)}</span>
-              <span class="erp-stat-value" data-stat-value>—</span>
+        ${statsCards.map((c, index) => {
+          const label = isArabic ? c.labelAr : c.labelEn;
+          return `
+            <div class="erp-stat-card overview-tone-${index + 1}">
+              <div class="erp-stat-icon">${c.icon || "📊"}</div>
+              <div class="erp-stat-info">
+                <span class="erp-stat-value" data-stat-id="${escapeHtml(c.id)}">...</span>
+                <span class="erp-stat-label">${escapeHtml(label)}</span>
+              </div>
             </div>
-          </div>
-        `).join("")}
+          `;
+        }).join("")}
       </div>
     `;
 
     statsCards.forEach(c => {
       c.fetch().then(val => {
-        const el = statsSection.querySelector(`[data-stat-id="${c.id}"] [data-stat-value]`);
+        const el = statsSection.querySelector(`[data-stat-id="${c.id}"]`);
         if (el) {
           el.textContent = formatNumber(val);
         }
-      });
+      }).catch(() => {});
     });
   }
+
+  
 
   /* ─────────────────────────────────────────
      ١٠. إنشاء أزرار الاختصارات السريعة

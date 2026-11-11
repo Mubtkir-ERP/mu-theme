@@ -296,6 +296,7 @@
   const statsCards = [
     {
       id: "today-sales",
+      icon: "💰",
       short: "SAR",
       labelAr: "مبيعات اليوم",
       labelEn: "Today's Sales",
@@ -313,6 +314,7 @@
     },
     {
       id: "today-invoices",
+      icon: "🧾",
       short: "INV",
       labelAr: "فواتير اليوم",
       labelEn: "Today's Invoices",
@@ -327,6 +329,7 @@
     },
     {
       id: "open-shifts",
+      icon: "⏱️",
       short: "SHIFT",
       labelAr: "الورديات المفتوحة",
       labelEn: "Open Shifts",
@@ -334,6 +337,7 @@
     },
     {
       id: "active-vouchers",
+      icon: "🎟️",
       short: "VOUCHER",
       labelAr: "القسائم النشطة",
       labelEn: "Active Vouchers",
@@ -775,7 +779,7 @@
     const cardsHtml = statsCards.map((card, index) => {
       return `
         <div class="erp-stat-card overview-tone-${index + 1}">
-          <div class="erp-stat-icon">${escapeHtml(card.short)}</div>
+          <div class="erp-stat-icon">${card.icon || "📊"}</div>
           <div class="erp-stat-info">
             <span class="erp-stat-value" data-pos-stat="${card.id}">0</span>
             <span class="erp-stat-label">${escapeHtml(isArabic ? card.labelAr : card.labelEn)}</span>

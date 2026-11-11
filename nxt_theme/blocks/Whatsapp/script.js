@@ -316,6 +316,7 @@
 
 
 
+      icon: "📤",
       short: "S",
 
 
@@ -358,6 +359,7 @@
 
 
 
+      icon: "📬",
       short: "D",
 
 
@@ -400,6 +402,7 @@
 
 
 
+      icon: "⏳",
       short: "P",
 
 
@@ -442,6 +445,7 @@
 
 
 
+      icon: "⚠️",
       short: "F",
 
 
@@ -3156,11 +3160,7 @@
 
 
 
-                  <div class="erp-stat-icon">
-
-                    ${escapeHtml(card.short)}
-
-                  </div>
+                  <div class="erp-stat-icon">${card.icon || "📊"}</div>
 
 
 

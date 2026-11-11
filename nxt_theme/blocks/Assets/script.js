@@ -27,6 +27,7 @@
   const statsCards = [
     {
       id: "total-assets",
+      icon: "🏢",
       short: "AST",
       labelEn: "Total Assets",
       labelAr: "إجمالي الأصول",
@@ -45,6 +46,7 @@
     },
     {
       id: "book-value",
+      icon: "💰",
       short: "VAL",
       labelEn: "Total Asset Value",
       labelAr: "القيمة الإجمالية",
@@ -69,6 +71,7 @@
     },
     {
       id: "due-depreciation",
+      icon: "⏳",
       short: "DEP",
       labelEn: "Pending Depreciation",
       labelAr: "إهلاكات مستحقة",
@@ -90,6 +93,7 @@
     },
     {
       id: "disposed-assets",
+      icon: "♻️",
       short: "DSP",
       labelEn: "Disposed Assets",
       labelAr: "أصول مستبعدة",
@@ -624,27 +628,32 @@
     statsSection.innerHTML = `
       <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
       <div class="erp-stats-grid">
-        ${statsCards.map(c => `
-          <div class="erp-stat-card" data-stat-id="${escapeHtml(c.id)}">
-            <div class="erp-stat-badge">${escapeHtml(c.short)}</div>
-            <div class="erp-stat-info">
-              <span class="erp-stat-label">${escapeHtml(isArabic ? c.labelAr : c.labelEn)}</span>
-              <span class="erp-stat-value" data-stat-value>—</span>
+        ${statsCards.map((c, index) => {
+          const label = isArabic ? c.labelAr : c.labelEn;
+          return `
+            <div class="erp-stat-card overview-tone-${index + 1}">
+              <div class="erp-stat-icon">${c.icon || "📊"}</div>
+              <div class="erp-stat-info">
+                <span class="erp-stat-value" data-stat-id="${escapeHtml(c.id)}">...</span>
+                <span class="erp-stat-label">${escapeHtml(label)}</span>
+              </div>
             </div>
-          </div>
-        `).join("")}
+          `;
+        }).join("")}
       </div>
     `;
 
     statsCards.forEach(c => {
       c.fetch().then(val => {
-        const el = statsSection.querySelector(`[data-stat-id="${c.id}"] [data-stat-value]`);
+        const el = statsSection.querySelector(`[data-stat-id="${c.id}"]`);
         if (el) {
           el.textContent = c.isCurrency ? `${formatNumber(val)} SAR` : formatNumber(val);
         }
-      });
+      }).catch(() => {});
     });
   }
+
+  
 
   /* ─────────────────────────────────────────
      ١١. إنشاء أزرار الاختصارات السريعة

@@ -211,6 +211,7 @@
   const statsCards = [
     {
       id: "gas-deliveries-today",
+      icon: "🚚",
       short: "DEL",
       labelAr: "تسليمات اليوم",
       labelEn: "Today's Deliveries",
@@ -218,6 +219,7 @@
     },
     {
       id: "gas-sheets-today",
+      icon: "📋",
       short: "SHEET",
       labelAr: "الشيتات اليومية",
       labelEn: "Daily Sheets",
@@ -225,6 +227,7 @@
     },
     {
       id: "gas-sales-invoices",
+      icon: "🧾",
       short: "INV",
       labelAr: "فواتير المبيعات",
       labelEn: "Sales Invoices",
@@ -232,6 +235,7 @@
     },
     {
       id: "gasco-imports",
+      icon: "⛽",
       short: "GASCO",
       labelAr: "كشوفات غازكو",
       labelEn: "GASCO Statements",
@@ -647,40 +651,35 @@
   function renderStats() {
     if (!statsSection) return;
 
-    const cardsHtml = statsCards.map((card, index) => {
-      return `
-        <div class="erp-stat-card overview-tone-${index + 1}">
-          <div class="erp-stat-icon">${escapeHtml(card.short)}</div>
-          <div class="erp-stat-info">
-            <span class="erp-stat-value" data-gas-stat="${card.id}">0</span>
-            <span class="erp-stat-label">${escapeHtml(isArabic ? card.labelAr : card.labelEn)}</span>
-          </div>
-        </div>
-      `;
-    }).join("");
-
     statsSection.innerHTML = `
-      <section class="erp-overview-container">
-        <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
-        <div class="erp-stats-grid">${cardsHtml}</div>
-      </section>
+      <h2 class="erp-section-title">${isArabic ? "الإحصائيات" : "Statistics"}</h2>
+      <div class="erp-stats-grid">
+        ${statsCards.map((c, index) => {
+          const label = isArabic ? c.labelAr : c.labelEn;
+          return `
+            <div class="erp-stat-card overview-tone-${index + 1}">
+              <div class="erp-stat-icon">${c.icon || "📊"}</div>
+              <div class="erp-stat-info">
+                <span class="erp-stat-value" data-stat-id="${escapeHtml(c.id)}">...</span>
+                <span class="erp-stat-label">${escapeHtml(label)}</span>
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
     `;
 
-    statsCards.forEach(card => {
-      Promise.resolve()
-        .then(() => card.fetch())
-        .then(val => {
-          const el = statsSection.querySelector(`[data-gas-stat="${card.id}"]`);
-          if (!el) return;
-          if (card.currency) {
-            el.textContent = formatCurrency(val) + (isArabic ? " ر.س" : " SAR");
-          } else {
-            el.textContent = formatNumber(val);
-          }
-        })
-        .catch(() => {});
+    statsCards.forEach(c => {
+      c.fetch().then(val => {
+        const el = statsSection.querySelector(`[data-stat-id="${c.id}"]`);
+        if (el) {
+          if (c.currency) { el.textContent = formatCurrency(val) + (isArabic ? " ر.س" : " SAR"); } else { el.textContent = formatNumber(val); }
+        }
+      }).catch(() => {});
     });
   }
+
+  
 
   /* =========================================================
      15. RENDER SHORTCUTS (Exact gas_operations.json order)
