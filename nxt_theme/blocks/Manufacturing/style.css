@@ -4608,9 +4608,7 @@ html[data-theme="dark"]
 
 
 
-  .erp-overview-container
-
-  .erp-stats-grid {
+  .erp-stats-section .erp-stats-grid, .erp-stats-grid {
 
 
 
@@ -4850,9 +4848,7 @@ html[data-theme="dark"]
 
 
 
-  .erp-overview-container
-
-  .erp-stats-grid {
+  .erp-stats-section .erp-stats-grid, .erp-stats-grid {
 
 
 
@@ -5222,4 +5218,92 @@ html[data-theme="dark"]
   visibility: visible !important;
   pointer-events: auto !important;
   transform: none !important;
+}
+/* =========================================================
+   MOBILE & TABLET STATS RESPONSIVENESS (VERTICAL STACK)
+   ضمان التراص الرأسي لبطاقات الإحصائيات ودورة العمل في الجوال
+========================================================= */
+@media (max-width: 768px) {
+  .erp-dashboard-wrapper .erp-stats-grid,
+  .erp-stats-section .erp-stats-grid,
+  .erp-overview-container .erp-stats-grid,
+  .erp-stats-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    width: 100% !important;
+  }
+
+  .erp-dashboard-wrapper .erp-stat-card,
+  .erp-stat-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 72px !important;
+    height: auto !important;
+    padding: 12px 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  .erp-stat-badge,
+  .erp-stat-icon {
+    flex: 0 0 46px !important;
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    border-radius: 12px !important;
+    margin: 0 !important;
+  }
+
+  .erp-stat-info {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    margin-inline-start: 12px !important;
+  }
+
+  .erp-stat-value,
+  .erp-stat-card .erp-stat-value {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.3 !important;
+  }
+
+  .erp-stat-label,
+  .erp-stat-card .erp-stat-label {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    white-space: normal !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Cycle / Steps on mobile */
+  .erp-dashboard-wrapper .erp-cycle-grid,
+  .erp-cycle-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .erp-dashboard-wrapper .erp-cycle-item,
+  .erp-cycle-item,
+  .erp-dashboard-wrapper .erp-cycle-card,
+  .erp-cycle-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: auto !important;
+  }
+
+  .erp-cycle-arrow {
+    display: none !important;
+  }
 }
