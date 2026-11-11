@@ -243,6 +243,13 @@ ARABIC_TO_ENGLISH_WS = {
 	"إدارة الذهب": "Gold Management",
 	"الرعاية الصحية": "Healthcare",
 	"الصحة": "Healthcare",
+	"سندات القبض والصرف": "Voucher Entries",
+	"إدارة السندات": "Voucher Entries",
+	"السندات": "Voucher Entries",
+	"سندات": "Voucher Entries",
+	"تطبيق السندات": "Voucher Entries",
+	"Voucher Management": "Voucher Entries",
+	"Voucher Entries": "Voucher Entries",
 }
 
 
@@ -286,7 +293,7 @@ def get_actual_workspace_name(ws_identifier):
 			if by_l:
 				return by_l
 
-	# 3. محاولة تطابق بالكلمات المفتاحية لمساحات العمل الشهيرة (مثل عمليات الغاز)
+	# 3. محاولة تطابق بالكلمات المفتاحية لمساحات العمل الشهيرة (مثل عمليات الغاز والسندات)
 	if ws_identifier.lower() in ("gas operations", "gas", "gas_operations", "عمليات الغاز", "إدارة عمليات الغاز"):
 		for candidate in ("Gas Operations", "عمليات الغاز", "إدارة عمليات الغاز", "gas_operations"):
 			if frappe.db.exists("Workspace", candidate):
@@ -294,6 +301,17 @@ def get_actual_workspace_name(ws_identifier):
 			by_t = frappe.db.get_value("Workspace", {"title": candidate}, "name")
 			if by_t:
 				return by_t
+
+	if ws_identifier.lower() in ("voucher entries", "voucher management", "vouchers", "سندات", "السندات", "سندات القبض والصرف", "إدارة السندات", "تطبيق السندات"):
+		for candidate in ("Voucher Entries", "Voucher Management", "سندات القبض والصرف", "إدارة السندات", "السندات"):
+			if frappe.db.exists("Workspace", candidate):
+				return candidate
+			by_t = frappe.db.get_value("Workspace", {"title": candidate}, "name")
+			if by_t:
+				return by_t
+			by_l = frappe.db.get_value("Workspace", {"label": candidate}, "name")
+			if by_l:
+				return by_l
 
 	alt = ws_identifier.replace("&", "and")
 	if frappe.db.exists("Workspace", alt):
@@ -349,6 +367,7 @@ def get_default_workspace_mappings_data():
 		("ZATCA", "ZATCA"),
 		("Gold Management", "Gold Management"),
 		("Healthcare", "Healthcare"),
+		("Voucher Entries", "Voucher Management"),
 	]
 
 	# التحقق من نشاط العميل بالنسبة للرئيسية Home

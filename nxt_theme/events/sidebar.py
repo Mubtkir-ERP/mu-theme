@@ -48,6 +48,8 @@ DEFAULT_WORKSPACE_ICONS = {
 	"POSNext": "receipt",
 	"Gold Management": "gem",
 	"Healthcare": "heart-pulse",
+	"Voucher Entries": "banknote",
+	"Voucher Management": "banknote",
 }
 
 ARABIC_WORKSPACE_ICONS = {
@@ -108,9 +110,16 @@ ARABIC_WORKSPACE_ICONS = {
 	"إدارة الذهب": "gem",
 	"الرعاية الصحية": "heart-pulse",
 	"الصحة": "heart-pulse",
+	"سندات القبض والصرف": "banknote",
+	"إدارة السندات": "banknote",
+	"السندات": "banknote",
+	"سندات": "banknote",
+	"تطبيق السندات": "banknote",
 }
 
 ICON_MAP = {
+	"fal fa-donate": "banknote",
+	"fa-donate": "banknote",
 	"home": "layout-grid",
 	"selling": "shopping-bag",
 	"bags-shopping": "shopping-bag",
