@@ -253,9 +253,11 @@
           "Opening and Closing",
           "🔐",
           [
+            "Period Closing Voucher",
+            "Process Deferred Accounting",
+            "Repost Item Valuation",
             "Opening Invoice Creation Tool",
-            "Chart of Accounts Importer",
-            "Period Closing Voucher"
+            "Chart of Accounts Importer"
           ]
         ],
 
@@ -350,6 +352,8 @@
     "Opening Invoice Creation Tool": "أداة إنشاء فواتير الأرصدة الافتتاحية",
     "Chart of Accounts Importer": "مستورد دليل الحسابات",
     "Period Closing Voucher": "سند إقفال الفترة",
+    "Process Deferred Accounting": "عملية توزيع الايرادات والمصروفات المؤجلة",
+    "Repost Item Valuation": "اعادة احتساب متوسط التكلفة",
 
     // المربع ٨: إدارة الاشتراكات
     "Subscription Management": "إدارة الاشتراكات",
@@ -1058,6 +1062,50 @@
         "Select Retained Earnings equity account",
         "Add closing remarks",
         "Click «Save» then «Submit» to formally post closing entries"
+      ]
+    },
+
+    "Process Deferred Accounting": {
+      icon: "⏳",
+      summaryAr: "أداة معالجة وترحيل الإيرادات والمصروفات المؤجلة دورياً، حيث تقوم بتوليد قيود اليومية المحاسبية لتحويل المبالغ المستحقة من حسابات الالتزامات والأصول المؤجلة إلى حسابات الدخل والمصروفات الفعلية حسب الفترة الزمنية المحددة.",
+      summaryEn: "Tool to process and amortize deferred revenue and expenses periodically by generating Journal Entries to move deferred balances to active income and expense accounts based on service period.",
+      stepsAr: [
+        "اضغط على «عملية توزيع الإيرادات والمصروفات المؤجلة جديدة»",
+        "اختر الشركة وتاريخ الترحيل المحاسبي (Posting Date)",
+        "حدد نوع المعالجة: إيرادات (Income) لتوزيع الإيرادات المؤجلة، أو مصروفات (Expense) للمصروفات المدفوعة مقدماً",
+        "حدد الفترة الزمنية المستهدفة بإدخال تاريخ البداية (Start Date) وتاريخ النهاية (End Date)",
+        "اختر حساب الإيراد أو المصروف المؤجل إن رغبت في حصر المعالجة بحساب معين",
+        "اضغط «حفظ» ثم «اعتماد» (Submit) لإنشاء وترحيل قيود اليومية تلقائياً"
+      ],
+      stepsEn: [
+        "Click «New Process Deferred Accounting»",
+        "Select Company and Posting Date",
+        "Choose Type: Income (for deferred revenue) or Expense (for prepaid expenses)",
+        "Define the target period by entering Start Date and End Date",
+        "Optionally select a specific Account to narrow down the processing",
+        "Click «Save» then «Submit» to automatically generate and post Journal Entries"
+      ]
+    },
+
+    "Repost Item Valuation": {
+      icon: "🔄",
+      summaryAr: "أداة إعادة احتساب متوسط التكلفة وتقييم المخزون وتصحيح القيود المحاسبية، وتُستخدم عند إدخال حركات مخزنية بأثر رجعي، أو تعديل تكلفة الأصناف السابقة، لضمان تطابق دفتر أستاذ المخزون مع الأستاذ العام وتصحيح تكلفة البضاعة المباعة.",
+      summaryEn: "Tool to recalculate item moving average cost, stock valuation rates, and repost GL entries when backdated transactions or cost adjustments occur.",
+      stepsAr: [
+        "اضغط على «إعادة احتساب متوسط التكلفة جديدة»",
+        "اختر الشركة وطبيعة المعالجة (Based On: Transaction أو Item and Warehouse)",
+        "حدد تاريخ ووقت بدء إعادة الاحتساب بأثر رجعي (Posting Date & Time)",
+        "حدد الصنف أو المستودع المطلوب تصحيح تكلفته أو اتركه شاملاً",
+        "اضغط «حفظ» ثم «اعتماد» (Submit)",
+        "يقوم النظام بتشغيل مهمة بالخلفية لإعادة تسلسل الحركات واحتساب متوسط التكلفة وتحديث قيود المخزون تلقائياً"
+      ],
+      stepsEn: [
+        "Click «New Repost Item Valuation»",
+        "Select Company and basis (Transaction or Item and Warehouse)",
+        "Specify Posting Date and Time from which recalculation should begin",
+        "Optionally select specific Item Code or Warehouse to scope the recalculation",
+        "Click «Save» then «Submit»",
+        "The system runs a background job to recalculate valuation rates and post corrected ledger entries"
       ]
     },
 

@@ -108,6 +108,7 @@ def after_migrate():
 	try:
 		setup_theme_defaults()
 		restore_default_workspace_icons()
+		sync_custom_html_blocks()
 	except Exception:
 		frappe.log_error(title="Theme after_migrate defaults error", message=frappe.get_traceback())
 

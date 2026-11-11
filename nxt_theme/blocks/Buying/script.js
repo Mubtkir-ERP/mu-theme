@@ -156,6 +156,7 @@
             "Material Request",
             "Purchase Order",
             "Purchase Invoice",
+            "Landed Cost Voucher",
             "Request for Quotation",
             "Supplier Quotation"
           ]
@@ -260,6 +261,7 @@
     "Material Request": "طلب مواد",
     "Purchase Order": "أمر شراء",
     "Purchase Invoice": "فاتورة مشتريات",
+    "Landed Cost Voucher": "توزيع المصاريف",
     "Request for Quotation": "طلب عرض سعر من مورد",
     "Supplier Quotation": "عرض سعر المورد",
 
@@ -407,6 +409,28 @@
         "Verify billed items, quantities, and rates",
         "Ensure 15% input VAT ledger is calculated",
         "Click «Save» then «Submit» to post to ledgers"
+      ]
+    },
+
+    "Landed Cost Voucher": {
+      icon: "📦",
+      summaryAr: "سند توزيع مصاريف الشراء الإضافية (مثل الشحن، الجمارك، التأمين، النقل، والتخليص) على تكلفة الأصناف المستلمة لزيادة دقة تقييم المخزون واحتساب التكلفة الفعلية الواصلة للمستودع.",
+      summaryEn: "Voucher to distribute additional purchase expenses (freight, customs, insurance, handling) across received stock items to accurately determine actual landed inventory valuation.",
+      stepsAr: [
+        "اضغط على «توزيع مصاريف جديد»",
+        "اختر الشركة ونوع الإيصال (Purchase Receipt أو Purchase Invoice)",
+        "أضف سندات الاستلام أو فواتير الشراء المراد تحميل المصاريف عليها في جدول الإيصالات",
+        "في جدول المصاريف (Applicable Charges): حدد نوع المصروف، وحساب المصروف، وقيمة المبلغ الإجمالي",
+        "اختر طريقة التوزيع (Distribute Charges Based On): حسب الكمية (Qty) أو القيمة (Amount)",
+        "اضغط «حفظ» ثم «اعتماد» (Submit) لتحديث متوسط تكلفة الأصناف وتوليد القيود المحاسبية"
+      ],
+      stepsEn: [
+        "Click «New Landed Cost Voucher»",
+        "Select Company and receipt document type (Purchase Receipt or Purchase Invoice)",
+        "Fetch or add the received purchase receipts or invoices in the Receipts table",
+        "In Applicable Charges: select expense account, charge description, and total cost",
+        "Select distribution basis: By Quantity or By Amount",
+        "Click «Save» then «Submit» to update item valuation rates and post accounting adjustments"
       ]
     },
 
