@@ -1091,26 +1091,36 @@
 
   function renderFooter() {
     if (!footerEl) return;
-    const phoneLabel = isArabic ? "واتساب" : "Support Phone";
-    const emailLabel = isArabic ? "البريد الإلكتروني" : "Email Support";
-    const websiteLabel = isArabic ? "الموقع الإلكتروني" : "Official Website";
+
+    const footerData = {
+      phone: window.frappe?.boot?.theme_settings?.phone || "+966126810486",
+      email: window.frappe?.boot?.theme_settings?.email || "sales@mubtkir.com",
+      website: window.frappe?.boot?.theme_settings?.website || "www.mubtkir.com"
+    };
+
+    const phoneLabel = isArabic ? "الهاتف الموحد" : "Phone";
+    const emailLabel = isArabic ? "البريد الإلكتروني" : "Email";
+    const websiteLabel = isArabic ? "الموقع" : "Website";
+    const waNumber = String(footerData.phone || "+966126810486").replace(/\D/g, "");
 
     footerEl.innerHTML = `
       <div class="erp-footer-inner">
-        <div class="erp-footer-col">
-          <span class="erp-footer-icon">💬</span>
+        <div class="erp-footer-item">
+          <span class="erp-footer-icon">📞</span>
           <span class="erp-footer-label">${escapeHtml(phoneLabel)}:</span>
-          <a href="https://wa.me/${String(footerInfo.phone || '+966126810486').replace(/\D/g, '')}" class="erp-footer-value" dir="ltr">${escapeHtml(footerInfo.phone)}</a>
+          <a href="https://wa.me/${waNumber}" class="erp-footer-link" target="_blank" rel="noopener" dir="ltr">${escapeHtml(footerData.phone)}</a>
         </div>
-        <div class="erp-footer-col">
+        <span class="erp-footer-sep">|</span>
+        <div class="erp-footer-item">
           <span class="erp-footer-icon">✉️</span>
           <span class="erp-footer-label">${escapeHtml(emailLabel)}:</span>
-          <a href="mailto:${footerInfo.email}" class="erp-footer-value">${escapeHtml(footerInfo.email)}</a>
+          <a href="mailto:${footerData.email}" class="erp-footer-link">${escapeHtml(footerData.email)}</a>
         </div>
-        <div class="erp-footer-col">
+        <span class="erp-footer-sep">|</span>
+        <div class="erp-footer-item">
           <span class="erp-footer-icon">🌐</span>
           <span class="erp-footer-label">${escapeHtml(websiteLabel)}:</span>
-          <a href="https://${footerInfo.website}" target="_blank" rel="noopener noreferrer" class="erp-footer-value">${escapeHtml(footerInfo.website)}</a>
+          <a href="https://${footerData.website}" class="erp-footer-link" target="_blank" rel="noopener">${escapeHtml(footerData.website)}</a>
         </div>
       </div>
     `;
