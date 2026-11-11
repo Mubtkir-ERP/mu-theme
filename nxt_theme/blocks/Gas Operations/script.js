@@ -688,7 +688,7 @@
     if (!quickActions) return;
 
     quickActions.innerHTML = `
-      <h2 class="erp-section-title">${escapeHtml(isArabic ? "اختصاراتك" : "Your Shortcuts")}</h2>
+      <h2 class="erp-section-title">${escapeHtml(isArabic ? "اختصارات عمليات الغاز" : "Gas Operations Shortcuts")}</h2>
       <div class="erp-quick-grid">
         ${shortcuts.map((btn, index) => `
           <button
@@ -721,7 +721,7 @@
     if (!content) return;
 
     content.innerHTML = sections.map((sec, secIndex) => {
-      const secTitle = isArabic ? "العمليات والمالية" : "Operations & Financials";
+      const secTitle = isArabic ? "العمليات والتشغيل اليومي" : "Daily Operations & Financials";
       const cardsHtml = sec[1].map((card, cardIndex) => {
         const cardTitle = card[0];
         const cardIcon = card[1];

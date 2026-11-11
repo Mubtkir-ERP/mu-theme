@@ -109,6 +109,7 @@ def after_migrate():
 		setup_theme_defaults()
 		restore_default_workspace_icons()
 		sync_custom_html_blocks()
+		apply_all_blocks_to_workspaces(auto_run=True)
 	except Exception:
 		frappe.log_error(title="Theme after_migrate defaults error", message=frappe.get_traceback())
 
@@ -261,9 +262,38 @@ def get_actual_workspace_name(ws_identifier):
 	if by_label:
 		return by_label
 
-	mapped = ARABIC_TO_ENGLISH_WS.get(ws_identifier)
-	if mapped and frappe.db.exists("Workspace", mapped):
-		return mapped
+	# 1. إذا كان المدخل عربياً، نبحث عن الترجمة الإنجليزية
+	mapped_en = ARABIC_TO_ENGLISH_WS.get(ws_identifier)
+	if mapped_en:
+		if frappe.db.exists("Workspace", mapped_en):
+			return mapped_en
+		by_t = frappe.db.get_value("Workspace", {"title": mapped_en}, "name")
+		if by_t:
+			return by_t
+		by_l = frappe.db.get_value("Workspace", {"label": mapped_en}, "name")
+		if by_l:
+			return by_l
+
+	# 2. إذا كان المدخل إنجليزياً، نبحث عن الترجمة العربية العكسية
+	for ar_name, en_name in ARABIC_TO_ENGLISH_WS.items():
+		if en_name.lower() == ws_identifier.lower():
+			if frappe.db.exists("Workspace", ar_name):
+				return ar_name
+			by_t = frappe.db.get_value("Workspace", {"title": ar_name}, "name")
+			if by_t:
+				return by_t
+			by_l = frappe.db.get_value("Workspace", {"label": ar_name}, "name")
+			if by_l:
+				return by_l
+
+	# 3. محاولة تطابق بالكلمات المفتاحية لمساحات العمل الشهيرة (مثل عمليات الغاز)
+	if ws_identifier.lower() in ("gas operations", "gas", "gas_operations", "عمليات الغاز", "إدارة عمليات الغاز"):
+		for candidate in ("Gas Operations", "عمليات الغاز", "إدارة عمليات الغاز", "gas_operations"):
+			if frappe.db.exists("Workspace", candidate):
+				return candidate
+			by_t = frappe.db.get_value("Workspace", {"title": candidate}, "name")
+			if by_t:
+				return by_t
 
 	alt = ws_identifier.replace("&", "and")
 	if frappe.db.exists("Workspace", alt):
@@ -428,6 +458,34 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 			table_mappings = []
 
 	if table_mappings:
+		# التأكد من إدراج كافة مساحات العمل الافتراضية الموجودة في النظام حتى لو كانت ناقصة من الجدول المحفوظ سابقاً (مثل Gas Operations)
+		try:
+			default_mappings = get_default_workspace_mappings_data()
+			mapped_actual_workspaces = set()
+			for r in table_mappings:
+				act = get_actual_workspace_name(r.get("workspace"))
+				if act:
+					mapped_actual_workspaces.add(act)
+
+			missing_rows = []
+			for def_row in default_mappings:
+				def_ws = def_row.get("workspace")
+				if def_ws and def_ws not in mapped_actual_workspaces:
+					table_mappings.append(def_row)
+					missing_rows.append(def_row)
+					mapped_actual_workspaces.add(def_ws)
+
+			if missing_rows and frappe.db.exists("DocType", "Theme Settings"):
+				theme_doc = frappe.get_doc("Theme Settings")
+				for m_row in missing_rows:
+					theme_doc.append("workspace_mappings", m_row)
+				theme_doc.flags.ignore_permissions = True
+				theme_doc.flags.ignore_validate = True
+				theme_doc.save()
+				frappe.db.commit()
+		except Exception:
+			pass
+
 		# تطبيق التوزيع اليدوي المحدد في الجدول
 		for row in table_mappings:
 			ws_name = row.get("workspace")
