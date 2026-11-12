@@ -306,329 +306,87 @@
 
 
 
-  const statsCards = [
-
-
-
+    const statsCards = [
     {
-
       id: "sent",
-
-
-
       icon: "📤",
       short: "S",
-
-
-
-      labelEn:
-
-        "Sent Messages",
-
-
-
-      labelAr:
-
-        "الرسائل المرسلة",
-
-
-
-      fetch: () =>
-
-        getCount(
-
-          "WhatsApp Message",
-
-          {
-
-            status: "Sent"
-
-          }
-
-        )
-
+      labelEn: "Sent Messages",
+      labelAr: "الرسائل المرسلة",
+      fetch: () => getCount("WhatsApp Message", { status: "Sent" })
     },
-
-
-
-
-
     {
-
       id: "delivered",
-
-
-
       icon: "📬",
       short: "D",
-
-
-
-      labelEn:
-
-        "Delivered Messages",
-
-
-
-      labelAr:
-
-        "الرسائل المستلمة",
-
-
-
-      fetch: () =>
-
-        getCount(
-
-          "WhatsApp Message",
-
-          {
-
-            status: "Delivered"
-
-          }
-
-        )
-
+      labelEn: "Delivered Messages",
+      labelAr: "الرسائل المستلمة",
+      fetch: () => getCount("WhatsApp Message", { status: "Delivered" })
     },
-
-
-
-
-
     {
-
+      id: "read",
+      icon: "👀",
+      short: "R",
+      labelEn: "Read Messages",
+      labelAr: "الرسائل المقروءة",
+      fetch: () => getCount("WhatsApp Message", { status: "Read" })
+    },
+    {
       id: "pending",
-
-
-
       icon: "⏳",
       short: "P",
-
-
-
-      labelEn:
-
-        "Pending Messages",
-
-
-
-      labelAr:
-
-        "الرسائل المعلقة",
-
-
-
-      fetch: () =>
-
-        getCount(
-
-          "WhatsApp Message",
-
-          {
-
-            status: "Pending"
-
-          }
-
-        )
-
+      labelEn: "Pending Messages",
+      labelAr: "الرسائل المعلقة",
+      fetch: () => getCount("WhatsApp Message", { status: "Pending" })
     },
-
-
-
-
-
     {
-
       id: "failed",
-
-
-
       icon: "⚠️",
       short: "F",
-
-
-
-      labelEn:
-
-        "Failed Messages",
-
-
-
-      labelAr:
-
-        "الرسائل الفاشلة",
-
-
-
-      fetch: () =>
-
-        getCount(
-
-          "WhatsApp Message",
-
-          {
-
-            status: "Failed"
-
-          }
-
-        )
-
+      labelEn: "Failed Messages",
+      labelAr: "الرسائل الفاشلة",
+      fetch: () => getCount("WhatsApp Message", { status: "Failed" })
+    },
+    {
+      id: "received",
+      icon: "📥",
+      short: "IN",
+      labelEn: "Received Messages",
+      labelAr: "الرسائل الواردة",
+      fetch: () => getCount("WhatsApp Message", { status: "Received" })
     }
-
-
-
   ];
 
-
-
-
-
   /* =========================================================
-
      5. QUICK ACTIONS
-
   ========================================================= */
-
-
 
   const quickActionButtons = [
-
-
-
     {
-
-      doctype:
-
-        "Whatsapp Instance",
-
-
-
-      action:
-
-        "new",
-
-
-
-      labelEn:
-
-        "New WhatsApp Instance",
-
-
-
-      labelAr:
-
-        "ربط واتساب جديد"
-
+      doctype: "Whatsapp Instance",
+      labelEn: "Whatsapp Instance",
+      labelAr: "نسخ واتساب"
     },
-
-
-
-
-
     {
-
-      doctype:
-
-        "WhatsApp Message",
-
-
-
-      action:
-
-        "new",
-
-
-
-      labelEn:
-
-        "New WhatsApp Message",
-
-
-
-      labelAr:
-
-        "رسالة واتساب جديدة"
-
+      doctype: "WhatsApp Message",
+      labelEn: "WhatsApp Message",
+      labelAr: "رسائل واتساب"
     },
-
-
-
-
-
     {
-
-      doctype:
-
-        "Bulk WhatsApp Message",
-
-
-
-      action:
-
-        "new",
-
-
-
-      labelEn:
-
-        "New Bulk Message",
-
-
-
-      labelAr:
-
-        "رسالة جماعية جديدة"
-
+      doctype: "Bulk WhatsApp Message",
+      labelEn: "Bulk WhatsApp Message",
+      labelAr: "رسائل جماعية"
     },
-
-
-
-
-
     {
-
-      doctype:
-
-        "WhatsApp Notification",
-
-
-
-      action:
-
-        "new",
-
-
-
-      labelEn:
-
-        "New Notification",
-
-
-
-      labelAr:
-
-        "إشعار واتساب جديد"
-
+      doctype: "WhatsApp Scheduled Report",
+      labelEn: "WhatsApp Scheduled Report",
+      labelAr: "تقارير مجدولة"
     }
-
-
-
   ];
 
-
-
-
-
   /* =========================================================
-
      6. FOOTER
-
   ========================================================= */
-
-
 
   const footerInfo = {
 
@@ -756,7 +514,8 @@
 
             "Bulk WhatsApp Message",
 
-            "WhatsApp Recipient List"
+            "WhatsApp Recipient List",
+            "WhatsApp Contact Puller"
 
           ]
 
@@ -1037,6 +796,29 @@
 
 
   const itemDescriptions = {
+    /* =========================
+       WHATSAPP CONTACT PULLER
+    ========================= */
+    "WhatsApp Contact Puller": {
+      icon: "📥",
+      summaryAr: "أداة متقدمة لسحب واستخراج جهات الاتصال النشطة من محادثات ومجموعات واتساب وتصنيفها بدقة وحفظها في قوائم مستلمين أو تصديرها إلى Excel.",
+      summaryEn: "Advanced tool to pull and extract active contacts from WhatsApp chats and groups, filter by engagement, and save to recipient lists or export to Excel.",
+      stepsAr: [
+        "افتح شاشة «سحب جهات اتصال واتساب»",
+        "حدد نسخة الواتساب المصدر ونوع السحب (محادثات فردية أو مجموعات)",
+        "اضبط فلاتر التفاعل والنشاط (الرد خلال أيام، الحد الأدنى للرسائل، الكلمات المفتاحية)",
+        "اضغط زر «سحب الأرقام Pull Numbers» لاستخراج كافة الأرقام المتطابقة",
+        "حدد الأرقام المستهدفة ثم اختر قائمة المستلمين لحفظها أو اضغط تصدير إلى Excel"
+      ],
+      stepsEn: [
+        "Open «WhatsApp Contact Puller»",
+        "Select the source WhatsApp instance and pull type (chats or groups)",
+        "Configure engagement filters (replied within days, min inbound messages, keywords)",
+        "Click «Pull Numbers» to extract all matching contacts",
+        "Select target numbers and assign to recipient list or export to Excel"
+      ]
+    },
+
 
 
 
@@ -3303,214 +3085,48 @@
 
 
   function renderQuickActions() {
+    if (!quickActions) return;
 
-
-
-    if (!quickActions)
-
-      return;
-
-
-
-
+    const title = isArabic ? "اختصارات إدارة واتساب" : "WhatsApp Management Shortcuts";
 
     quickActions.innerHTML = `
-
-
-
-      <h2 class="erp-section-title">
-
-
-
-        ${
-
-          isArabic
-
-            ? "اختصارات سريعة"
-
-            : "Quick Actions"
-
-        }
-
-
-
-      </h2>
-
-
-
-
-
+      <h2 class="erp-section-title">${escapeHtml(title)}</h2>
       <div class="erp-quick-grid">
-
-
-
-        ${quickActionButtons
-
-
-
-          .map(
-
-            (button, index) => `
-
-
-
-              <button
-
-                type="button"
-
-                class="erp-quick-btn"
-
-                data-quick-index="${index}"
-
-              >
-
-
-
-                <span
-
-                  class="erp-quick-label"
-
-                >
-
-
-
-                  ${escapeHtml(
-
-                    isArabic
-
-                      ? button.labelAr
-
-                      : button.labelEn
-
-                  )}
-
-
-
-                </span>
-
-
-
-              </button>
-
-
-
-            `
-
-          )
-
-
-
-          .join("")}
-
-
-
+        ${quickActionButtons.map((btn, index) => {
+          const label = isArabic ? btn.labelAr : btn.labelEn;
+          return `
+            <button
+              type="button"
+              class="erp-quick-btn"
+              data-quick-index="${index}"
+            >
+              <span class="erp-quick-label">${escapeHtml(label)}</span>
+              <span class="erp-quick-badge" data-quick-badge="${escapeHtml(btn.doctype)}">...</span>
+            </button>
+          `;
+        }).join("")}
       </div>
-
-
-
     `;
 
-
-
-
-
-    quickActions.addEventListener(
-
-
-
-      "click",
-
-
-
-      event => {
-
-
-
-        const element =
-
-          event.target.closest(
-
-            "[data-quick-index]"
-
-          );
-
-
-
-
-
-        if (!element)
-
-          return;
-
-
-
-
-
-        const button =
-
-          quickActionButtons[
-
-            Number(
-
-              element.dataset.quickIndex
-
-            )
-
-          ];
-
-
-
-
-
-        if (!button)
-
-          return;
-
-
-
-
-
-        if (
-
-          button.action === "new"
-
-        ) {
-
-
-
-          frappe.new_doc(
-
-            button.doctype
-
-          );
-
-
-
+    quickActionButtons.forEach(btn => {
+      getCount(btn.doctype).then(count => {
+        const el = quickActions.querySelector(`[data-quick-badge="${btn.doctype}"]`);
+        if (el) {
+          el.textContent = formatNumber(count);
         }
+      });
+    });
 
+    quickActions.addEventListener("click", event => {
+      const btnEl = event.target.closest("[data-quick-index]");
+      if (!btnEl) return;
+      const idx = Number(btnEl.getAttribute("data-quick-index"));
+      const btn = quickActionButtons[idx];
+      if (!btn) return;
 
-
-      }
-
-
-
-    );
-
-
-
+      openRoute(btn.doctype, "List");
+    });
   }
-
-
-
-
-
-  /* =========================================================
-
-     17. RENDER SECTIONS
-
-  ========================================================= */
-
-
 
   function renderSections() {
 

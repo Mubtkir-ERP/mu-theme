@@ -5307,3 +5307,56 @@ html[data-theme="dark"]
     display: none !important;
   }
 }
+
+
+/* 6-Column Responsive Grid for WhatsApp Stats */
+.erp-stats-grid {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  margin: 0 0 24px !important;
+}
+
+@media (max-width: 1200px) {
+  .erp-stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .erp-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* 6 Color Tones for WhatsApp Number Cards matching screenshot */
+.erp-stat-card:nth-child(1) .erp-stat-icon, .erp-stat-card.overview-tone-1 .erp-stat-icon { background: rgba(56, 103, 174, 0.08) !important; }
+.erp-stat-card:nth-child(2) .erp-stat-icon, .erp-stat-card.overview-tone-2 .erp-stat-icon { background: rgba(16, 185, 129, 0.08) !important; }
+.erp-stat-card:nth-child(3) .erp-stat-icon, .erp-stat-card.overview-tone-3 .erp-stat-icon { background: rgba(6, 182, 212, 0.08) !important; }
+.erp-stat-card:nth-child(4) .erp-stat-icon, .erp-stat-card.overview-tone-4 .erp-stat-icon { background: rgba(245, 158, 11, 0.08) !important; }
+.erp-stat-card:nth-child(5) .erp-stat-icon, .erp-stat-card.overview-tone-5 .erp-stat-icon { background: rgba(239, 68, 68, 0.08) !important; }
+.erp-stat-card:nth-child(6) .erp-stat-icon, .erp-stat-card.overview-tone-6 .erp-stat-icon { background: rgba(142, 68, 173, 0.08) !important; }
+
+/* Quick Action Badges */
+.erp-quick-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  padding: 11px 16px !important;
+}
+
+.erp-quick-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 26px !important;
+  height: 22px !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  background: rgba(56, 103, 174, 0.12) !important;
+  color: var(--brand-primary, #3867ae) !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
