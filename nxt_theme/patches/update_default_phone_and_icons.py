@@ -64,26 +64,34 @@ def execute():
 	# 2. تحديث أيقونات مساحات العمل في tabWorkspace إلى أيقونات Lucide الحديثة
 	try:
 		if frappe.db.exists("DocType", "Workspace"):
-			for ws_name, lucide_icon in LUCIDE_WORKSPACE_ICONS.items():
-				target = ws_name
-				if not frappe.db.exists("Workspace", target):
-					alt = ws_name.replace("&", "and")
-					if frappe.db.exists("Workspace", alt):
-						target = alt
-					elif frappe.db.exists("Workspace", ws_name.lower()):
-						target = ws_name.lower()
-					else:
-						# بحث بالعنوان العربي
-						target = frappe.db.get_value("Workspace", {"title": ws_name}, "name")
-						if not target:
-							continue
+			from nxt_theme.events.sidebar import ARABIC_WORKSPACE_ICONS, DEFAULT_WORKSPACE_ICONS
 
-				curr_icon = frappe.db.get_value("Workspace", target, "icon") or ""
-				# تحديث إذا كانت فارغة أو اسم قديم
-				if not curr_icon or curr_icon.startswith("fal fa-") or curr_icon.startswith("fa fa-") or curr_icon in (
-					"home", "selling", "stock", "buying", "accounting", "small-file", "file", "folder", "assets", "users"
-				):
-					frappe.db.set_value("Workspace", target, "icon", lucide_icon, update_modified=True)
+			workspaces = frappe.get_all("Workspace", fields=["name", "title", "icon"])
+			for ws in workspaces:
+				name = ws.get("name") or ""
+				title = ws.get("title") or ""
+				curr_icon = (ws.get("icon") or "").strip()
+
+				lucide_icon = (
+					LUCIDE_WORKSPACE_ICONS.get(name)
+					or ARABIC_WORKSPACE_ICONS.get(title)
+					or ARABIC_WORKSPACE_ICONS.get(name)
+					or DEFAULT_WORKSPACE_ICONS.get(name)
+					or DEFAULT_WORKSPACE_ICONS.get(title)
+				)
+
+				is_legacy = (
+					not curr_icon
+					or curr_icon.startswith("fa")
+					or " " in curr_icon
+					or curr_icon in (
+						"home", "selling", "stock", "buying", "accounting", "small-file", "file",
+						"folder", "assets", "users", "tools", "settings"
+					)
+				)
+
+				if lucide_icon and is_legacy:
+					frappe.db.set_value("Workspace", name, "icon", lucide_icon, update_modified=False)
 
 			frappe.db.commit()
 			frappe.clear_cache()

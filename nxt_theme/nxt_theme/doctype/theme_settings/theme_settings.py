@@ -90,7 +90,6 @@ def populate_default_workspace_mappings_if_empty():
 		if existing_count > 0:
 			return
 
-		sync_custom_html_blocks()
 		doc = frappe.get_doc("Theme Settings")
 		defaults = get_default_workspace_mappings_data()
 		for row in defaults:
@@ -108,8 +107,6 @@ def after_migrate():
 	try:
 		setup_theme_defaults()
 		restore_default_workspace_icons()
-		sync_custom_html_blocks()
-		apply_all_blocks_to_workspaces(auto_run=True)
 	except Exception:
 		frappe.log_error(title="Theme after_migrate defaults error", message=frappe.get_traceback())
 

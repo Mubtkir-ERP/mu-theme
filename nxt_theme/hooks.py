@@ -2,7 +2,7 @@ app_name = "nxt_theme"
 app_title = "MUBTKIR Theme"
 app_publisher = "MUBTKIR ERP"
 app_description = "Enhanced User Interface and User Experience for Frappe Applications"
-app_version = "1.9.13"
+app_version = "1.9.14"
 app_email = "support@mubtkir.com"
 app_license = "gpl-2.0"
 # required_apps = []
@@ -21,6 +21,7 @@ website_context = {
 app_include_css = [
     "nxt_theme.bundle.css",
     "/assets/nxt_theme/css/mubtkir_responsive.css",
+    "/assets/nxt_theme/css/nxt_style.css",
 ]
 app_include_js = [
     "nxt_theme.bundle.js",

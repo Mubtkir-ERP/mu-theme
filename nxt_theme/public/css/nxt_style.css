@@ -18,6 +18,23 @@
   opacity: 1 !important;
 }
 
+/* Light Skin (Echo) support */
+.echo .side-menu__link,
+.echo .side-menu__link .side-menu__link__title,
+.echo .side-menu__link .side-menu__link__icon {
+  color: #334155 !important;
+  stroke: #334155 !important;
+  fill: none !important;
+}
+
+.echo .side-menu__link:hover,
+.echo .side-menu__link--active,
+.echo .side-menu__link--active .side-menu__link__title,
+.echo .side-menu__link--active .side-menu__link__icon {
+  color: var(--brand-primary, #3867ae) !important;
+  stroke: var(--brand-primary, #3867ae) !important;
+}
+
 /* Lucide SVGs & All Icons: match text stroke, color and full opacity */
 .side-menu__link__icon svg,
 .side-menu__link__icon svg.lucide,

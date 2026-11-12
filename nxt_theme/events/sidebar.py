@@ -175,36 +175,48 @@ def resolve_page_icon(page_dict, overrides=None):
 	else:
 		icon = (page_dict.get("icon") or "").strip()
 
-	# إذا كانت الأيقونة فارغة، نستخدم القاموس الافتراضي الإنجليزي أو العربي
-	if not icon:
+	# فحص ما إذا كانت الأيقونة قديمة أو Font Awesome أو فارغة أو غير متوافقة
+	is_legacy = (
+		not icon
+		or icon.startswith("fa")
+		or " " in icon
+		or icon in (
+			"home", "selling", "stock", "buying", "accounting", "small-file", "file",
+			"folder", "assets", "users", "tools", "settings"
+		)
+	)
+
+	if is_legacy:
+		# استخراج الأيقونة الرسمية من قواميس Lucide بالاسم أو العنوان
 		icon = (
 			DEFAULT_WORKSPACE_ICONS.get(name)
 			or ARABIC_WORKSPACE_ICONS.get(title)
 			or ARABIC_WORKSPACE_ICONS.get(name)
 			or DEFAULT_WORKSPACE_ICONS.get(title)
-			or "layout-grid"
+			or ARABIC_WORKSPACE_ICONS.get(label)
+			or DEFAULT_WORKSPACE_ICONS.get(label)
 		)
+		if not icon and page_dict.get("icon"):
+			raw = page_dict.get("icon").strip().split()[-1].replace("fa-", "")
+			icon = ICON_MAP.get(page_dict.get("icon").strip()) or ICON_MAP.get(raw)
 
-	# تحويل الأسماء القديمة ورموز الخطوط إلى أيقونات Lucide
-	if "bags-shopping" in icon:
-		icon = "shopping-bag"
-	elif "calculator" in icon:
-		icon = "wallet"
-	elif "shopping-cart" in icon or "cart" in icon:
-		icon = "shopping-cart"
-	elif "boxes" in icon:
-		icon = "package"
-	elif icon in ICON_MAP:
-		icon = ICON_MAP[icon]
-
-	# تحديد نوع الأيقونة (فونت أوسم أو لوسيد الحديث)
-	if icon.startswith("fa ") or icon.startswith("fal ") or icon.startswith("fas ") or icon.startswith("far "):
-		icon_type = "fa"
+		if not icon:
+			icon = "layout-grid"
 	else:
-		icon_type = "lucide"
+		# تحويل أي أسماء شائعة باقية
+		if "bags-shopping" in icon:
+			icon = "shopping-bag"
+		elif "calculator" in icon:
+			icon = "wallet"
+		elif "shopping-cart" in icon or "cart" in icon:
+			icon = "shopping-cart"
+		elif "boxes" in icon:
+			icon = "package"
+		elif icon in ICON_MAP:
+			icon = ICON_MAP[icon]
 
 	page_dict["icon"] = icon
-	page_dict["icon_type"] = icon_type
+	page_dict["icon_type"] = "lucide"
 
 
 @frappe.whitelist()

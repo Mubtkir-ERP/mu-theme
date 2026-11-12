@@ -8,11 +8,6 @@ frappe.ui.form.on("Theme Settings", {
 		}
 		if (!frm.doc.email) frm.set_value("email", "sales@mubtkir.com");
 		if (!frm.doc.website) frm.set_value("website", "www.mubtkir.com");
-
-		// Sync all custom HTML blocks into database so they always exist and appear in dropdown
-		frappe.call({
-			method: "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.sync_custom_html_blocks",
-		});
 	},
 	refresh: function (frm) {
 		if (!frm.doc.phone || frm.doc.phone === "0115110455") {
@@ -42,6 +37,26 @@ frappe.ui.form.on("Theme Settings", {
 			  ];
 
 		frm.set_df_property("skin", "options", skin_options);
+
+		// Manual button to sync and update all custom HTML blocks
+		const syncBlocksLabel = isAr ? "🔄 تحديث كتل الثيم" : "🔄 Sync Theme Blocks";
+		frm.add_custom_button(syncBlocksLabel, function () {
+			frappe.call({
+				method: "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.sync_custom_html_blocks",
+				freeze: true,
+				freeze_message: isAr ? "جاري مزامنة وتحديث كتل الثيم..." : "Syncing theme custom blocks...",
+				callback: function (r) {
+					if (!r.exc) {
+						frappe.show_alert({
+							message: isAr
+								? "تم تحديث كتل الثيم بنجاح في قاعدة البيانات!"
+								: "Theme blocks updated successfully in database!",
+							indicator: "green",
+						});
+					}
+				},
+			});
+		});
 
 		// Button to load and persist default workspace block mappings into table
 		const loadDefaultsLabel = isAr ? "📥 ملء وحفظ التوزيع الافتراضي" : "📥 Load Default Mappings";
