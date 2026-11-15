@@ -3,36 +3,56 @@
    ========================================================= */
 
 /* 1. Sidebar Menu Icon & Text Color Synchronization (100% Match) */
-.side-menu__link,
-.side-menu__link .side-menu__link__title,
-.side-menu__link .side-menu__link__icon,
+/* Dark-sidebar skins (Razor & Shuriken) */
 .razor .side-menu__link,
 .razor .side-menu__link .side-menu__link__title,
 .razor .side-menu__link .side-menu__link__icon,
-.exort .side-menu__link,
 .shuriken .side-menu__link,
-.viper .side-menu__link {
-  color: rgba(255, 255, 255, 0.75) !important;
-  stroke: rgba(255, 255, 255, 0.75) !important;
+.shuriken .side-menu__link .side-menu__link__title,
+.shuriken .side-menu__link .side-menu__link__icon {
+  color: rgba(255, 255, 255, 0.85) !important;
+  stroke: rgba(255, 255, 255, 0.85) !important;
   fill: none !important;
   opacity: 1 !important;
 }
 
-/* Light Skin (Echo) support */
+/* Light-sidebar skins (Echo, Exort, Viper) */
 .echo .side-menu__link,
 .echo .side-menu__link .side-menu__link__title,
-.echo .side-menu__link .side-menu__link__icon {
+.echo .side-menu__link .side-menu__link__icon,
+.exort .side-menu__link,
+.exort .side-menu__link .side-menu__link__title,
+.exort .side-menu__link .side-menu__link__icon,
+.viper .side-menu__link,
+.viper .side-menu__link .side-menu__link__title,
+.viper .side-menu__link .side-menu__link__icon {
   color: #334155 !important;
   stroke: #334155 !important;
   fill: none !important;
+  opacity: 1 !important;
 }
 
 .echo .side-menu__link:hover,
+.echo .side-menu__link:hover .side-menu__link__title,
+.echo .side-menu__link:hover .side-menu__link__icon,
 .echo .side-menu__link--active,
 .echo .side-menu__link--active .side-menu__link__title,
-.echo .side-menu__link--active .side-menu__link__icon {
-  color: var(--brand-primary, #3867ae) !important;
-  stroke: var(--brand-primary, #3867ae) !important;
+.echo .side-menu__link--active .side-menu__link__icon,
+.exort .side-menu__link:hover,
+.exort .side-menu__link:hover .side-menu__link__title,
+.exort .side-menu__link:hover .side-menu__link__icon,
+.exort .side-menu__link--active,
+.exort .side-menu__link--active .side-menu__link__title,
+.exort .side-menu__link--active .side-menu__link__icon,
+.viper .side-menu__link:hover,
+.viper .side-menu__link:hover .side-menu__link__title,
+.viper .side-menu__link:hover .side-menu__link__icon,
+.viper .side-menu__link--active,
+.viper .side-menu__link--active .side-menu__link__title,
+.viper .side-menu__link--active .side-menu__link__icon {
+  color: var(--primary, #3867ae) !important;
+  stroke: var(--primary, #3867ae) !important;
+  opacity: 1 !important;
 }
 
 /* Lucide SVGs & All Icons: match text stroke, color and full opacity */
@@ -50,44 +70,34 @@
   opacity: 1 !important;
 }
 
-/* Sub-menu items (Child workspaces like المدفوعات, المقبوضات, التقارير المالية) */
-.side-menu ul.scrollable > li ul .side-menu__link,
-.side-menu ul.scrollable > li ul .side-menu__link .side-menu__link__title,
-.side-menu ul.scrollable > li ul .side-menu__link .side-menu__link__icon {
-  color: rgba(255, 255, 255, 0.75) !important;
-  stroke: rgba(255, 255, 255, 0.75) !important;
-  opacity: 1 !important;
+.side-menu__link__icon svg * {
+  stroke: currentColor !important;
 }
 
-/* Hover, Active & Expanded Dropdown States: Crisp Pure White for BOTH text and icon */
-.side-menu__link:hover,
-.side-menu__link:hover .side-menu__link__title,
-.side-menu__link:hover .side-menu__link__icon,
-.side-menu__link--active,
-.side-menu__link--active .side-menu__link__title,
-.side-menu__link--active .side-menu__link__icon,
-.side-menu__link--active-dropdown,
-.side-menu__link--active-dropdown .side-menu__link__title,
-.side-menu__link--active-dropdown .side-menu__link__icon,
-.side-menu ul.scrollable > li > .side-menu__link--active,
-.side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__title,
-.side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__icon,
-.side-menu ul.scrollable > li ul .side-menu__link:hover,
-.side-menu ul.scrollable > li ul .side-menu__link:hover .side-menu__link__title,
-.side-menu ul.scrollable > li ul .side-menu__link:hover .side-menu__link__icon {
+/* Hover, Active & Expanded Dropdown States for Dark Skins: Crisp Pure White for BOTH text and icon */
+.razor .side-menu__link:hover,
+.razor .side-menu__link:hover .side-menu__link__title,
+.razor .side-menu__link:hover .side-menu__link__icon,
+.razor .side-menu__link--active,
+.razor .side-menu__link--active .side-menu__link__title,
+.razor .side-menu__link--active .side-menu__link__icon,
+.razor .side-menu__link--active-dropdown,
+.razor .side-menu__link--active-dropdown .side-menu__link__title,
+.razor .side-menu__link--active-dropdown .side-menu__link__icon,
+.razor .side-menu ul.scrollable > li > .side-menu__link--active,
+.razor .side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__title,
+.razor .side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__icon,
+.razor .side-menu ul.scrollable > li ul .side-menu__link:hover,
+.razor .side-menu ul.scrollable > li ul .side-menu__link:hover .side-menu__link__title,
+.razor .side-menu ul.scrollable > li ul .side-menu__link:hover .side-menu__link__icon,
+.shuriken .side-menu__link:hover,
+.shuriken .side-menu__link:hover .side-menu__link__title,
+.shuriken .side-menu__link:hover .side-menu__link__icon,
+.shuriken .side-menu__link--active,
+.shuriken .side-menu__link--active .side-menu__link__title,
+.shuriken .side-menu__link--active .side-menu__link__icon {
   color: #ffffff !important;
   stroke: #ffffff !important;
-  opacity: 1 !important;
-}
-
-.side-menu__link:hover .side-menu__link__icon svg,
-.side-menu__link--active .side-menu__link__icon svg,
-.side-menu__link--active-dropdown .side-menu__link__icon svg,
-.side-menu ul.scrollable > li > .side-menu__link--active .side-menu__link__icon svg,
-.side-menu ul.scrollable > li ul .side-menu__link:hover .side-menu__link__icon svg {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
-  stroke-width: 1.8 !important;
   opacity: 1 !important;
 }
 
