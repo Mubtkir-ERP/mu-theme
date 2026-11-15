@@ -22,10 +22,12 @@ app_include_css = [
     "nxt_theme.bundle.css",
     "/assets/nxt_theme/css/mubtkir_responsive.css",
     "/assets/nxt_theme/css/nxt_style.css",
+    "/assets/nxt_theme/css/full_width.css",
 ]
 app_include_js = [
     "nxt_theme.bundle.js",
-    "/assets/nxt_theme/js/stock_entry_type_arabic.js"
+    "/assets/nxt_theme/js/stock_entry_type_arabic.js",
+    "/assets/nxt_theme/js/full_width.js",
 ]
 
 extend_bootinfo = "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.boot_session"
