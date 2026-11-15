@@ -477,8 +477,13 @@ def apply_all_blocks_to_workspaces(auto_run=False):
 		# التأكد من إدراج كافة مساحات العمل الافتراضية الموجودة في النظام حتى لو كانت ناقصة من الجدول المحفوظ سابقاً (مثل Gas Operations)
 		try:
 			default_mappings = get_default_workspace_mappings_data()
+			all_saved_rows = frappe.get_all(
+				"Theme Workspace Mapping",
+				filters={"parent": "Theme Settings"},
+				fields=["workspace"],
+			)
 			mapped_actual_workspaces = set()
-			for r in table_mappings:
+			for r in all_saved_rows:
 				act = get_actual_workspace_name(r.get("workspace"))
 				if act:
 					mapped_actual_workspaces.add(act)

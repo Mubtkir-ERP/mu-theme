@@ -38,26 +38,6 @@ frappe.ui.form.on("Theme Settings", {
 
 		frm.set_df_property("skin", "options", skin_options);
 
-		// Manual button to sync and update all custom HTML blocks
-		const syncBlocksLabel = isAr ? "🔄 تحديث كتل الثيم" : "🔄 Sync Theme Blocks";
-		frm.add_custom_button(syncBlocksLabel, function () {
-			frappe.call({
-				method: "nxt_theme.nxt_theme.doctype.theme_settings.theme_settings.sync_custom_html_blocks",
-				freeze: true,
-				freeze_message: isAr ? "جاري مزامنة وتحديث كتل الثيم..." : "Syncing theme custom blocks...",
-				callback: function (r) {
-					if (!r.exc) {
-						frappe.show_alert({
-							message: isAr
-								? "تم تحديث كتل الثيم بنجاح في قاعدة البيانات!"
-								: "Theme blocks updated successfully in database!",
-							indicator: "green",
-						});
-					}
-				},
-			});
-		});
-
 		// Button to load and persist default workspace block mappings into table
 		const loadDefaultsLabel = isAr ? "📥 ملء وحفظ التوزيع الافتراضي" : "📥 Load Default Mappings";
 		frm.add_custom_button(loadDefaultsLabel, function () {
