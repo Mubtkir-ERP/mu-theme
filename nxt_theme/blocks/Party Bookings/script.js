@@ -21,6 +21,43 @@
   const isArabic = String(langValue).toLowerCase().startsWith("ar");
 
   /* ─────────────────────────────────────────
+     ١. البطاقات الإحصائية (Statistics)
+  ───────────────────────────────────────── */
+
+  const statsCards = [
+    {
+      id: "total-bookings",
+      icon: "🎉",
+      labelEn: "Total Bookings",
+      labelAr: "إجمالي الحجوزات",
+      doctype: "Party Booking"
+    },
+    {
+      id: "confirmed-bookings",
+      icon: "📅",
+      labelEn: "Confirmed Bookings",
+      labelAr: "الحجوزات المعتمدة",
+      doctype: "Party Booking",
+      filters: { docstatus: 1 }
+    },
+    {
+      id: "asset-returns",
+      icon: "🔄",
+      labelEn: "Asset Returns",
+      labelAr: "إرجاع الأصول",
+      doctype: "Party Asset Return"
+    },
+    {
+      id: "total-assets",
+      icon: "📦",
+      labelEn: "Total Assets",
+      labelAr: "إجمالي الأصول",
+      doctype: "Asset"
+    }
+  ];
+
+
+  /* ─────────────────────────────────────────
      ١. أزرار الوصول السريع (Your Shortcuts)
   ───────────────────────────────────────── */
 
@@ -30,6 +67,14 @@
       labelAr: "حجوزات الحفلات",
       doctype: "Party Booking",
       color: "#059669"
+    },
+    {
+      labelEn: "Order Tracking Kanban",
+      labelAr: "كانبان تتبع الطلبات",
+      doctype: "Party Booking",
+      view: "Kanban",
+      kanban_board: "Party Booking Status",
+      color: "#2563eb"
     },
     {
       labelEn: "Party Asset Return",
@@ -73,7 +118,8 @@
           "Settings & Masters",
           "⚙️",
           [
-            "Assets"
+            "Assets",
+            "Event Type"
           ]
         ]
       ]
@@ -114,7 +160,8 @@
   const treeDocs = new Set([]);
 
   const customRoutes = {
-    "Assets": "List/Asset"
+    "Assets": "List/Asset",
+    "Order Tracking Kanban": "List/Party Booking/Kanban/Party Booking Status"
   };
 
   /* ─────────────────────────────────────────
@@ -137,6 +184,8 @@
     "Party Booking": "حجز حفلة / فعالية",
     "Party Asset Return": "إرجاع أصول الحفلة",
     "Assets": "الأصول والتجهيزات",
+    "Event Type": "نوع الحفلة / الفعالية",
+    "Order Tracking Kanban": "كانبان تتبع الطلبات",
 
     "Party Bookings Report": "تقرير حجوزات الحفلات",
     "Asset Utilization Report": "تقرير استغلال الأصول",
@@ -200,6 +249,21 @@
         "Track asset status, maintenance readiness, and availability",
         "Save asset to enable reservation in party booking orders"
       ]
+    },
+    "Event Type": {
+      icon: "🎉",
+      summaryAr: "تعريف وإدارة أنواع الحفلات والمناسبات (أعراس، تخرج، مؤتمرات، أعياد ميلاد) وتحديد إعداداتها.",
+      summaryEn: "Define and manage party and event categories (weddings, graduations, corporate events) and presets.",
+      stepsAr: [
+        "إدخال مسمى نوع الحفل أو الفعالية",
+        "تحديد الوصف والملاحظات العامة المرتبطة بالنوع",
+        "حفظ السجل ليكون متاحاً في خيارات حجز الحفلات"
+      ],
+      stepsEn: [
+        "Enter event or party category title",
+        "Set general description and default requirements",
+        "Save record to be available during party booking"
+      ]
     }
   };
 
@@ -229,6 +293,56 @@
   /* ─────────────────────────────────────────
      ٧. نافذة التفاصيل المنبثقة القياسية المعتمدة
   ───────────────────────────────────────── */
+
+  
+  function formatNumber(num) {
+    const val = Number(num);
+    if (Number.isNaN(val)) return "0";
+    return val.toLocaleString(isArabic ? "ar-SA" : "en-US");
+  }
+
+  function renderStats() {
+    if (!statsSection) return;
+
+    const title = isArabic ? "الإحصائيات" : "Statistics";
+
+    statsSection.innerHTML = `
+      <h2 class="erp-section-title">${escapeHtml(title)}</h2>
+      <div class="erp-stats-grid">
+        ${statsCards.map(card => {
+          const label = isArabic ? card.labelAr : card.labelEn;
+          return `
+            <div class="erp-stat-card">
+              <div class="erp-stat-icon">${card.icon}</div>
+              <div class="erp-stat-info">
+                <span class="erp-stat-value" data-stat-id="${card.id}">...</span>
+                <span class="erp-stat-label">${escapeHtml(label)}</span>
+              </div>
+            </div>`;
+        }).join("")}
+      </div>
+    `;
+
+    if (!window.frappe) return;
+
+    statsCards.forEach(card => {
+      frappe.call({
+        method: "frappe.client.get_count",
+        args: {
+          doctype: card.doctype,
+          filters: card.filters || {}
+        },
+        callback: r => {
+          const el = statsSection.querySelector(`[data-stat-id="${card.id}"]`);
+          if (el) el.textContent = formatNumber(r.message || 0);
+        },
+        error: () => {
+          const el = statsSection.querySelector(`[data-stat-id="${card.id}"]`);
+          if (el) el.textContent = "0";
+        }
+      });
+    });
+  }
 
   function showInfoModal(itemName) {
     const desc = itemDescriptions[itemName];
@@ -353,6 +467,10 @@
       const item = quickActionButtons[idx];
       if (!item) return;
 
+      if (item.view === "Kanban" && item.kanban_board) {
+        frappe.set_route("List", item.doctype, "Kanban", item.kanban_board);
+        return;
+      }
       if (item.route) {
         frappe.set_route(item.route);
         return;
@@ -569,6 +687,7 @@
      ١٣. بدء التشغيل
   ───────────────────────────────────────── */
 
+  renderStats();
   renderQuickActions();
   renderSections();
   renderFooter();

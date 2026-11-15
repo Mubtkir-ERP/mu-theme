@@ -546,17 +546,17 @@
 
 
         [
-
           "Reports",
-
           "📊",
-
           [
-
-            "WhatsApp Scheduled Report"
-
+            "WhatsApp Scheduled Report",
+            "WhatsApp Delivery Summary",
+            "Failed WhatsApp Messages",
+            "WhatsApp Instance Health",
+            "WhatsApp Notification Audit",
+            "WhatsApp Inbound Engagement",
+            "Bulk WhatsApp Status"
           ]
-
         ],
 
 
@@ -743,9 +743,31 @@
 
     "WhatsApp Settings":
 
-      "إعدادات واتساب"
+      "إعدادات واتساب",
 
+    "WhatsApp Delivery Summary":
 
+      "ملخص تسليم رسائل واتساب",
+
+    "Failed WhatsApp Messages":
+
+      "رسائل واتساب الفاشلة",
+
+    "WhatsApp Instance Health":
+
+      "حالة واتصال أرقام واتساب",
+
+    "WhatsApp Notification Audit":
+
+      "تدقيق إشعارات وتنبيهات واتساب",
+
+    "WhatsApp Inbound Engagement":
+
+      "تفاعل الرسائل الواردة",
+
+    "Bulk WhatsApp Status":
+
+      "حالة حملات الرسائل الجماعية"
 
   };
 
@@ -779,7 +801,19 @@
 
     new Set([
 
-      "WhatsApp Scheduled Report"
+      "WhatsApp Scheduled Report",
+
+      "WhatsApp Delivery Summary",
+
+      "Failed WhatsApp Messages",
+
+      "WhatsApp Instance Health",
+
+      "WhatsApp Notification Audit",
+
+      "WhatsApp Inbound Engagement",
+
+      "Bulk WhatsApp Status"
 
     ]);
 

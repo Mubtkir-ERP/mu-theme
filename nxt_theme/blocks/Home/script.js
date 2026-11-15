@@ -48,6 +48,13 @@
     .toLowerCase()
     .startsWith("ar");
 
+  const hasVoucherApp = Boolean(
+    (window.frappe?.boot?.versions && (frappe.boot.versions.voucher_management || frappe.boot.versions.mu_voucher_management)) ||
+    (window.frappe?.model && typeof frappe.model.can_read === "function" && frappe.model.can_read("Vouchers Entry")) ||
+    (Array.isArray(window.frappe?.boot?.all_doctypes) && frappe.boot.all_doctypes.includes("Vouchers Entry")) ||
+    (Array.isArray(window.frappe?.boot?.user?.can_read) && frappe.boot.user.can_read.includes("Vouchers Entry"))
+  );
+
   root.setAttribute(
     "dir",
     isArabic ? "rtl" : "ltr"
@@ -1341,7 +1348,7 @@
 
         {
           doctype:
-            "Payment Entry",
+            hasVoucherApp ? "Vouchers Entry" : "Payment Entry",
 
           icon:
             "💰",
@@ -1350,7 +1357,7 @@
             "سندات القبض والصرف",
 
           labelEn:
-            "Payment Entry",
+            hasVoucherApp ? "Vouchers Entry" : "Payment Entry",
 
           cf: {
             docstatus: 0
@@ -1359,25 +1366,41 @@
           sfx:
             null,
 
-          dAr:
-            "تسجيل المدفوعات الواردة والصادرة مع ربطها بالفواتير تلقائياً.",
+          dAr: hasVoucherApp
+            ? "تسجيل وإدارة سندات القبض والصرف مع ربط الحسابات وطرق الدفع تلقائياً."
+            : "تسجيل المدفوعات الواردة والصادرة مع ربطها بالفواتير تلقائياً.",
 
-          dEn:
-            "Record incoming/outgoing payments with auto invoice linking.",
+          dEn: hasVoucherApp
+            ? "Manage and record payment/receipt vouchers with accounts and payment modes."
+            : "Record incoming/outgoing payments with auto invoice linking.",
 
-          sAr: [
-            "اضغط «سند قبض او صرف جديد»",
-            "اختر النوع والطرف",
-            "أدخل المبلغ واختر الفواتير",
-            "اضغط «حفظ» ثم «تسجيل»"
-          ],
+          sAr: hasVoucherApp
+            ? [
+                "اضغط «سند قبض أو صرف جديد»",
+                "اختر نوع السند (قبض / صرف) والطرف",
+                "أدخل المبلغ وطريقة الدفع والحساب",
+                "اضغط «حفظ» ثم «تسجيل»"
+              ]
+            : [
+                "اضغط «سند قبض او صرف جديد»",
+                "اختر النوع والطرف",
+                "أدخل المبلغ واختر الفواتير",
+                "اضغط «حفظ» ثم «تسجيل»"
+              ],
 
-          sEn: [
-            "Click «New Payment Entry»",
-            "Select type and party",
-            "Enter amount and select invoices",
-            "Click «Save» then «Submit»"
-          ]
+          sEn: hasVoucherApp
+            ? [
+                "Click «New Vouchers Entry»",
+                "Select voucher type (Receipt / Payment) and party",
+                "Enter amount, payment mode, and account",
+                "Click «Save» then «Submit»"
+              ]
+            : [
+                "Click «New Payment Entry»",
+                "Select type and party",
+                "Enter amount and select invoices",
+                "Click «Save» then «Submit»"
+              ]
         },
 
         {
