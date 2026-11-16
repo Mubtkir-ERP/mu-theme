@@ -231,3 +231,48 @@ html.nxt-font-xl {
   font-size: 19.43px !important; /* ~17px base body */
 }
 
+html.nxt-font-medium,
+html.nxt-font-large,
+html.nxt-font-xl,
+html.nxt-font-medium body,
+html.nxt-font-large body,
+html.nxt-font-xl body {
+  --text-xs: 0.72rem;
+  --text-sm: 0.8rem;
+  --text-md: 0.85rem;
+  --text-base: 0.9rem;
+  --text-lg: 1.05rem;
+  --text-xl: 1.15rem;
+  --text-2xl: 1.35rem;
+}
+
+html.nxt-font-medium .control-label,
+html.nxt-font-large .control-label,
+html.nxt-font-xl .control-label,
+html.nxt-font-medium .checkbox .label-area,
+html.nxt-font-large .checkbox .label-area,
+html.nxt-font-xl .checkbox .label-area,
+html.nxt-font-medium .form-tabs-list .nav-link,
+html.nxt-font-large .form-tabs-list .nav-link,
+html.nxt-font-xl .form-tabs-list .nav-link,
+html.nxt-font-medium .list-row,
+html.nxt-font-large .list-row,
+html.nxt-font-xl .list-row,
+html.nxt-font-medium .list-row-head,
+html.nxt-font-large .list-row-head,
+html.nxt-font-xl .list-row-head,
+html.nxt-font-medium .standard-sidebar .sidebar-item-label,
+html.nxt-font-large .standard-sidebar .sidebar-item-label,
+html.nxt-font-xl .standard-sidebar .sidebar-item-label,
+html.nxt-font-medium .btn,
+html.nxt-font-large .btn,
+html.nxt-font-xl .btn {
+  font-size: var(--text-sm) !important;
+}
+
+html.nxt-font-medium .section-head,
+html.nxt-font-large .section-head,
+html.nxt-font-xl .section-head {
+  font-size: var(--text-base) !important;
+}
+
