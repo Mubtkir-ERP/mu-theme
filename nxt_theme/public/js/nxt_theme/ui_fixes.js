@@ -24,7 +24,25 @@ import { unlockBodyScrollIfNoModal } from "./modal_utils";
 		}
 	}
 
+	function apply_font_size(size) {
+		const html = document.documentElement;
+		if (!html) return;
+		html.classList.remove("nxt-font-medium", "nxt-font-large", "nxt-font-xl");
+		if (size === "medium") html.classList.add("nxt-font-medium");
+		else if (size === "large") html.classList.add("nxt-font-large");
+		else if (size === "extra_large") html.classList.add("nxt-font-xl");
+	}
+	window.nxt_apply_font_size = apply_font_size;
+
+	if (window.frappe && frappe.boot && frappe.boot.theme_settings) {
+		apply_font_size(frappe.boot.theme_settings.font_size || "default");
+	}
+
 	function add_export_blocks_button() {
+		if (!window.frappe || frappe.session.user !== "Administrator") {
+			$(".btn-export-all-blocks, .btn-sync-all-blocks").remove();
+			return;
+		}
 		const route = frappe.get_route ? frappe.get_route() : [];
 		if (route[0] === "List" && route[1] === "Custom HTML Block") {
 			if ($(".btn-export-all-blocks").length) return;
@@ -101,6 +119,9 @@ import { unlockBodyScrollIfNoModal } from "./modal_utils";
 	}
 
 	$(document).ready(function () {
+		if (window.frappe && frappe.boot && frappe.boot.theme_settings) {
+			apply_font_size(frappe.boot.theme_settings.font_size || "default");
+		}
 		if (window.frappe && frappe.router && frappe.router.on) {
 			frappe.router.on("change", function () {
 				setTimeout(unlock_scroll, 300);

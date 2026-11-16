@@ -38,6 +38,39 @@ frappe.ui.form.on("Theme Settings", {
 
 		frm.set_df_property("skin", "options", skin_options);
 
+		const font_size_options = isAr
+			? [
+				{ value: "default", label: "الافتراضي (14px)" },
+				{ value: "medium", label: "متوسط (15px)" },
+				{ value: "large", label: "كبير (16px)" },
+				{ value: "extra_large", label: "كبير جداً (17px)" },
+			  ]
+			: [
+				{ value: "default", label: "Default (14px)" },
+				{ value: "medium", label: "Medium (15px)" },
+				{ value: "large", label: "Large (16px)" },
+				{ value: "extra_large", label: "Extra Large (17px)" },
+			  ];
+
+		frm.set_df_property("font_size", "options", font_size_options);
+
+		const isAdministrator = frappe.session.user === "Administrator";
+		frm.toggle_display(
+			[
+				"section_break_contact",
+				"phone",
+				"email",
+				"website",
+				"section_break_workspaces",
+				"workspace_mappings",
+			],
+			isAdministrator
+		);
+
+		if (!isAdministrator) {
+			return;
+		}
+
 		// Button to load and persist default workspace block mappings into table
 		const loadDefaultsLabel = isAr ? "📥 ملء وحفظ التوزيع الافتراضي" : "📥 Load Default Mappings";
 		frm.add_custom_button(loadDefaultsLabel, function () {
@@ -140,6 +173,13 @@ frappe.ui.form.on("Theme Settings", {
 		).addClass("btn-primary");
 	},
 	after_save: function (frm) {
+		const selectedSize = frm.doc.font_size || "default";
+		if (window.frappe && frappe.boot && frappe.boot.theme_settings) {
+			frappe.boot.theme_settings.font_size = selectedSize;
+		}
+		if (window.nxt_apply_font_size) {
+			window.nxt_apply_font_size(selectedSize);
+		}
 		frappe.ui.toolbar.clear_cache();
 	},
 });

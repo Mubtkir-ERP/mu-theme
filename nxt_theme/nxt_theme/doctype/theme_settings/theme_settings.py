@@ -20,6 +20,12 @@ def check_admin_permission():
 	frappe.throw(_("Only Administrator or System Manager can perform this action"), frappe.PermissionError)
 
 
+def check_super_admin_only():
+	if frappe.session.user == "Administrator":
+		return
+	frappe.throw(_("Only Administrator can perform this action"), frappe.PermissionError)
+
+
 class ThemeSettings(Document):
 	def validate(self):
 		check_admin_permission()
@@ -43,6 +49,7 @@ def boot_session(bootinfo):
 			"email": doc.email or DEFAULT_EMAIL,
 			"website": doc.website or DEFAULT_WEBSITE,
 			"skin": doc.skin or "razor",
+			"font_size": doc.get("font_size") or "default",
 		}
 	except Exception:
 		bootinfo.theme_settings = {
@@ -50,6 +57,7 @@ def boot_session(bootinfo):
 			"email": DEFAULT_EMAIL,
 			"website": DEFAULT_WEBSITE,
 			"skin": "razor",
+			"font_size": "default",
 		}
 
 
@@ -408,7 +416,7 @@ def get_default_workspace_mappings():
 @frappe.whitelist()
 def reload_default_workspace_mappings():
 	"""إعادة ملء وحفظ التوزيع الافتراضي للكتل على مساحات العمل في قاعدة البيانات وتحديث النموذج"""
-	check_admin_permission()
+	check_super_admin_only()
 
 	sync_custom_html_blocks()
 	doc = frappe.get_doc("Theme Settings")
@@ -428,7 +436,7 @@ def reload_default_workspace_mappings():
 @frappe.whitelist()
 def apply_all_blocks_to_workspaces(auto_run=False):
 	if not auto_run:
-		check_admin_permission()
+		check_super_admin_only()
 
 	blocks_json_path = os.path.join(
 		frappe.get_app_path("nxt_theme"), "public", "blocks", "all_blocks.json"

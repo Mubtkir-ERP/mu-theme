@@ -8,6 +8,7 @@
   "section_break_zuvh",
   "title",
   "skin",
+  "font_size",
   "column_break_czh4",
   "primary_color",
   "secondary_color",
@@ -36,6 +37,13 @@
    "fieldtype": "Select",
    "label": "Skin",
    "options": "razor\necho\nexort\nviper\nshuriken"
+  },
+  {
+   "default": "default",
+   "fieldname": "font_size",
+   "fieldtype": "Select",
+   "label": "Font Size",
+   "options": "default\nmedium\nlarge\nextra_large"
   },
   {
    "fieldname": "column_break_czh4",
