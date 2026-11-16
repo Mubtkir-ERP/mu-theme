@@ -219,16 +219,23 @@
 }
 
 /* 2. Global Optional Font Size Scaling (Controlled via Theme Settings) */
+html {
+  --nxt-font-scale: 1;
+}
+
 html.nxt-font-medium {
   font-size: 17.14px !important; /* ~15px base body */
+  --nxt-font-scale: 1.0714;
 }
 
 html.nxt-font-large {
   font-size: 18.28px !important; /* ~16px base body */
+  --nxt-font-scale: 1.1428;
 }
 
 html.nxt-font-xl {
   font-size: 19.43px !important; /* ~17px base body */
+  --nxt-font-scale: 1.2143;
 }
 
 html.nxt-font-medium,

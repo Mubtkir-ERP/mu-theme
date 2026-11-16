@@ -192,7 +192,7 @@
   color:
     var(--brand-text) !important;
 
-  font-size: 18px;
+  font-size: calc(18px * var(--nxt-font-scale, 1));
   font-weight: 700;
 
   line-height: 1.4;
@@ -467,7 +467,7 @@
   color:
     #ffffff !important;
 
-  font-size: 18px;
+  font-size: calc(18px * var(--nxt-font-scale, 1));
   font-weight: 800;
 
   line-height: 1;
@@ -492,7 +492,7 @@
   color:
     var(--brand-text) !important;
 
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--nxt-font-scale, 1));
   font-weight: 800;
 
   line-height: 1.45;
@@ -512,7 +512,7 @@
   color:
     var(--brand-muted) !important;
 
-  font-size: 10.5px;
+  font-size: calc(10.5px * var(--nxt-font-scale, 1));
   font-weight: 500;
 
   line-height: 1.65;
@@ -584,7 +584,7 @@
   color:
     var(--brand-primary) !important;
 
-  font-size: 20px;
+  font-size: calc(20px * var(--nxt-font-scale, 1));
   font-weight: 800;
 
   line-height: 1;
@@ -734,7 +734,7 @@
   color:
     var(--brand-primary) !important;
 
-  font-size: 11px !important;
+  font-size: calc(11px * var(--nxt-font-scale, 1)) !important;
   font-weight: 800;
 
   letter-spacing: 0.4px;
@@ -811,7 +811,7 @@
     var(--brand-text) !important;
 
   font-size:
-    20px !important;
+    calc(20px * var(--nxt-font-scale, 1)) !important;
 
   font-weight:
     800 !important;
@@ -830,7 +830,7 @@
     var(--brand-text) !important;
 
   font-size:
-    12px !important;
+    calc(12px * var(--nxt-font-scale, 1)) !important;
 
   font-weight:
     600 !important;
@@ -913,7 +913,7 @@
 
   font-family: inherit;
 
-  font-size: 15px;
+  font-size: calc(15px * var(--nxt-font-scale, 1));
   font-weight: 700;
 
   line-height: 1.4;
@@ -1312,7 +1312,7 @@
     var(--erp-soft);
 
   font-size:
-    17px;
+    calc(17px * var(--nxt-font-scale, 1));
 }
 
 
@@ -1331,7 +1331,7 @@
     var(--brand-text) !important;
 
   font-size:
-    16px;
+    calc(16px * var(--nxt-font-scale, 1));
 
   font-weight:
     800;
@@ -1368,7 +1368,7 @@
     var(--erp-accent) !important;
 
   font-size:
-    17px;
+    calc(17px * var(--nxt-font-scale, 1));
 
   transition:
     transform 0.22s ease;
@@ -1495,7 +1495,7 @@
   font-family: inherit;
 
   font-size:
-    13px;
+    calc(13px * var(--nxt-font-scale, 1));
 
   font-weight:
     500;
@@ -1576,7 +1576,7 @@
     var(--erp-accent) !important;
 
   font-size:
-    13px;
+    calc(13px * var(--nxt-font-scale, 1));
 
   font-weight:
     800;
@@ -1628,7 +1628,7 @@
     inherit;
 
   font-size:
-    12px;
+    calc(12px * var(--nxt-font-scale, 1));
 
   font-weight:
     600;
@@ -1689,7 +1689,7 @@
 .erp-footer {
 
   --footer-font-size:
-    15px;
+    calc(15px * var(--nxt-font-scale, 1));
 
   margin-top:
     34px;
@@ -1754,7 +1754,7 @@
     var(--brand-primary) !important;
 
   font-size:
-    17px !important;
+    calc(17px * var(--nxt-font-scale, 1)) !important;
 
   line-height:
     1;
@@ -1808,7 +1808,7 @@
     var(--brand-border-strong) !important;
 
   font-size:
-    20px;
+    calc(20px * var(--nxt-font-scale, 1));
 
   font-weight:
     300;
@@ -1936,7 +1936,7 @@
     var(--brand-primary) !important;
 
   font-size:
-    15px;
+    calc(15px * var(--nxt-font-scale, 1));
 
   cursor:
     pointer;
@@ -1977,7 +1977,7 @@
 .erp-modal-icon {
 
   font-size:
-    28px;
+    calc(28px * var(--nxt-font-scale, 1));
 
   line-height:
     1;
@@ -1992,7 +1992,7 @@
     var(--brand-text) !important;
 
   font-size:
-    18px;
+    calc(18px * var(--nxt-font-scale, 1));
 
   font-weight:
     800;
@@ -2008,7 +2008,7 @@
     var(--brand-text) !important;
 
   font-size:
-    13.5px;
+    calc(13.5px * var(--nxt-font-scale, 1));
 
   line-height:
     1.75;
@@ -2046,7 +2046,7 @@
     inherit;
 
   font-size:
-    12.5px;
+    calc(12.5px * var(--nxt-font-scale, 1));
 
   font-weight:
     700;
@@ -2126,7 +2126,7 @@
     var(--brand-text) !important;
 
   font-size:
-    12.5px;
+    calc(12.5px * var(--nxt-font-scale, 1));
 
   line-height:
     1.65;
@@ -2165,7 +2165,7 @@
     #ffffff;
 
   font-size:
-    10px;
+    calc(10px * var(--nxt-font-scale, 1));
 
   font-weight:
     800;
@@ -2410,21 +2410,21 @@ html[data-theme="dark"]
       10px;
 
     font-size:
-      15px;
+      calc(15px * var(--nxt-font-scale, 1));
   }
 
 
   .erp-cycle-card-title {
 
     font-size:
-      12px;
+      calc(12px * var(--nxt-font-scale, 1));
   }
 
 
   .erp-cycle-description {
 
     font-size:
-      9.5px;
+      calc(9.5px * var(--nxt-font-scale, 1));
 
     line-height:
       1.55;
@@ -2475,7 +2475,7 @@ html[data-theme="dark"]
       36px;
 
     font-size:
-      9px !important;
+      calc(9px * var(--nxt-font-scale, 1)) !important;
   }
 
 
@@ -2483,7 +2483,7 @@ html[data-theme="dark"]
   .erp-stat-card .erp-stat-value {
 
     font-size:
-      15px !important;
+      calc(15px * var(--nxt-font-scale, 1)) !important;
   }
 
 
@@ -2491,7 +2491,7 @@ html[data-theme="dark"]
   .erp-stat-card .erp-stat-label {
 
     font-size:
-      10px !important;
+      calc(10px * var(--nxt-font-scale, 1)) !important;
   }
 
 
@@ -2516,7 +2516,7 @@ html[data-theme="dark"]
       9px 7px;
 
     font-size:
-      11.5px;
+      calc(11.5px * var(--nxt-font-scale, 1));
   }
 
 
@@ -2544,7 +2544,7 @@ html[data-theme="dark"]
   .erp-footer {
 
     --footer-font-size:
-      13px;
+      calc(13px * var(--nxt-font-scale, 1));
 
     margin-top:
       26px;
@@ -2574,7 +2574,7 @@ html[data-theme="dark"]
   .erp-footer-icon {
 
     font-size:
-      15px !important;
+      calc(15px * var(--nxt-font-scale, 1)) !important;
   }
 
 
@@ -2786,7 +2786,7 @@ html[data-theme="dark"]
 
   .erp-stat-value,
   .erp-stat-card .erp-stat-value {
-    font-size: 18px !important;
+    font-size: calc(18px * var(--nxt-font-scale, 1)) !important;
     font-weight: 800 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -2796,7 +2796,7 @@ html[data-theme="dark"]
 
   .erp-stat-label,
   .erp-stat-card .erp-stat-label {
-    font-size: 12px !important;
+    font-size: calc(12px * var(--nxt-font-scale, 1)) !important;
     font-weight: 600 !important;
     white-space: normal !important;
     line-height: 1.4 !important;

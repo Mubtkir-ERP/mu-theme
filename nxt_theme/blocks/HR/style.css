@@ -386,7 +386,7 @@
 
 
 
-  font-size: 18px;
+  font-size: calc(18px * var(--nxt-font-scale, 1));
 
   font-weight: 700;
 
@@ -936,7 +936,7 @@
 
 
 
-  font-size: 18px;
+  font-size: calc(18px * var(--nxt-font-scale, 1));
 
   font-weight: 800;
 
@@ -986,7 +986,7 @@
 
 
 
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--nxt-font-scale, 1));
 
   font-weight: 800;
 
@@ -1026,7 +1026,7 @@
 
 
 
-  font-size: 10.5px;
+  font-size: calc(10.5px * var(--nxt-font-scale, 1));
 
   font-weight: 500;
 
@@ -1170,7 +1170,7 @@
 
 
 
-  font-size: 20px;
+  font-size: calc(20px * var(--nxt-font-scale, 1));
 
   font-weight: 800;
 
@@ -1470,7 +1470,7 @@
 
 
 
-  font-size: 11px !important;
+  font-size: calc(11px * var(--nxt-font-scale, 1)) !important;
 
   font-weight: 800;
 
@@ -1624,7 +1624,7 @@
 
   font-size:
 
-    20px !important;
+    calc(20px * var(--nxt-font-scale, 1)) !important;
 
 
 
@@ -1660,7 +1660,7 @@
 
   font-size:
 
-    12px !important;
+    calc(12px * var(--nxt-font-scale, 1)) !important;
 
 
 
@@ -1792,7 +1792,7 @@
 
 
 
-  font-size: 15px;
+  font-size: calc(15px * var(--nxt-font-scale, 1));
 
   font-weight: 700;
 
@@ -2590,7 +2590,7 @@
 
   font-size:
 
-    17px;
+    calc(17px * var(--nxt-font-scale, 1));
 
 }
 
@@ -2628,7 +2628,7 @@
 
   font-size:
 
-    16px;
+    calc(16px * var(--nxt-font-scale, 1));
 
 
 
@@ -2702,7 +2702,7 @@
 
   font-size:
 
-    17px;
+    calc(17px * var(--nxt-font-scale, 1));
 
 
 
@@ -2958,7 +2958,7 @@
 
   font-size:
 
-    13px;
+    calc(13px * var(--nxt-font-scale, 1));
 
 
 
@@ -3120,7 +3120,7 @@
 
   font-size:
 
-    13px;
+    calc(13px * var(--nxt-font-scale, 1));
 
 
 
@@ -3224,7 +3224,7 @@
 
   font-size:
 
-    12px;
+    calc(12px * var(--nxt-font-scale, 1));
 
 
 
@@ -3346,7 +3346,7 @@
 
   --footer-font-size:
 
-    15px;
+    calc(15px * var(--nxt-font-scale, 1));
 
 
 
@@ -3476,7 +3476,7 @@
 
   font-size:
 
-    17px !important;
+    calc(17px * var(--nxt-font-scale, 1)) !important;
 
 
 
@@ -3584,7 +3584,7 @@
 
   font-size:
 
-    20px;
+    calc(20px * var(--nxt-font-scale, 1));
 
 
 
@@ -3840,7 +3840,7 @@
 
   font-size:
 
-    15px;
+    calc(15px * var(--nxt-font-scale, 1));
 
 
 
@@ -3922,7 +3922,7 @@
 
   font-size:
 
-    28px;
+    calc(28px * var(--nxt-font-scale, 1));
 
 
 
@@ -3952,7 +3952,7 @@
 
   font-size:
 
-    18px;
+    calc(18px * var(--nxt-font-scale, 1));
 
 
 
@@ -3984,7 +3984,7 @@
 
   font-size:
 
-    13.5px;
+    calc(13.5px * var(--nxt-font-scale, 1));
 
 
 
@@ -4060,7 +4060,7 @@
 
   font-size:
 
-    12.5px;
+    calc(12.5px * var(--nxt-font-scale, 1));
 
 
 
@@ -4220,7 +4220,7 @@
 
   font-size:
 
-    12.5px;
+    calc(12.5px * var(--nxt-font-scale, 1));
 
 
 
@@ -4298,7 +4298,7 @@
 
   font-size:
 
-    10px;
+    calc(10px * var(--nxt-font-scale, 1));
 
 
 
@@ -4788,7 +4788,7 @@ html[data-theme="dark"]
 
     font-size:
 
-      15px;
+      calc(15px * var(--nxt-font-scale, 1));
 
   }
 
@@ -4802,7 +4802,7 @@ html[data-theme="dark"]
 
     font-size:
 
-      12px;
+      calc(12px * var(--nxt-font-scale, 1));
 
   }
 
@@ -4816,7 +4816,7 @@ html[data-theme="dark"]
 
     font-size:
 
-      9.5px;
+      calc(9.5px * var(--nxt-font-scale, 1));
 
 
 
@@ -4918,7 +4918,7 @@ html[data-theme="dark"]
 
     font-size:
 
-      9px !important;
+      calc(9px * var(--nxt-font-scale, 1)) !important;
 
   }
 
@@ -4934,7 +4934,7 @@ html[data-theme="dark"]
 
     font-size:
 
-      15px !important;
+      calc(15px * var(--nxt-font-scale, 1)) !important;
 
   }
 
@@ -4950,7 +4950,7 @@ html[data-theme="dark"]
 
     font-size:
 
-      10px !important;
+      calc(10px * var(--nxt-font-scale, 1)) !important;
 
   }
 
@@ -5000,7 +5000,7 @@ html[data-theme="dark"]
 
     font-size:
 
-      11.5px;
+      calc(11.5px * var(--nxt-font-scale, 1));
 
   }
 
@@ -5056,7 +5056,7 @@ html[data-theme="dark"]
 
     --footer-font-size:
 
-      13px;
+      calc(13px * var(--nxt-font-scale, 1));
 
 
 
@@ -5116,7 +5116,7 @@ html[data-theme="dark"]
 
     font-size:
 
-      15px !important;
+      calc(15px * var(--nxt-font-scale, 1)) !important;
 
   }
 
@@ -5269,7 +5269,7 @@ html[data-theme="dark"]
 
   .erp-stat-value,
   .erp-stat-card .erp-stat-value {
-    font-size: 18px !important;
+    font-size: calc(18px * var(--nxt-font-scale, 1)) !important;
     font-weight: 800 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -5279,7 +5279,7 @@ html[data-theme="dark"]
 
   .erp-stat-label,
   .erp-stat-card .erp-stat-label {
-    font-size: 12px !important;
+    font-size: calc(12px * var(--nxt-font-scale, 1)) !important;
     font-weight: 600 !important;
     white-space: normal !important;
     line-height: 1.4 !important;

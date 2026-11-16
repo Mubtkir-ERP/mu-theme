@@ -197,7 +197,7 @@
   background:
     var(--brand-soft);
 
-  font-size: 21px;
+  font-size: calc(21px * var(--nxt-font-scale, 1));
 }
 
 
@@ -259,7 +259,7 @@
     var(--brand-text) !important;
 
   font-size:
-    18px !important;
+    calc(18px * var(--nxt-font-scale, 1)) !important;
 
   font-weight:
     800 !important;
@@ -279,7 +279,7 @@
     var(--brand-text) !important;
 
   font-size:
-    11.5px !important;
+    calc(11.5px * var(--nxt-font-scale, 1)) !important;
 
   font-weight:
     600 !important;
@@ -325,7 +325,7 @@
   color:
     var(--brand-text) !important;
 
-  font-size: 18px;
+  font-size: calc(18px * var(--nxt-font-scale, 1));
 
   font-weight: 600;
 
@@ -408,7 +408,7 @@
 
   font-family: inherit;
 
-  font-size: 15px;
+  font-size: calc(15px * var(--nxt-font-scale, 1));
 
   font-weight: 700;
 
@@ -816,7 +816,7 @@
   color:
     var(--brand-text) !important;
 
-  font-size: 16px;
+  font-size: calc(16px * var(--nxt-font-scale, 1));
 
   font-weight: 800;
 
@@ -847,7 +847,7 @@
   color:
     var(--erp-accent) !important;
 
-  font-size: 17px;
+  font-size: calc(17px * var(--nxt-font-scale, 1));
 
   transition:
     transform 0.22s ease;
@@ -1003,7 +1003,7 @@
 
   font-family: inherit;
 
-  font-size: 13px;
+  font-size: calc(13px * var(--nxt-font-scale, 1));
 
   font-weight: 500;
 
@@ -1082,7 +1082,7 @@
   color:
     var(--erp-accent) !important;
 
-  font-size: 13px;
+  font-size: calc(13px * var(--nxt-font-scale, 1));
 
   font-weight: 800;
 
@@ -1127,7 +1127,7 @@
 
   font-family: inherit;
 
-  font-size: 12px;
+  font-size: calc(12px * var(--nxt-font-scale, 1));
 
   font-weight: 600;
 
@@ -1183,7 +1183,7 @@
 .erp-footer {
 
   /* غيّر هذه القيمة فقط */
-  --footer-font-size: 15px;
+  --footer-font-size: calc(15px * var(--nxt-font-scale, 1));
 
   margin-top: 34px;
 
@@ -1234,7 +1234,7 @@
 
 .erp-footer-icon {
   font-size:
-    17px !important;
+    calc(17px * var(--nxt-font-scale, 1)) !important;
 
   line-height: 1;
 }
@@ -1282,7 +1282,7 @@
   color:
     var(--brand-border-strong) !important;
 
-  font-size: 20px;
+  font-size: calc(20px * var(--nxt-font-scale, 1));
 
   font-weight: 300;
 
@@ -1400,7 +1400,7 @@
   color:
     var(--brand-primary) !important;
 
-  font-size: 15px;
+  font-size: calc(15px * var(--nxt-font-scale, 1));
 
   cursor: pointer;
 }
@@ -1434,7 +1434,7 @@
 
 
 .erp-modal-icon {
-  font-size: 28px;
+  font-size: calc(28px * var(--nxt-font-scale, 1));
 
   line-height: 1;
 }
@@ -1446,7 +1446,7 @@
   color:
     var(--brand-text) !important;
 
-  font-size: 18px;
+  font-size: calc(18px * var(--nxt-font-scale, 1));
 
   font-weight: 800;
 }
@@ -1459,7 +1459,7 @@
   color:
     var(--brand-text) !important;
 
-  font-size: 13.5px;
+  font-size: calc(13.5px * var(--nxt-font-scale, 1));
 
   line-height: 1.75;
 }
@@ -1492,7 +1492,7 @@
 
   font-family: inherit;
 
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--nxt-font-scale, 1));
 
   font-weight: 700;
 
@@ -1563,7 +1563,7 @@
   color:
     var(--brand-text) !important;
 
-  font-size: 12.5px;
+  font-size: calc(12.5px * var(--nxt-font-scale, 1));
 
   line-height: 1.65;
 }
@@ -1596,7 +1596,7 @@
   color:
     #ffffff;
 
-  font-size: 10px;
+  font-size: calc(10px * var(--nxt-font-scale, 1));
 
   font-weight: 800;
 }
@@ -1733,7 +1733,7 @@ html[data-theme="dark"]
     flex:
       0 0 36px;
 
-    font-size: 17px;
+    font-size: calc(17px * var(--nxt-font-scale, 1));
   }
 
 
@@ -1741,7 +1741,7 @@ html[data-theme="dark"]
   .erp-stat-card
   .erp-stat-value {
     font-size:
-      14px !important;
+      calc(14px * var(--nxt-font-scale, 1)) !important;
   }
 
 
@@ -1749,7 +1749,7 @@ html[data-theme="dark"]
   .erp-stat-card
   .erp-stat-label {
     font-size:
-      10px !important;
+      calc(10px * var(--nxt-font-scale, 1)) !important;
   }
 
 
@@ -1767,7 +1767,7 @@ html[data-theme="dark"]
     padding:
       9px 7px;
 
-    font-size: 11.5px;
+    font-size: calc(11.5px * var(--nxt-font-scale, 1));
   }
 
 
@@ -1788,7 +1788,7 @@ html[data-theme="dark"]
   /* Footer Mobile */
 
   .erp-footer {
-    --footer-font-size: 13px;
+    --footer-font-size: calc(13px * var(--nxt-font-scale, 1));
 
     margin-top: 26px;
 
@@ -1810,7 +1810,7 @@ html[data-theme="dark"]
 
   .erp-footer-icon {
     font-size:
-      15px !important;
+      calc(15px * var(--nxt-font-scale, 1)) !important;
   }
 
 
@@ -1888,7 +1888,7 @@ html[data-theme="dark"]
 
   .erp-stat-value,
   .erp-stat-card .erp-stat-value {
-    font-size: 18px !important;
+    font-size: calc(18px * var(--nxt-font-scale, 1)) !important;
     font-weight: 800 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -1898,7 +1898,7 @@ html[data-theme="dark"]
 
   .erp-stat-label,
   .erp-stat-card .erp-stat-label {
-    font-size: 12px !important;
+    font-size: calc(12px * var(--nxt-font-scale, 1)) !important;
     font-weight: 600 !important;
     white-space: normal !important;
     line-height: 1.4 !important;
