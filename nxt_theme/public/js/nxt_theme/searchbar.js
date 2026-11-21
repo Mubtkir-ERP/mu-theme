@@ -9,6 +9,9 @@ function closeSearchModal() {
 // Open through the Tailwise API (a no-op if already open thanks to the
 // [data-modal-replacer] guard), then focus the search input once visible.
 function openSearchModal() {
+    if (window.__ && $("#navbar-search").length) {
+        $("#navbar-search").attr("placeholder", __("Quick search..."));
+    }
     openTailwiseModal("#quick-search");
     let tries = 0;
     let interval = setInterval(() => {

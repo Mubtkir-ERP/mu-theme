@@ -31,9 +31,44 @@
 	.company-switcher-current-label {
 		display: none !important;
 	}
+
+	/* تثبيت أيقونة المستخدم ومنع اختفائها في الجوال */
+	#user_avatar {
+		flex-shrink: 0 !important;
+	}
+
+	/* إظهار اسم المستند/الصفحة بالكامل في الجوال بدون قصّ (...) */
+	.page-head .page-head-content {
+		flex-wrap: wrap !important;
+		height: auto !important;
+		padding-top: 8px !important;
+		padding-bottom: 8px !important;
+		gap: 8px !important;
+	}
+	.page-head .page-title {
+		flex: 1 1 100% !important;
+		max-width: 100% !important;
+		width: 100% !important;
+	}
+	.page-head .page-title .title-area {
+		max-width: 100% !important;
+		flex-wrap: wrap !important;
+	}
+	.page-head .page-title .title-area .title-text {
+		white-space: normal !important;
+		overflow: visible !important;
+		text-overflow: unset !important;
+		max-width: none !important;
+		word-break: break-word !important;
+		line-height: 1.35 !important;
+	}
+	.page-head .page-actions {
+		flex: 1 1 100% !important;
+		justify-content: flex-end !important;
+	}
 }
 
-/* الجوالات الصغيرة (< 480px): إخفاء زر ملء الشاشة لتوفير مساحة */
+/* الجوالات الصغيرة (< 480px): إخفاء زر ملء الشاشة وتضييق الهوامش لتتسع كل الأيقونات */
 @media (max-width: 479px) {
 	.request-full-screen {
 		display: none !important;
@@ -41,6 +76,15 @@
 	header .box {
 		margin-left: 0.75rem !important;
 		margin-right: 0.75rem !important;
+	}
+	header .box .flex.h-full.w-full.items-center {
+		padding-left: 0.75rem !important;
+		padding-right: 0.75rem !important;
+	}
+	header .dropdown.ml-5,
+	header .dropdown.ml-3 {
+		margin-left: 0.25rem !important;
+		margin-right: 0.25rem !important;
 	}
 }
 
