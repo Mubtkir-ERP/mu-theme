@@ -4,6 +4,7 @@
 
 /* الشاشات دون xl (< 1280px): إخفاء مربع البحث العريض لأن هناك أيقونة بحث مصغّرة */
 @media (max-width: 1279px) {
+	.searchbar,
 	header .searchbar {
 		display: none !important;
 	}
