@@ -15,3 +15,98 @@
     margin-right: auto;
     margin-left: auto;
 }
+
+/* Mobile & Tablet Responsive Fixes (compiled into hashed bundle) */
+@media (min-width: 1280px) {
+    .searchbar {
+        display: flex !important;
+    }
+}
+
+@media (max-width: 1279px) {
+    .searchbar,
+    header .searchbar {
+        display: none !important;
+    }
+    .short-search-icon,
+    a[data-tw-target="#quick-search"] {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+@media (min-width: 768px) {
+    .mub-breadcrumb-nav {
+        display: flex !important;
+        min-width: 0 !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .mub-breadcrumb-nav {
+        display: none !important;
+    }
+    .company-switcher-current-label {
+        display: none !important;
+    }
+    #user_avatar {
+        flex-shrink: 0 !important;
+    }
+    .page-head .page-head-content {
+        flex-wrap: wrap !important;
+        height: auto !important;
+        padding-top: 8px !important;
+        padding-bottom: 8px !important;
+        gap: 8px !important;
+    }
+    .page-head .page-title,
+    .page-head .page-title.col-xs-7,
+    .page-head .page-title.col-sm-6 {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    .page-head .page-title .title-area {
+        max-width: 100% !important;
+        width: 100% !important;
+        flex-wrap: wrap !important;
+    }
+    .page-head .page-title .title-area .title-text,
+    .page-head .page-title .title-area .ellipsis {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: unset !important;
+        max-width: none !important;
+        word-break: break-word !important;
+        line-height: 1.35 !important;
+    }
+    .page-head .page-actions {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        justify-content: flex-end !important;
+    }
+}
+
+@media (max-width: 479px) {
+    .request-full-screen {
+        display: none !important;
+    }
+    .top-bar .box,
+    .fixed > .box,
+    header .box {
+        margin-left: 0.75rem !important;
+        margin-right: 0.75rem !important;
+    }
+    .top-bar .box .flex.h-full.w-full.items-center,
+    .fixed > .box .flex.h-full.w-full.items-center,
+    header .box .flex.h-full.w-full.items-center {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+    .dropdown.ml-5,
+    .dropdown.ml-3 {
+        margin-left: 0.25rem !important;
+        margin-right: 0.25rem !important;
+    }
+}
