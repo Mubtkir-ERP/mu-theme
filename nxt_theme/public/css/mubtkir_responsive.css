@@ -9,18 +9,32 @@
 	}
 }
 
-/* الشاشات دون lg (< 1024px): إخفاء شريط المسار العلوي حتى لا يدفع أيقونة المستخدم في الجوال والتابلت */
-@media (max-width: 1023px) {
+/* التابلت وسطح المكتب (>= 768px): إظهار مسار المستند دائماً */
+@media (min-width: 768px) {
+	.mub-breadcrumb-nav {
+		display: flex !important;
+		min-width: 0 !important;
+	}
+}
+
+/* الجوال فقط (< 768px): إخفاء شريط المسار العلوي حتى لا يدفع أيقونة المستخدم */
+@media (max-width: 767px) {
 	.mub-breadcrumb-nav {
 		display: none !important;
 	}
 }
 
-/* الشاشات دون xl (< 1280px): إخفاء مربع البحث العريض لأن هناك أيقونة بحث مصغّرة */
+/* الشاشات دون xl (< 1280px): إخفاء مربع البحث العريض وإظهار أيقونة البحث */
 @media (max-width: 1279px) {
 	.searchbar,
 	header .searchbar {
 		display: none !important;
+	}
+	.short-search-icon,
+	a[data-tw-target="#quick-search"] {
+		display: inline-flex !important;
+		align-items: center;
+		justify-content: center;
 	}
 }
 
