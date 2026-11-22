@@ -102,7 +102,7 @@
   const quickActionButtons = [
     { labelEn: "Main Dashboard", labelAr: "لوحة التحكم الرئيسية", route: "containers-dashboard", color: "#64748b" },
     { labelEn: "Overdue Containers", labelAr: "الحاويات المتأخرة", route: "overdue-containers", color: "#ef4444" },
-    { labelEn: "Container Order", labelAr: "أمر حاوية", doctype: "Container Order", hasCount: true, color: "#1e40af" },
+    { labelEn: "Container Order", labelAr: "طلب حاوية", doctype: "Container Order", hasCount: true, color: "#1e40af" },
     { labelEn: "Container Rental", labelAr: "تأجير الحاويات", doctype: "Container Rental", hasCount: true, color: "#10b981" },
     { labelEn: "Container Contract", labelAr: "عقود الحاويات", doctype: "Container Contract", hasCount: true, color: "#f97316" },
     { labelEn: "Container Unload", labelAr: "تفريغ الحاويات", doctype: "Container Unload", hasCount: true, color: "#64748b" }
@@ -228,7 +228,7 @@
     "Quick Access": "الوصول السريع",
 
     "Operations": "العمليات",
-    "Container Order": "أمر حاوية",
+    "Container Order": "طلب حاوية",
     "Container Rental": "تأجير الحاويات",
     "Container Delivery": "توصيل الحاوية",
     "Container Unload": "تفريغ الحاوية",
@@ -275,7 +275,7 @@
       icon: "📋",
       summaryAr: "إنشاء ومتابعة أوامر طلب الحاويات وتحديد مواقع التوصيل والتفريغ والعميل وتفاصيل الحاوية المطلوبة.",
       summaryEn: "Create and track container rental orders, delivery coordinates, customer info, and container specs.",
-      stepsAr: ["إنشاء أمر حاوية جديد وتحديد العميل", "اختيار حجم ونوع الحاوية وتحديد موقع التوصيل", "حفظ وتأكيد الأمر لتحويله لمرحلة التوصيل"],
+      stepsAr: ["إنشاء طلب حاوية جديد وتحديد العميل", "اختيار حجم ونوع الحاوية وتحديد موقع التوصيل", "حفظ وتأكيد الأمر لتحويله لمرحلة التوصيل"],
       stepsEn: ["Create new container order and select customer", "Specify container size, type, and delivery location", "Save and confirm order to initiate delivery"]
     },
     "Container Rental": {
@@ -430,7 +430,7 @@
 
   function formatNumber(value) {
     const num = Number(value) || 0;
-    return num.toLocaleString(isArabic ? "ar-SA" : "en-US");
+    return num.toLocaleString("en-US");
   }
 
   /* ─────────────────────────────────────────

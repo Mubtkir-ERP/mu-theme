@@ -298,7 +298,7 @@
   function formatNumber(num) {
     const val = Number(num);
     if (Number.isNaN(val)) return "0";
-    return val.toLocaleString(isArabic ? "ar-SA" : "en-US");
+    return val.toLocaleString("en-US");
   }
 
   function renderStats() {
