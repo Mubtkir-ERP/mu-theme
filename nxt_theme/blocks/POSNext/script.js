@@ -166,7 +166,8 @@
     "Prepaid Voucher Report": "تقرير القسائم مسبقة الدفع",
     "Prepaid Voucher Balance": "رصيد القسائم مسبقة الدفع",
     "Prepaid Voucher Transaction": "حركات القسائم مسبقة الدفع",
-    "POS Invoice": "فاتورة نقطة البيع"
+    "POS Invoice": "فاتورة نقطة البيع",
+    "Sales Invoice with Payment": "فواتير المبيعات مع الدفع"
   };
 
   function translate(key) {
@@ -183,7 +184,8 @@
     "Payments and Cash Control Report",
     "Inventory Impact and Fast Movers Report",
     "Offline Sync and System Health Report",
-    "Prepaid Voucher Report"
+    "Prepaid Voucher Report",
+    "Sales Invoice with Payment"
   ]);
 
   const singleDocs = new Set([
@@ -476,7 +478,8 @@
             "Cashier Performance Report",
             "Payments and Cash Control Report",
             "Inventory Impact and Fast Movers Report",
-            "Offline Sync and System Health Report"
+            "Offline Sync and System Health Report",
+            "Sales Invoice with Payment"
           ]
         ]
       ]

@@ -157,7 +157,6 @@
           "Selling",
           "💼",
           [
-            "Customer",
             "Quotation",
             "Sales Order",
             "Sales Invoice",
