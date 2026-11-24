@@ -1051,6 +1051,23 @@
           dEn: "",
           sAr: [],
           sEn: []
+        },
+
+        /* =========================================
+           NEW REPORT 4
+           أرصدة المورد حسب المشروع
+        ========================================= */
+
+        {
+          doctype: "Mu Supplier Project Balance",
+          icon: "🏗️",
+          labelAr: "أرصدة المورد حسب المشروع",
+          labelEn: "Supplier Project Balance",
+          isReport: true,
+          dAr: "",
+          dEn: "",
+          sAr: [],
+          sEn: []
         }
       ]
     }
