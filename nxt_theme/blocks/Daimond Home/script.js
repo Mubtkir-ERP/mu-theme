@@ -991,10 +991,10 @@
         },
 
         {
-          doctype: "Mu Trial Balance for Party",
-          icon: "📤",
-          labelAr: "ميزان مراجعة للمورد",
-          labelEn: "Supplier Balance",
+          doctype: "Mu Supplier Project Balance",
+          icon: "🏗️",
+          labelAr: "أرصدة الموردين حسب المشروع",
+          labelEn: "Supplier Project Balance",
           isReport: true,
           dAr: "",
           dEn: "",
@@ -1046,23 +1046,6 @@
           icon: "📋",
           labelAr: "تقرير التكاليف",
           labelEn: "Project Cost Analysis",
-          isReport: true,
-          dAr: "",
-          dEn: "",
-          sAr: [],
-          sEn: []
-        },
-
-        /* =========================================
-           NEW REPORT 4
-           أرصدة المورد حسب المشروع
-        ========================================= */
-
-        {
-          doctype: "Mu Supplier Project Balance",
-          icon: "🏗️",
-          labelAr: "أرصدة المورد حسب المشروع",
-          labelEn: "Supplier Project Balance",
           isReport: true,
           dAr: "",
           dEn: "",
