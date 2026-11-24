@@ -186,11 +186,18 @@
             "Item Price",
             "Price List",
             "Item Group",
-            "Product Bundle",
+            "Product Bundle"
+          ]
+        ],
+
+        [
+          "Promotions & Marketing",
+          "📣",
+          [
             "Promotional Scheme",
-            "Pricing Rule",
-            "Shipping Rule",
-            "Coupon Code"
+            "Coupon Code",
+            "Campaign",
+            "Lead Source"
           ]
         ],
 
@@ -201,8 +208,8 @@
             "Selling Settings",
             "Terms and Conditions Template",
             "Sales Taxes and Charges Template",
-            "Lead Source",
-            "Campaign"
+            "Pricing Rule",
+            "Shipping Rule"
           ]
         ]
       ]
@@ -222,8 +229,7 @@
             "Quotation Trends",
             "Customer Acquisition and Loyalty",
             "Inactive Customers",
-            "Sales Person-wise Transaction Summary",
-            "Item-wise Sales History"
+            "Sales Person-wise Transaction Summary"
           ]
         ],
 
@@ -231,13 +237,21 @@
           "Other Reports",
           "📑",
           [
+            "Item-wise Sales History",
             "Customer Addresses And Contacts",
             "Available Stock for Packing Items",
             "Pending SO Items For Purchase Request",
             "Delivery Note Trends",
             "Sales Invoice Trends",
             "Customer Credit Balance",
-            "Customers Without Any Sales Transactions",
+            "Customers Without Any Sales Transactions"
+          ]
+        ],
+
+        [
+          "Additional Reports",
+          "📋",
+          [
             "Sales Partners Commission",
             "Territory Target Variance Based On Item Group",
             "Sales Person Target Variance Based On Item Group",
@@ -289,6 +303,8 @@
 
     // المربع ٤: الإعدادات
     "Settings": "الإعدادات",
+    "Promotions & Marketing": "العروض والتسويق",
+    "Additional Reports": "تقارير إضافية",
     "Selling Settings": "إعدادات المبيعات",
     "Terms and Conditions Template": "قالب الشروط والأحكام",
     "Sales Taxes and Charges Template": "قالب ضرائب ورسوم المبيعات",

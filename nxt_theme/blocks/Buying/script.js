@@ -175,8 +175,7 @@
             "Price List",
             "Product Bundle",
             "Item Group",
-            "Promotional Scheme",
-            "Pricing Rule"
+            "Promotional Scheme"
           ]
         ],
 
@@ -186,7 +185,8 @@
           [
             "Buying Settings",
             "Purchase Taxes and Charges Template",
-            "Terms and Conditions Template"
+            "Terms and Conditions Template",
+            "Pricing Rule"
           ]
         ],
 
@@ -239,7 +239,14 @@
             "Purchase Receipt Trends",
             "Purchase Invoice Trends",
             "Subcontracted Raw Materials To Be Transferred",
-            "Subcontracted Item To Be Received",
+            "Subcontracted Item To Be Received"
+          ]
+        ],
+
+        [
+          "Additional Reports",
+          "📋",
+          [
             "Supplier Quotation Comparison",
             "Material Requests for which Supplier Quotations are not created",
             "Supplier Addresses And Contacts"
@@ -308,6 +315,7 @@
 
     // المربع ٧: تقارير أخرى
     "Other Reports": "تقارير أخرى",
+    "Additional Reports": "تقارير إضافية",
     "Items To Be Requested": "منتجات بانتظار الطلب",
     "Item-wise Purchase History": "سجل المشتريات حسب المنتج",
     "Purchase Receipt Trends": "اتجاهات إيصالات الاستلام",
