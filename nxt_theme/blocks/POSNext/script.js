@@ -167,7 +167,8 @@
     "Prepaid Voucher Balance": "رصيد القسائم مسبقة الدفع",
     "Prepaid Voucher Transaction": "حركات القسائم مسبقة الدفع",
     "POS Invoice": "فاتورة نقطة البيع",
-    "Sales Invoice with Payment": "فواتير المبيعات مع الدفع"
+    "Sales Invoice with Payment": "فواتير المبيعات مع الدفع",
+    "Sales Analytics": "تحليل المبيعات"
   };
 
   function translate(key) {
@@ -185,7 +186,8 @@
     "Inventory Impact and Fast Movers Report",
     "Offline Sync and System Health Report",
     "Prepaid Voucher Report",
-    "Sales Invoice with Payment"
+    "Sales Invoice with Payment",
+    "Sales Analytics"
   ]);
 
   const singleDocs = new Set([
@@ -414,6 +416,13 @@
       labelEn: "Voucher Balance",
       type: "route",
       doctype: "Prepaid Voucher Balance"
+    },
+    {
+      name: "Sales Analytics",
+      labelAr: "تحليل المبيعات",
+      labelEn: "Sales Analytics",
+      type: "route",
+      doctype: "Sales Analytics"
     }
   ];
 
