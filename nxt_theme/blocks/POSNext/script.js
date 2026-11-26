@@ -168,7 +168,7 @@
     "Prepaid Voucher Transaction": "حركات القسائم مسبقة الدفع",
     "POS Invoice": "فاتورة نقطة البيع",
     "Sales Invoice with Payment": "فواتير المبيعات مع الدفع",
-    "Sales Analytics": "تحليل المبيعات"
+    "Shift Sales": "مبيعات الوردية"
   };
 
   function translate(key) {
@@ -187,7 +187,7 @@
     "Offline Sync and System Health Report",
     "Prepaid Voucher Report",
     "Sales Invoice with Payment",
-    "Sales Analytics"
+    "Shift Sales"
   ]);
 
   const singleDocs = new Set([
@@ -418,11 +418,11 @@
       doctype: "Prepaid Voucher Balance"
     },
     {
-      name: "Sales Analytics",
-      labelAr: "تحليل المبيعات",
-      labelEn: "Sales Analytics",
+      name: "Shift Sales",
+      labelAr: "مبيعات الوردية",
+      labelEn: "Shift Sales",
       type: "route",
-      doctype: "Sales Analytics"
+      doctype: "Shift Sales"
     }
   ];
 
