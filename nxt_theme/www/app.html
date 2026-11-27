@@ -18,7 +18,9 @@
 		<meta name="mobile-web-app-capable" content="yes">
 		<!-- NTD -->
 		 {% set theme_settings = frappe.get_doc("Theme Settings" , "Theme Settings" )%}
-		<title>{{theme_settings.title or frappe.db.get_default("Company") or "MUBTKIR ERP"}}</title>
+		 {% set raw_title = theme_settings.title or "" %}
+		 {% set safe_title = "MUBTKIR ERP" if raw_title.strip().lower() in ("nextash", "nextach", "nxt") else raw_title %}
+		<title>{{ safe_title or frappe.db.get_default("Company") or "MUBTKIR ERP" }}</title>
 		<link rel="shortcut icon" href="{{ theme_settings.favicon_image or "/assets/nxt_theme/images/small_icon.ico" }}" type="image/x-icon">
 		
 		

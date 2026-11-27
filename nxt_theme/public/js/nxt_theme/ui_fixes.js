@@ -34,8 +34,21 @@ import { unlockBodyScrollIfNoModal } from "./modal_utils";
 	}
 	window.nxt_apply_font_size = apply_font_size;
 
+	function apply_navbar_toggles(ts) {
+		const html = document.documentElement;
+		if (!html || !ts) return;
+		const hideFs = ts.disable_fullscreen_icon === undefined || ts.disable_fullscreen_icon === null ? 1 : Number(ts.disable_fullscreen_icon);
+		const hideCs = ts.disable_company_switcher_icon === undefined || ts.disable_company_switcher_icon === null ? 1 : Number(ts.disable_company_switcher_icon);
+		html.classList.toggle("mub-hide-fullscreen", hideFs === 1);
+		html.classList.toggle("mub-hide-company-switcher", hideCs === 1);
+		$(".request-full-screen").toggle(hideFs !== 1);
+		$(".mub-company-switcher-dropdown").toggle(hideCs !== 1);
+	}
+	window.nxt_apply_navbar_toggles = apply_navbar_toggles;
+
 	if (window.frappe && frappe.boot && frappe.boot.theme_settings) {
 		apply_font_size(frappe.boot.theme_settings.font_size || "default");
+		apply_navbar_toggles(frappe.boot.theme_settings);
 	}
 
 	function add_export_blocks_button() {
@@ -121,6 +134,7 @@ import { unlockBodyScrollIfNoModal } from "./modal_utils";
 	$(document).ready(function () {
 		if (window.frappe && frappe.boot && frappe.boot.theme_settings) {
 			apply_font_size(frappe.boot.theme_settings.font_size || "default");
+			apply_navbar_toggles(frappe.boot.theme_settings);
 		}
 		if (window.frappe && frappe.router && frappe.router.on) {
 			frappe.router.on("change", function () {

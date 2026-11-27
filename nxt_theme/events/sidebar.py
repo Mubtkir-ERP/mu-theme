@@ -50,6 +50,8 @@ DEFAULT_WORKSPACE_ICONS = {
 	"Healthcare": "heart-pulse",
 	"Voucher Entries": "banknote",
 	"Voucher Management": "banknote",
+	"AI Creator": "bot",
+	"Mubtkir AI Creator": "bot",
 }
 
 ARABIC_WORKSPACE_ICONS = {

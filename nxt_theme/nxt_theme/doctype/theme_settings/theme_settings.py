@@ -1,4 +1,4 @@
-# Copyright (c) 2024, NexTash (SMC-PVT) Ltd and contributors
+# Copyright (c) 2024, MUBTKIR ERP and contributors
 # For license information, please see license.txt
 
 import json
@@ -36,6 +36,8 @@ class ThemeSettings(Document):
 			self.email = DEFAULT_EMAIL
 		if not self.website:
 			self.website = DEFAULT_WEBSITE
+		if self.title and self.title.strip().lower() in ("nextash", "nextach", "nxt"):
+			self.title = "MUBTKIR ERP"
 
 
 def boot_session(bootinfo):
@@ -44,12 +46,16 @@ def boot_session(bootinfo):
 		phone_val = doc.phone
 		if not phone_val or phone_val == "0115110455":
 			phone_val = DEFAULT_PHONE
+		disable_fs = doc.get("disable_fullscreen_icon")
+		disable_cs = doc.get("disable_company_switcher_icon")
 		bootinfo.theme_settings = {
 			"phone": phone_val,
 			"email": doc.email or DEFAULT_EMAIL,
 			"website": doc.website or DEFAULT_WEBSITE,
 			"skin": doc.skin or "razor",
 			"font_size": doc.get("font_size") or "default",
+			"disable_fullscreen_icon": 1 if disable_fs is None else int(disable_fs),
+			"disable_company_switcher_icon": 1 if disable_cs is None else int(disable_cs),
 		}
 	except Exception:
 		bootinfo.theme_settings = {
@@ -58,6 +64,8 @@ def boot_session(bootinfo):
 			"website": DEFAULT_WEBSITE,
 			"skin": "razor",
 			"font_size": "default",
+			"disable_fullscreen_icon": 1,
+			"disable_company_switcher_icon": 1,
 		}
 
 
@@ -80,6 +88,13 @@ def setup_theme_defaults():
 			frappe.db.set_single_value("Theme Settings", "email", DEFAULT_EMAIL)
 		if not frappe.db.get_single_value("Theme Settings", "website"):
 			frappe.db.set_single_value("Theme Settings", "website", DEFAULT_WEBSITE)
+		curr_title = frappe.db.get_single_value("Theme Settings", "title")
+		if curr_title and str(curr_title).strip().lower() in ("nextash", "nextach", "nxt"):
+			frappe.db.set_single_value("Theme Settings", "title", "MUBTKIR ERP")
+		if frappe.db.get_single_value("Theme Settings", "disable_fullscreen_icon") is None:
+			frappe.db.set_single_value("Theme Settings", "disable_fullscreen_icon", 1)
+		if frappe.db.get_single_value("Theme Settings", "disable_company_switcher_icon") is None:
+			frappe.db.set_single_value("Theme Settings", "disable_company_switcher_icon", 1)
 		frappe.db.commit()
 
 		# التأكد من ملء جدول التوزيع الافتراضي وحفظه في قاعدة البيانات إذا كان فارغاً
@@ -255,6 +270,9 @@ ARABIC_TO_ENGLISH_WS = {
 	"تطبيق السندات": "Voucher Entries",
 	"Voucher Management": "Voucher Entries",
 	"Voucher Entries": "Voucher Entries",
+	"منشئ الذكاء الاصطناعي": "AI Creator",
+	"Mubtkir AI Creator": "AI Creator",
+	"AI Creator": "AI Creator",
 }
 
 
@@ -373,6 +391,7 @@ def get_default_workspace_mappings_data():
 		("Gold Management", "Gold Management"),
 		("Healthcare", "Healthcare"),
 		("Voucher Entries", "Voucher Management"),
+		("AI Creator", "AI Creator"),
 	]
 
 	# التحقق من نشاط العميل بالنسبة للرئيسية Home

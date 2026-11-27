@@ -17,9 +17,21 @@
 }
 
 /* Mobile & Tablet Responsive Fixes (compiled into hashed bundle) */
+html.mub-hide-fullscreen .request-full-screen {
+    display: none !important;
+}
+
+html.mub-hide-company-switcher .mub-company-switcher-dropdown {
+    display: none !important;
+}
+
 @media (min-width: 1280px) {
     .searchbar {
         display: flex !important;
+    }
+    .mub-tablet-search-icon,
+    .short-search-icon {
+        display: none !important;
     }
 }
 

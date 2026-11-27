@@ -1,5 +1,11 @@
+{% set _ts_doc = frappe.get_cached_doc("Theme Settings") %}
+{% set _disable_fs = 1 if _ts_doc.get("disable_fullscreen_icon") is none else (_ts_doc.get("disable_fullscreen_icon") | int) %}
+{% set _disable_cs = 1 if _ts_doc.get("disable_company_switcher_icon") is none else (_ts_doc.get("disable_company_switcher_icon") | int) %}
 <div class="flex items-center gap-1 ml-auto">
-    <a class="p-2 rounded-full request-full-screen hover:bg-slate-100" href="javascript:;">
+    <a class="p-2 rounded-full hover:bg-slate-100 short-search-icon mub-tablet-search-icon" data-tw-toggle="modal" data-tw-target="#quick-search" href="javascript:;" title="{{ _('Quick search...') }}">
+        <i data-tw-merge="" data-lucide="search" class="stroke-[1] h-[18px] w-[18px]"></i>
+    </a>
+    <a class="p-2 rounded-full request-full-screen hover:bg-slate-100" href="javascript:;" {% if _disable_fs == 1 %}style="display: none;"{% endif %}>
         <i data-tw-merge="" data-lucide="expand" class="stroke-[1] h-[18px] w-[18px]"></i>
     </a>
     <a id="notification_bell" class="p-2 rounded-full hover:bg-slate-100" data-tw-toggle="modal" data-tw-target="#notifications-panel" href="javascript:;">
@@ -11,7 +17,7 @@
 </div>
 
 {% if company_switcher and company_switcher.enabled %}
-<div data-tw-merge="" data-tw-placement="bottom-end" class="dropdown relative ml-3">
+<div data-tw-merge="" data-tw-placement="bottom-end" class="dropdown relative ml-3 mub-company-switcher-dropdown" {% if _disable_cs == 1 %}style="display: none;"{% endif %}>
     <a data-tw-toggle="dropdown"
        class="company-switcher-toggle flex items-center gap-2 px-3 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-darkmode-400"
        href="javascript:;"

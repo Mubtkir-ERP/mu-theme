@@ -3,7 +3,7 @@
         <a class="items-center transition-[margin] xl:flex group-[.side-menu--collapsed.side-menu--on-hover]:xl:ml-0 group-[.side-menu--collapsed]:xl:ml-2" href="">
             <img src="{{ company_logo  or "/assets/nxt_theme/images/small_icon.ico" }}" alt="" style="width: 40px;">
             <div class="ml-3.5 font-medium transition-opacity group-[.side-menu--collapsed.side-menu--on-hover]:xl:opacity-100 group-[.side-menu--collapsed]:xl:opacity-0">
-                {{ company_name or frappe.db.get_default("Company") or "NexTash"}}
+                {{ company_name or frappe.db.get_default("Company") or "MUBTKIR ERP"}}
             </div>
         </a>
         <a class="toggle-compact-menu ml-auto h-[20px] w-[20px] items-center justify-center rounded-full border border-slate-600/40 transition-[opacity,transform] hover:bg-slate-600/5 group-[.side-menu--collapsed]:xl:rotate-180 group-[.side-menu--collapsed.side-menu--on-hover]:xl:opacity-100 group-[.side-menu--collapsed]:xl:opacity-0 3xl:flex" href="">
@@ -12,9 +12,6 @@
         <div class="flex items-center gap-1 xl:hidden">
             <a class="p-2 rounded-full open-mobile-menu hover:bg-slate-100" href="">
                 <i data-tw-merge="" data-lucide="align-justify" class="stroke-[1] h-[18px] w-[18px]"></i>
-            </a>
-            <a class="p-2 rounded-full hover:bg-slate-100" data-tw-toggle="modal" data-tw-target="#quick-search" href="javascript:;">
-                <i data-tw-merge="" data-lucide="search" class="stroke-[1] h-[18px] w-[18px]"></i>
             </a>
         </div>
     </div>

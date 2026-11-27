@@ -9,6 +9,8 @@
   "title",
   "skin",
   "font_size",
+  "disable_fullscreen_icon",
+  "disable_company_switcher_icon",
   "column_break_czh4",
   "primary_color",
   "secondary_color",
@@ -44,6 +46,18 @@
    "fieldtype": "Select",
    "label": "Font Size",
    "options": "default\nmedium\nlarge\nextra_large"
+  },
+  {
+   "default": "1",
+   "fieldname": "disable_fullscreen_icon",
+   "fieldtype": "Check",
+   "label": "Disable Fullscreen Icon"
+  },
+  {
+   "default": "1",
+   "fieldname": "disable_company_switcher_icon",
+   "fieldtype": "Check",
+   "label": "Disable Company Switcher Icon"
   },
   {
    "fieldname": "column_break_czh4",

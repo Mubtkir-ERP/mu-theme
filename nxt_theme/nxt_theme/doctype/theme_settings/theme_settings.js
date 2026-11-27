@@ -1,4 +1,4 @@
-// Copyright (c) 2024, NexTash (SMC-PVT) Ltd and contributors
+// Copyright (c) 2024, MUBTKIR ERP and contributors
 // For license information, please see license.txt
 
 frappe.ui.form.on("Theme Settings", {
@@ -53,6 +53,10 @@ frappe.ui.form.on("Theme Settings", {
 			  ];
 
 		frm.set_df_property("font_size", "options", font_size_options);
+		if (isAr) {
+			frm.set_df_property("disable_fullscreen_icon", "label", "تعطيل أيقونة توسيع الصفحة");
+			frm.set_df_property("disable_company_switcher_icon", "label", "تعطيل أيقونة اختيار الشركات");
+		}
 
 		const isAdministrator = frappe.session.user === "Administrator";
 		frm.toggle_display(
@@ -174,11 +178,21 @@ frappe.ui.form.on("Theme Settings", {
 	},
 	after_save: function (frm) {
 		const selectedSize = frm.doc.font_size || "default";
+		const disableFs = frm.doc.disable_fullscreen_icon ? 1 : 0;
+		const disableCs = frm.doc.disable_company_switcher_icon ? 1 : 0;
 		if (window.frappe && frappe.boot && frappe.boot.theme_settings) {
 			frappe.boot.theme_settings.font_size = selectedSize;
+			frappe.boot.theme_settings.disable_fullscreen_icon = disableFs;
+			frappe.boot.theme_settings.disable_company_switcher_icon = disableCs;
 		}
 		if (window.nxt_apply_font_size) {
 			window.nxt_apply_font_size(selectedSize);
+		}
+		if (window.nxt_apply_navbar_toggles) {
+			window.nxt_apply_navbar_toggles({
+				disable_fullscreen_icon: disableFs,
+				disable_company_switcher_icon: disableCs,
+			});
 		}
 		frappe.ui.toolbar.clear_cache();
 	},
