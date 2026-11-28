@@ -4,6 +4,12 @@
 
 {% block page_content %}
 
+{% set ts = frappe.get_cached_doc("Theme Settings") %}
+{% set ts_phone = ts.phone if (ts.phone and ts.phone != "0115110455") else "+966126810486" %}
+{% set ts_email = ts.email or "sales@mubtkir.com" %}
+{% set ts_website = ts.website or "www.mubtkir.com" %}
+{% set ts_website_href = ts_website if ts_website.startswith("http") else ("https://" + ts_website) %}
+
 <div class="mub-page" id="mubPage">
 
   <aside class="login-side">
@@ -78,14 +84,14 @@
       <h3 data-ar="تواصل معنا" data-en="Contact Us">تواصل معنا</h3>
 
       <div class="contact-links">
-        <a href="tel:+966505098090">
+        <a href="tel:{{ ts_phone | replace(' ', '') }}">
           <span>📞</span>
-          <b dir="ltr">+966 50 509 8090</b>
+          <b dir="ltr">{{ ts_phone }}</b>
         </a>
 
-        <a href="mailto:support@mubtkir.com">
+        <a href="mailto:{{ ts_email }}">
           <span>✉️</span>
-          <b>support@mubtkir.com</b>
+          <b>{{ ts_email }}</b>
         </a>
       </div>
 
@@ -136,8 +142,8 @@
 
       </div>
 
-      <a class="site-link contact-site-link" href="https://www.mubtkir.com" target="_blank" rel="noopener noreferrer">
-        www.mubtkir.com
+      <a class="site-link contact-site-link" href="{{ ts_website_href }}" target="_blank" rel="noopener noreferrer">
+        {{ ts_website }}
       </a>
     </div>
 
@@ -933,6 +939,116 @@ main .container,
 
 .social-icons svg {
   width: 23px; height: 23px;
+}
+
+/* Compact desktop height so full login page fits in a single viewport without vertical scroll */
+@media (min-width: 1025px) {
+  .login-side {
+    padding: 10px 16px;
+    gap: 8px;
+    justify-content: center;
+  }
+  .tool-button {
+    min-height: 36px;
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+  .login-card {
+    padding: 16px 22px;
+  }
+  .login-brand {
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .login-brand img {
+    width: 40px;
+    height: 40px;
+  }
+  .login-brand strong {
+    font-size: clamp(20px, 1.7vw, 26px);
+  }
+  .welcome-title {
+    margin: 0 0 4px;
+    font-size: clamp(21px, 1.75vw, 28px);
+  }
+  .welcome-description {
+    margin: 0 0 10px;
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+  .input-wrapper input {
+    height: 44px;
+  }
+  .login-options {
+    margin: 8px 0 12px;
+  }
+  .login-button {
+    height: 44px;
+  }
+  .contact-card {
+    padding: 12px 16px;
+  }
+  .contact-card h3 {
+    margin-bottom: 6px;
+    font-size: 15px;
+  }
+  .contact-links a {
+    padding: 5px 6px;
+  }
+  .contact-social-icons {
+    margin-top: 8px;
+    padding-top: 8px;
+    gap: 8px;
+  }
+  .contact-site-link {
+    margin-top: 6px;
+  }
+  .info-side {
+    padding: clamp(12px, 1.8vw, 22px) clamp(18px, 2.5vw, 32px);
+    gap: 12px;
+    justify-content: space-between;
+  }
+  .hero {
+    gap: clamp(18px, 2.5vw, 36px);
+  }
+  .hero h1 {
+    margin: 8px 0 6px;
+  }
+  .features {
+    gap: 10px;
+  }
+  .features article {
+    padding: 12px 12px;
+  }
+  .stats {
+    padding: 12px;
+    gap: 10px;
+  }
+  .stat-item {
+    min-height: 90px;
+    padding: 10px;
+  }
+  .stat-item span {
+    width: 38px;
+    height: 38px;
+    margin-bottom: 4px;
+    font-size: 18px;
+  }
+  .compatible {
+    min-height: auto;
+    padding: 12px 16px;
+  }
+  .compatible h3 {
+    margin: 0 0 8px;
+    font-size: 17px;
+  }
+  .compatible-logos {
+    min-height: 48px;
+    gap: 24px;
+  }
+  .compatible-logos img {
+    height: 40px;
+  }
 }
 
 .site-link {
